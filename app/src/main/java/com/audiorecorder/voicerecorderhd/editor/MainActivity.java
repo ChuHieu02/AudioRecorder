@@ -15,4 +15,9 @@ public class MainActivity extends AppCompatActivity {
     public  void  testComit(){
         /// test commit
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 }
