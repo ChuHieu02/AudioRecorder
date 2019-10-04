@@ -32,35 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    public void testComit() {
-//        /// test commit
-//
-//        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Recorder");
-//        if (!file.exists()) {
-//            file.mkdirs();
-//        }
-//        final MediaPlayer mediaPlayer = new MediaPlayer();
-//        File[] files = file.listFiles();
-//        for (File file1 : files) {
-//            if (file1.getPath().toLowerCase().endsWith(".mp3")) {
-//                try {
-//
-//                    mediaPlayer.setDataSource(file1.getAbsolutePath());
-//                    mediaPlayer.prepare();
-//                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-//                        @Override
-//                        public void onCompletion(MediaPlayer mp) {
-//
-//                        }
-//                    });
-//                    mediaPlayer.start();
-//                } catch (Exception ex) {
-//
-//                }
-//                break;
-//            }
-//        }
-//    }
+
 
 
 }
