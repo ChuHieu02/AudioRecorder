@@ -1,9 +1,18 @@
 <resources>
     <string name="app_name">AudioRecord</string>
-
+    <!--navigation-->
     <string name="title_list_recording">Library</string>
     <string name="title_recording">Voice Recorder</string>
     <string name="title_setting">Settings</string>
+    <!-- recorder-->
     <string name="tv_recorder">Tap to strart recording</string>
+
+    <!-- list recoder-->
+    <string name="tv_name_detail_audio">File name</string>
+    <string name="tv_location_detail_audio">File location</string>
+    <string name="tv_size_detail_audio">File size</string>
+    <string name="tv_time_detail_audio">Creation time</string>
+    <string name="tv_duration_detail_audio">Duration</string>
+    <string name="title_image">image</string>
 
 </resources>
