@@ -54,7 +54,7 @@ public class demoActivity extends AppCompatActivity {
         startRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() +"/"+ UUID.randomUUID() + "RecorderLAWER.mp3";
+                outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() +"/"+ UUID.randomUUID() + "RecorderLA.mp3";
                 setupMediaRecorder();
 
                 try {
