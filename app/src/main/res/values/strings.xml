@@ -14,5 +14,12 @@
     <string name="tv_time_detail_audio">Creation time</string>
     <string name="tv_duration_detail_audio">Duration</string>
     <string name="title_image">image</string>
+    <string name="tt_popup_listen">Listen</string>
+    <string name="tt_popup_edit">Edit name</string>
+    <string name="tt_popup_del">Delete</string>
+    <string name="tt_popup_share">Share</string>
+    <string name="tt_popup_editconten">Edit content</string>
+    <string name="tt_popup_viewDetail">View detail</string>
+    <string name="tt_popup_setAddRingTon">Set as ringtone</string>
 
 </resources>

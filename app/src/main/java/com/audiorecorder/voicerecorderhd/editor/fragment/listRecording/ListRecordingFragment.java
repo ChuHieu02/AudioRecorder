@@ -1,9 +1,13 @@
 package com.audiorecorder.voicerecorderhd.editor.fragment.listRecording;
 
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +60,31 @@ public class ListRecordingFragment extends Fragment {
 
         rvListAudio.setAdapter(listAudioAdapter);
 
+        ContentResolver cr = getActivity().getContentResolver();
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
+        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
+        Cursor cur = cr.query(uri, null, selection, null, sortOrder);
+        int count = 0;
+
+        if(cur != null)
+        {
+            count = cur.getCount();
+
+            if(count > 0)
+            {
+                while(cur.moveToNext())
+                {
+                    String data = cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.DATA));
+                    // Add code to get more column here
+
+                    // Save to your list here
+                }
+
+            }
+        }
+
+        cur.close();
         return view;
     }
 
@@ -87,4 +116,5 @@ public class ListRecordingFragment extends Fragment {
         }
         return arrayList;
     }
+
 }

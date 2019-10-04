@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/install"
-        android:title="tt_popup_" />
+
+        android:id="@+id/pp_listen"
+        android:icon="@drawable/ic_library_menu_play"
+        android:title="@string/tt_popup_listen" />
     <item
-        android:id="@+id/addtowishlist"
-        android:title="Edit name" />
+        android:id="@+id/pp_edit"
+        android:icon="@drawable/ic_library_menu_editname"
+        android:title="@string/tt_popup_edit" />
     <item
-        android:id="@+id/addtowishlist"
-        android:title="" />
+        android:id="@+id/pp_del"
+        android:icon="@drawable/ic_library_menu_delete"
+        android:title="@string/tt_popup_del" />
+    <item
+        android:id="@+id/pp_share"
+        android:icon="@drawable/ic_library_menu_share"
+        android:title="@string/tt_popup_share" />
+    <item
+        android:id="@+id/pp_editContent"
+        android:icon="@drawable/ic_library_menu_editcontent"
+        android:title="@string/tt_popup_editconten" />
+    <item
+        android:id="@+id/pp_viewDetail"
+        android:icon="@drawable/ic_library_menu_detail"
+        android:title="@string/tt_popup_viewDetail" />
+    <item
+        android:icon="@drawable/ic_library_menu_setasringtone"
+        android:id="@+id/pp_setRingtone"
+        android:title="@string/tt_popup_setAddRingTon" />
 
 </menu>

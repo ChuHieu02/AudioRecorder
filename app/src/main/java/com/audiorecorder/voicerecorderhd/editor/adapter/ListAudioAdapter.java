@@ -20,12 +20,14 @@ import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.activity.DetailAudioActivity;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 public class ListAudioAdapter extends RecyclerView.Adapter<ListAudioAdapter.ViewHolder> {
     private Context context;
     private List<File> audioList;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yyy");
 
     public ListAudioAdapter(Context context, List<File> audioList) {
         this.context = context;
@@ -42,13 +44,14 @@ public class ListAudioAdapter extends RecyclerView.Adapter<ListAudioAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final File file = audioList.get(position);
-        final long size = file.length() / 1024;
-        Date lastModDate = new Date(file.lastModified());
 
-        holder.tv_name_item_audio.setText(file.getName());
+        final long size = file.length() / 1024;
+if (file.getName()!=null){
+    holder.tv_name_item_audio.setText(file.getName());
+}
         holder.tv_size_item_audio.setText(String.valueOf(size) + " kb");
-        holder.tv_time_item_audio.setText(String.valueOf(file.lastModified()));
-        holder.view_item_audio.setOnClickListener(new View.OnClickListener() {
+        holder.tv_time_item_audio.setText(dateFormat.format(new Date(file.lastModified())));
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, DetailAudioActivity.class);
@@ -79,7 +82,6 @@ public class ListAudioAdapter extends RecyclerView.Adapter<ListAudioAdapter.View
         private TextView tv_name_item_audio;
         private TextView tv_time_item_audio;
         private TextView tv_size_item_audio;
-        private ConstraintLayout view_item_audio;
         private ImageView iv_setting_item_audio;
 
         public ViewHolder(@NonNull View itemView) {
@@ -87,7 +89,6 @@ public class ListAudioAdapter extends RecyclerView.Adapter<ListAudioAdapter.View
             tv_name_item_audio = itemView.findViewById(R.id.tv_name_item_audio);
             tv_size_item_audio = itemView.findViewById(R.id.tv_size_item_audio);
             tv_time_item_audio = itemView.findViewById(R.id.tv_time_item_audio);
-            view_item_audio = itemView.findViewById(R.id.view_item_audio);
             iv_setting_item_audio = itemView.findViewById(R.id.iv_setting_item_audio);
         }
     }
