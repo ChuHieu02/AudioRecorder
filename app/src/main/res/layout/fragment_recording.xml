@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_bg_home"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+       ></ImageView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="@string/tv_recorder"
+            android:textColor="@color/color_tv_White"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_home_recoder" />
+
+        <ImageView
+            android:id="@+id/iv_home_play"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="178dp"
+            android:src="@drawable/ic_home_play"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_home_recoder"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"></ImageView>
+
+        <ImageView
+            android:id="@+id/iv_home_pause"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_home_pause"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_home_recoder"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/iv_home_recoder"
+            app:layout_constraintTop_toTopOf="@+id/iv_home_recoder"></ImageView>
+
+        <ImageView
+            android:id="@+id/iv_home_recoder"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_home_record"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_home_play"
+            app:layout_constraintEnd_toStartOf="@+id/iv_home_pause"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/iv_home_play"
+            app:layout_constraintTop_toTopOf="@+id/iv_home_play"></ImageView>
+
+        <TextView
+            android:textColor="@color/color_tv_White"
+            android:id="@+id/tv_home_size"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="00 00"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

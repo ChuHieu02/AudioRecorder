@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">AudioRecord</string>
+
+    <string name="title_list_recording">Library</string>
+    <string name="title_recording">Voice Recorder</string>
+    <string name="title_setting">Settings</string>
+    <string name="tv_recorder">Tap to strart recording</string>
+
 </resources>
