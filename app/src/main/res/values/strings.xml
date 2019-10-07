@@ -1,25 +1,31 @@
 <resources>
-    <string name="app_name">AudioRecord</string>
+    <string name="app_name">AudioRecoder</string>
+    <!--    main activity-->
+    <string name="ct_recoder">00</string>
     <!--navigation-->
     <string name="title_list_recording">Library</string>
     <string name="title_recording">Voice Recorder</string>
     <string name="title_setting">Settings</string>
     <!-- recorder-->
-    <string name="tv_recorder">Tap to strart recording</string>
+    <string name="tv_recorder">Tap to start recording</string>
 
-    <!-- list recoder-->
+    <!-- Library recoder-->
     <string name="tv_name_detail_audio">File name</string>
     <string name="tv_location_detail_audio">File location</string>
     <string name="tv_size_detail_audio">File size</string>
     <string name="tv_time_detail_audio">Creation time</string>
     <string name="tv_duration_detail_audio">Duration</string>
     <string name="title_image">image</string>
-    <string name="tt_popup_listen">Listen</string>
-    <string name="tt_popup_edit">Edit name</string>
-    <string name="tt_popup_del">Delete</string>
-    <string name="tt_popup_share">Share</string>
-    <string name="tt_popup_editconten">Edit content</string>
-    <string name="tt_popup_viewDetail">View detail</string>
-    <string name="tt_popup_setAddRingTon">Set as ringtone</string>
+
+    <!-- popop menu item library-->
+    <string name="pp_edit_item_library">Rename</string>
+    <string name="pp_delete_item_library">Delete</string>
+    <string name="pp_share_item_library">Share</string>
+    <string name="pp_editContent_item_library">Edit Content</string>
+    <string name="pp_setRingTone_item_library">Set as ringtone</string>
+    <string name="dialog_bt_yes">Yes</string>
+    <string name="dialog_bt_no">No</string>
+    <string name="dialog_tv_rename">Are you sure rename ?</string>
+
 
 </resources>

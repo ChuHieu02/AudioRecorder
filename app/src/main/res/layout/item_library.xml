@@ -3,28 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/all_5dp"
+    android:layout_margin="@dimen/all_10dp"
     android:orientation="vertical"
-    android:layout_margin="10dp"
     app:cardCornerRadius="@dimen/all_10dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/view_item_audio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/all_10dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tv_name_item_audio"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="@dimen/all_16dp"
+            android:layout_marginLeft="@dimen/all_16dp"
+            android:layout_marginTop="@dimen/all_16dp"
             android:ellipsize="end"
-            android:gravity="center"
-            android:lines="1"
+            android:gravity="center|start"
+            android:maxLines="2"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/iv_setting_item_audio"
             app:layout_constraintHorizontal_bias="0.5"
@@ -35,10 +33,10 @@
             android:id="@+id/tv_size_item_audio"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginStart="@dimen/all_16dp"
+            android:layout_marginLeft="@dimen/all_16dp"
+            android:layout_marginTop="@dimen/all_8dp"
+            android:layout_marginBottom="@dimen/all_8dp"
             android:ellipsize="end"
             android:gravity="center|start"
             android:lines="1"
@@ -51,12 +49,12 @@
             android:id="@+id/tv_time_item_audio"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
+            android:layout_marginStart="@dimen/all_16dp"
+            android:layout_marginLeft="@dimen/all_16dp"
+            android:layout_marginEnd="@dimen/all_16dp"
+            android:layout_marginRight="@dimen/all_16dp"
             android:ellipsize="end"
-            android:gravity="center"
+            android:gravity="center|end"
             android:lines="1"
             app:layout_constraintBottom_toBottomOf="@+id/tv_size_item_audio"
             app:layout_constraintEnd_toEndOf="parent"
@@ -64,31 +62,38 @@
             app:layout_constraintTop_toTopOf="@+id/tv_size_item_audio" />
 
         <ImageView
+            android:src="@drawable/ic_music_note_black_24dp"
             android:id="@+id/imageView"
             android:layout_width="@dimen/all_50dp"
             android:layout_height="@dimen/all_50dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="@dimen/all_16dp"
+            android:layout_marginLeft="@dimen/all_16dp"
+            android:layout_marginTop="@dimen/all_16dp"
             app:layout_constraintEnd_toStartOf="@+id/tv_name_item_audio"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_library_audio" />
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
+
+        <FrameLayout
             android:id="@+id/iv_setting_item_audio"
-            android:layout_width="@dimen/all_24dp"
-            android:layout_height="@dimen/all_24dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
+            android:layout_width="@dimen/all_50dp"
+            android:layout_height="@dimen/all_50dp"
+            android:layout_marginStart="@dimen/all_16dp"
+            android:layout_marginLeft="@dimen/all_16dp"
+            android:layout_marginTop="@dimen/all_16dp"
+            android:layout_marginEnd="@dimen/all_16dp"
+            android:layout_marginRight="@dimen/all_16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/tv_name_item_audio"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_library_more" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:src="@drawable/ic_more_vert_black_24dp"
+                android:layout_width="@dimen/all_24dp"
+                android:layout_height="@dimen/all_24dp"
+                android:layout_gravity="center_horizontal|right" />
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>
