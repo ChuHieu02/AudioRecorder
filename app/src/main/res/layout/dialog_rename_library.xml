@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/all_10dp"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/ed_name_item_library"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:layout_marginStart="@dimen/all_16dp"
+        android:layout_marginLeft="@dimen/all_16dp"
+        android:layout_marginTop="@dimen/all_8dp"
+        android:layout_marginEnd="@dimen/all_16dp"
+        android:layout_marginRight="@dimen/all_16dp"
+        android:ems="10"
+        android:gravity="center|start"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <Button
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:background="@color/colorPrimary"
+        android:id="@+id/bt_yes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ed_name_item_library"
+        android:layout_marginTop="@dimen/all_16dp"
+        android:layout_marginEnd="@dimen/all_16dp"
+        android:layout_marginRight="@dimen/all_16dp"
+        android:layout_marginBottom="@dimen/all_16dp"
+        android:text="@string/dialog_bt_yes"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/bt_no"
+        app:layout_constraintTop_toBottomOf="@+id/ed_name_item_library"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:background="@color/colorPrimary"
+        android:id="@+id/bt_no"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ed_name_item_library"
+        android:layout_marginTop="@dimen/all_16dp"
+        android:layout_marginEnd="@dimen/all_16dp"
+        android:layout_marginRight="@dimen/all_16dp"
+        android:layout_marginBottom="@dimen/all_16dp"
+        android:layout_toStartOf="@+id/bt_yes"
+        android:layout_toLeftOf="@+id/bt_yes"
+        android:text="@string/dialog_bt_no"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ed_name_item_library" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="0dp"
+        android:layout_height="?actionBarSize"
+        android:layout_marginStart="@dimen/all_16dp"
+        android:layout_marginLeft="@dimen/all_16dp"
+        android:layout_marginTop="@dimen/all_8dp"
+        android:layout_marginEnd="@dimen/all_16dp"
+        android:layout_marginRight="@dimen/all_16dp"
+        android:gravity="center"
+        android:text="@string/dialog_tv_rename"
+        android:textSize="@dimen/all_20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
