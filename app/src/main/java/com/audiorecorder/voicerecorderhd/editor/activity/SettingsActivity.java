@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -15,11 +16,18 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.audiorecorder.voicerecorderhd.editor.MainActivity;
 import com.audiorecorder.voicerecorderhd.editor.R;
+import com.codekidlabs.storagechooser.StorageChooser;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
+import java.io.File;
+
+import lib.folderpicker.FolderPicker;
+
 public class SettingsActivity extends AppCompatActivity {
+    private static final String STATIC_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() ;
     private Toolbar toolbar;
     private RadioGroup radioGroupFormatType,radioGroupSetQuality;
     private RadioButton radioButtonMp3, radioButtonWav;
@@ -30,6 +38,7 @@ public class SettingsActivity extends AppCompatActivity {
     public static final String FORMAT_TYPE = "formatType";
     public static final String FORMAT_QUALITY = "formatQuality";
     public static final String AUDIO_SETTING = "audioSetting";
+    public static final String DIRECTION_CHOOSER_PATH = "directionPath";
     private String pathDirection;
 
 
@@ -61,38 +70,40 @@ public class SettingsActivity extends AppCompatActivity {
         buttonChooseFolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new MaterialFilePicker()
+                SharedPreferences sharedPreferences= getSharedPreferences(AUDIO_SETTING, Context.MODE_PRIVATE);
+                StorageChooser chooser = new StorageChooser.Builder()
                         .withActivity(SettingsActivity.this)
-                        .withRequestCode(1000)
-                        // .withFilter(Pattern.compile(".*\\.mp3$")) // Filtering files and directories by file name using regexp
-                        .withFilterDirectories(true) // Set directories filterable (false by default)
-                        .withHiddenFiles(true) // Show hidden files and folders
-                        .start();
+                        .withPredefinedPath(STATIC_PATH)
+                        .actionSave(true)
+                        .withFragmentManager(getFragmentManager())
+                        .allowCustomPath(true)
+                        .allowAddFolder(true)
+                        .withPreference(sharedPreferences)
+                        .setType(StorageChooser.DIRECTORY_CHOOSER)
+                        .withMemoryBar(true)
+                        .build()
+                        ;
+                chooser.show();
+                chooser.setOnSelectListener(new StorageChooser.OnSelectListener() {
+                    @Override
+                    public void onSelect(String path) {
+                        Log.e("SELECTED_PATH", path);
+                        SharedPreferences sharedPreferences= getSharedPreferences(AUDIO_SETTING, Context.MODE_PRIVATE);
+                        final SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString(DIRECTION_CHOOSER_PATH,path);
+                        editor.apply();
+                        Toast.makeText(getApplicationContext(), path, Toast.LENGTH_LONG).show();
+                    }
+                });
             }
         });
     }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            String filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-            // Do anything with file
-            textView.setText(filePath);
-            if (filePath != null) {
-                Log.d("Path (fragment): ", filePath);
-                Toast.makeText(SettingsActivity.this, "Picked file in fragment: " + filePath, Toast.LENGTH_LONG).show();
-            }
-
-        }
-    }
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
     }
-
-
 
     private void settingAudio(){
         SharedPreferences sharedPreferences= this.getSharedPreferences(AUDIO_SETTING, Context.MODE_PRIVATE);

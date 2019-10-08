@@ -27,5 +27,13 @@
     <string name="dialog_bt_no">No</string>
     <string name="dialog_tv_rename">Are you sure rename ?</string>
 
-
+    <string name="bt_choose_director_path">Choose Folder</string>
+    <string name="tv_setting_format_type">Format Type</string>
+    <string name="tv_setting_quality">Quality</string>
+    <string name="rb_fomat_type_mp3">MP3</string>
+    <string name="rb_fomat_type_wav">WAV</string>
+    <string name="rb_quality_16kHz">16kHz</string>
+    <string name="rb_quality_22kHz">22kHz</string>
+    <string name="rb_quality_32kHz">32kHz</string>
+    <string name="rb_quality_44kHz">44kHz</string>
 </resources>

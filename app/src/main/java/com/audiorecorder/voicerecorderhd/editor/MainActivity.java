@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Build;
@@ -13,15 +14,20 @@ import android.os.SystemClock;
 import android.view.View;
 import android.webkit.PermissionRequest;
 import android.widget.Chronometer;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.activity.SettingsActivity;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String outputFile;
     private int recordingStatus;
     private int pauseStatus;
+    private FrameLayout frameLayout;
     private long pauseOffsetChorno;
     private boolean isRunning;
     private Chronometer chronometerTimer;
@@ -46,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final String FORMAT_QUALITY = "formatQuality";
     public static final  String RECORDER_FOLDER = "DemoRecorderApp";
     public static final int SAMPLE_RATR_QUALITY = 1000;
-
+    public static final String DIRECTION_CHOOSER_PATH = "directionPath";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,32 +63,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recordingStatus = 0;
         pauseStatus = 0;
         onRecordAudio();
-//        Dexter.withActivity(MainActivity.this)
-//                .withPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-//                        Manifest.permission.READ_EXTERNAL_STORAGE,
-//                        Manifest.permission.RECORD_AUDIO,Manifest.permission.WRITE_SETTINGS)
-//                .withListener(new MultiplePermissionsListener(){
-//
-//                    @Override
-//                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-//
-//                    }
-//                })
-//                .check();
-//
-//        MultiplePermissionsListener dialogMultiplePermissionsListener =
-//                DialogOnAnyDeniedMultiplePermissionsListener.Builder
-//                        .withContext(MainActivity.this)
-//                        .withTitle("External Store & audio permission")
-//                        .withMessage("Both camera and audio permission are needed to take pictures of your cat")
-//                        .withButtonText(android.R.string.ok)
-//                        .withIcon(R.mipmap.ic_launcher)
-//                        .build();
 
     }
 
@@ -94,27 +75,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivPauseResume =(ImageView) findViewById(R.id.imageViewPauseResume);
         ivRecord =(ImageView) findViewById(R.id.imageViewRecord);
         ivPauseResume.setEnabled(false);
-
         ivBottomSettings.setOnClickListener(this);
         ivBottomLibrary.setOnClickListener(this);
 
     }
 
-
-
     private void createFile() {
-        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "Recorder");
+//        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "Recorder");
         SharedPreferences sharedPreferences= this.getSharedPreferences("audioSetting", Context.MODE_PRIVATE);
         if(sharedPreferences!= null){
             int checkStatus = sharedPreferences.getInt(FORMAT_TYPE,0);
+            String pathDirector = sharedPreferences.getString(DIRECTION_CHOOSER_PATH,Environment.getExternalStorageDirectory() + File.separator + "Recorder");
+            File file = new File(pathDirector);
             if(checkStatus == 0){
                 outputFile ="/"+ file.getAbsolutePath()+"/RecordFile"+System.currentTimeMillis()+".mp3";
             }else if(checkStatus == 1){
                 outputFile ="/"+ file.getAbsolutePath()+"/RecordFile"+System.currentTimeMillis()+".wav";
             }
-        }
-        if (!file.exists()) {
-            file.mkdirs();
+            if (!file.exists()) {
+                file.mkdirs();
+            }
         }
     }
 
@@ -309,4 +289,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         chronometerTimer.setBase(SystemClock.elapsedRealtime());
         pauseOffsetChorno = 0;
     }
+
 }
