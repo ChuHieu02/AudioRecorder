@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.activity.DetailAudioActivity;
+import com.audiorecorder.voicerecorderhd.editor.activity.EditContentActivity;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 
 import java.io.File;
@@ -179,6 +181,21 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
                                 break;
                             case R.id.pp_editContent_item_library:
+                                try {
+                                    Intent intentEditContent = new Intent(context, EditContentActivity.class);
+                                    intentEditContent.putExtra("fileAudioName",audio.getPath());
+//                                    intentEditContent.setClassName(
+//                                            "com.audiorecorder.voicerecorderhd.editor.adapter",
+//                                            "com.audiorecorder.voicerecorderhd.editor.adapter.LibraryAdapter");
+                                    context.startActivity(intentEditContent);
+                                    Toast.makeText(context, audio.getPath(), Toast.LENGTH_LONG).show();
+                                    Log.e("Ringdroid", audio.getPath());
+                                } catch (Exception e) {
+                                    Log.e("Ringdroid", "Couldn't start editor");
+                                    e.printStackTrace();
+                                }
+
+
                                 break;
                             case R.id.pp_setRingTone_item_library:
 

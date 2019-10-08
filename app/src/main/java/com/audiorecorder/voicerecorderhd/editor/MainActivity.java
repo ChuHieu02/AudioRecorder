@@ -165,11 +165,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void stopRecording(){
-        if (mAudioRecorder!=null){
-            mAudioRecorder.stop();
-            mAudioRecorder.release();
-            mAudioRecorder = null;
-            Toast.makeText(getApplicationContext(), "Audio Recorder successfully", Toast.LENGTH_LONG).show();
+        try {
+            if (mAudioRecorder!=null){
+                mAudioRecorder.stop();
+                mAudioRecorder.release();
+                mAudioRecorder = null;
+                Toast.makeText(getApplicationContext(), "Audio Recorder successfully", Toast.LENGTH_LONG).show();
+            }
+        }catch (Exception e){
+            Toast.makeText(getApplicationContext(), "Null Media File", Toast.LENGTH_LONG).show();
         }
     }
 
