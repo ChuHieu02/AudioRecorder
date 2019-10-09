@@ -1,19 +1,11 @@
 package com.audiorecorder.voicerecorderhd.editor.activity;
 
-import android.Manifest;
-import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
+import android.content.SharedPreferences;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
-import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -26,6 +18,7 @@ import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.adapter.LibraryAdapter;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 import com.audiorecorder.voicerecorderhd.editor.utils.CommonUtils;
+import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,35 +34,6 @@ public class LibraryActivity extends AppCompatActivity {
     private TextView tv_library_empty;
 
 
-    private boolean openAndroidPermissionsWriteSetting() {
-        boolean retVal = true;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            retVal = Settings.System.canWrite(this);
-            if (retVal) {
-//                Toast.makeText(this, "Write allowed :-)", Toast.LENGTH_LONG).show();
-            } else {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                intent.setData(Uri.parse("package:" + this.getPackageName()));
-                startActivity(intent);
-//                Toast.makeText(this, "Write not allowed :-(", Toast.LENGTH_LONG).show();
-            }
-        }
-        return retVal;
-    }
-
-    private void openAndroidPermissionsWriteStorage() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        PERMISSION_REQUEST_CODE);
-            } else {
-
-            }
-        }
-    }
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,28 +42,27 @@ public class LibraryActivity extends AppCompatActivity {
         mappingToolbar();
 
         mapping();
+        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.AUDIO_SETTING, Context.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            String checkFormatType = sharedPreferences.getString(Constants.DIRECTION_CHOOSER_PATH, Environment.getExternalStorageDirectory() + File.separator + "Recorder");
 
-        openAndroidPermissionsWriteSetting();
+            final ArrayList<File> audioSong = readAudio(new File(checkFormatType));
+            MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+            for (int i = 0; i < audioSong.size(); i++) {
+                File file = audioSong.get(i);
+                String path = file.getAbsolutePath();
+                String name = file.getName();
+                long date = file.lastModified();
+                long size = file.length();
+                formatDuration = CommonUtils.GetDuration(file.getPath());
+                String fomatSize = CommonUtils.formatToNumber(CommonUtils.fomatSize(size)) + " kb";
 
-        openAndroidPermissionsWriteStorage();
-
-
-        final ArrayList<File> audioSong = readAudio(new File(Environment.getExternalStorageDirectory() + File.separator + "Recorder"));
-        MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-        for (int i = 0; i < audioSong.size(); i++) {
-            File file = audioSong.get(i);
-            String path = file.getAbsolutePath();
-            String name = file.getName();
-            long date = file.lastModified();
-            long size = file.length();
-            formatDuration = CommonUtils.GetDuration(file.getPath());
-            String fomatSize = CommonUtils.formatToNumber(CommonUtils.fomatSize(size)) + " kb";
-
-            Audio audio = new Audio(name, path, CommonUtils.fomatDate(date), formatDuration, fomatSize);
-            audioList.add(audio);
+                Audio audio = new Audio(name, path, CommonUtils.fomatDate(date), formatDuration, fomatSize);
+                audioList.add(audio);
+            }
             metaRetriever.release();
-
         }
+
 
         setDataAdapter();
         adapter.setOnclickItem(new LibraryAdapter.OnclickItem() {
@@ -114,7 +77,6 @@ public class LibraryActivity extends AppCompatActivity {
 
             }
         });
-
 
     }
 
@@ -175,41 +137,5 @@ public class LibraryActivity extends AppCompatActivity {
         return arrayList;
     }
 
-    private void getAudio() {
-        ContentResolver cr = getContentResolver();
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
-        Cursor cur = cr.query(uri, null, null, null, null);
-        int count = 0;
-        if (cur != null) {
-            count = cur.getCount();
-            if (count > 0) {
-                while (cur.moveToNext()) {
-                    String data = cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.DATA));
-                    String duration = cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.DURATION));
-                    String name = cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                    String date = cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED));
-                    String size = cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.SIZE));
-
-                    String fomartDate = CommonUtils.fomatDate(Long.parseLong(date) * 1000);
-                    String formatTime = CommonUtils.formatTime(Long.parseLong(duration));
-                    int formatSize = Integer.parseInt(size) / 1024;
-
-                    if (data.endsWith(".mp3") || data.endsWith(".wav")) {
-//                       Audio audioFile = new Audio(name, data, String.valueOf(fomartDate), "", formatSize);
-//                       audioList.add(audioFile);
-                        Log.e("date", fomartDate);
-                        Log.e("size", formatSize + "");
-                        Log.e("time", formatTime);
-                        Log.e("path", data);
-                        Log.e("name", name);
-                    }
-                }
-            }
-        }
-        if (cur == null) {
-            return;
-        }
-        cur.close();
-    }
 }

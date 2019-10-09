@@ -6,5 +6,132 @@
     android:layout_height="match_parent"
     tools:context=".activity.SettingsActivity">
 
-    <include layout="@layout/view_toolbar"></include>
+
+    <include
+        android:id="@+id/include4"
+        layout="@layout/view_toolbar"
+        tools:layout_editor_absoluteX="-52dp"
+        tools:layout_editor_absoluteY="26dp">
+
+    </include>
+
+    <RadioGroup
+        android:id="@+id/rgFormatType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView7">
+
+        <RadioButton
+            android:id="@+id/rbMp3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="@string/rb_fomat_type_mp3" />
+
+        <RadioButton
+            android:id="@+id/rbWav"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="@string/rb_fomat_type_wav" />
+
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/rgSetQuality"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView8">
+
+        <RadioButton
+            android:id="@+id/rb16kHz"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="@string/rb_quality_16kHz" />
+
+        <RadioButton
+            android:id="@+id/rb22kHz"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="@string/rb_quality_22kHz" />
+
+        <RadioButton
+            android:id="@+id/rb32kHz"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="@string/rb_quality_32kHz" />
+
+        <RadioButton
+            android:id="@+id/rb44kHz"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="@string/rb_quality_44kHz" />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btChooseFolder"
+        android:layout_width="@dimen/all_135dp"
+        android:layout_height="@dimen/all_34dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/all_custom_button_background"
+        android:text="@string/bt_choose_director_path"
+        android:textColor="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rgSetQuality" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="72dp"
+        android:text="@string/tv_setting_format_type"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/all_20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="@string/tv_setting_quality"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/all_20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rgFormatType" />
+
+    <TextView
+
+        android:id="@+id/tv_path_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center|start"
+        android:maxLines="3"
+        app:layout_constraintEnd_toEndOf="@+id/btChooseFolder"
+        app:layout_constraintStart_toStartOf="@+id/btChooseFolder"
+        app:layout_constraintTop_toBottomOf="@+id/btChooseFolder" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
