@@ -1,4 +1,4 @@
-package com.audiorecorder.voicerecorderhd.editor;
+package com.audiorecorder.voicerecorderhd.editor.application;
 
 import android.app.Application;
 import android.os.StrictMode;

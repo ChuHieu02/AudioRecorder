@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:drawablePadding="@dimen/all_10dp"
+        android:drawableBottom="@drawable/ic_mic_off_black_24dp"
+        android:id="@+id/tv_library_empty"
+        android:visibility="gone"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/all_20sp"
+        android:text="@string/list_library_empty"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </TextView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_fragment_list_library"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</FrameLayout>

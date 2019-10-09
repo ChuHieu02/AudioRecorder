@@ -24,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
-import com.audiorecorder.voicerecorderhd.editor.activity.DetailAudioActivity;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 
 import java.io.File;
@@ -34,6 +33,24 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     private Context context;
     private List<Audio> audioList;
     private AlertDialog dialog;
+    public OnclickItem onclickItem;
+    public OnclickItemRefesh onclickItemRefesh;
+
+    public interface OnclickItemRefesh {
+        void onClick(int i);
+    }
+
+    public interface OnclickItem {
+        void onClick(int i);
+    }
+
+    public void setOnclickItem(OnclickItem onclickItem) {
+        this.onclickItem = onclickItem;
+    }
+
+    public void setOnclickItemRefesh(OnclickItemRefesh onclickItemRefesh) {
+        this.onclickItemRefesh = onclickItemRefesh;
+    }
 
     private boolean isMp3;
 
@@ -57,26 +74,16 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         holder.tv_size_item_audio.setText(audio.getSize() + " | " + audio.getDuration());
 
 
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                onclickItem.onClick(position);
 
-                Intent intent = new Intent(context, DetailAudioActivity.class);
-                intent.putExtra("path", audio.getPath());
-                intent.putExtra("name", audio.getName());
-                intent.putExtra("size", String.valueOf(audio.getSize()));
-                intent.putExtra("date", audio.getDate());
-                intent.putExtra("position", position);
-                intent.putExtra("duration", audio.getDuration());
-
-                context.startActivity(intent);
             }
         });
         holder.iv_setting_item_audio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Toast.makeText(context, "" + audio.getDuration(), Toast.LENGTH_SHORT).show();
 
                 PopupMenu popup = new PopupMenu(context, v);
                 MenuInflater inflater = popup.getMenuInflater();
@@ -147,29 +154,40 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                                         if (isMp3) {
                                             File file = new File(audio.getPath());
                                             File file2 = new File(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
-                                            boolean success = file.renameTo(file2);
-                                            if (success) {
-                                                file.delete();
-                                                notifyDataSetChanged();
-                                                dialog.dismiss();
-                                                Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                                            if (file2.exists()) {
+                                                Toast.makeText(context, "Audio name exist", Toast.LENGTH_SHORT).show();
                                             } else {
-                                                dialog.dismiss();
-                                                Toast.makeText(context, "Fail", Toast.LENGTH_SHORT).show();
+
+                                                boolean success = file.renameTo(file2);
+                                                if (success) {
+                                                    file.delete();
+                                                    notifyDataSetChanged();
+                                                    onclickItemRefesh.onClick(position);
+                                                    dialog.dismiss();
+                                                    Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    dialog.dismiss();
+                                                    Toast.makeText(context, "Fail", Toast.LENGTH_SHORT).show();
+                                                }
                                             }
+
                                         } else {
 
                                             File file = new File(audio.getPath());
                                             File file2 = new File(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
-                                            boolean success = file.renameTo(file2);
-                                            if (success) {
-                                                file.delete();
-                                                notifyDataSetChanged();
-                                                dialog.dismiss();
-                                                Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                                            if (file2.exists()) {
+                                                Toast.makeText(context, "The name exist", Toast.LENGTH_SHORT).show();
                                             } else {
-                                                dialog.dismiss();
-                                                Toast.makeText(context, "Fail", Toast.LENGTH_SHORT).show();
+                                                boolean success = file.renameTo(file2);
+                                                if (success) {
+                                                    file.delete();
+                                                    notifyDataSetChanged();
+                                                    dialog.dismiss();
+                                                    Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    dialog.dismiss();
+                                                    Toast.makeText(context, "Fail", Toast.LENGTH_SHORT).show();
+                                                }
                                             }
                                         }
                                     }
@@ -216,6 +234,11 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     @Override
     public int getItemCount() {
         return audioList.size();
+    }
+
+    public void updateFile(List<Audio> audio) {
+        this.audioList.addAll(audio);
+        notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

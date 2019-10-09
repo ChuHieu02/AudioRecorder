@@ -1,10 +1,8 @@
 package com.audiorecorder.voicerecorderhd.editor.activity;
 
-import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -12,44 +10,102 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
+import com.audiorecorder.voicerecorderhd.editor.adapter.SectionsPagerAdapter;
+import com.audiorecorder.voicerecorderhd.editor.fragment.FragmentDetailInformation;
+import com.audiorecorder.voicerecorderhd.editor.fragment.FragmentDetailListAudio;
+import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 
-public class DetailAudioActivity extends AppCompatActivity implements View.OnClickListener {
-    private TextView tv_name_detail, tv_path_detail, tv_size_detail, tv_time_detail, tv_duration_detail;
+import me.relex.circleindicator.CircleIndicator;
+
+
+public class DetailAudioActivity extends AppCompatActivity implements View.OnClickListener, FragmentDetailListAudio.FragmentDetailListListener {
     private ImageView iv_detail_play_audio, iv_detail_next1_audio, iv_detail_next2_audio, iv_detail_prev1_audio, iv_detail_prev2_audio;
-    Intent intent;
-    MediaPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer;
     private int position;
-    private ArrayList<File> audioSong;
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    private ArrayList<Audio> listAudio;
     private SeekBar seekBarDetail;
+    private Audio audio;
+    private Bundle bundle;
+    private Thread thread;
+    private SimpleDateFormat fomatTime = new SimpleDateFormat("mm:ss");
+    private TextView tv_detail_dration_start, tv_detail_dration_stop;
+    private FragmentDetailInformation fragmentDetailInformation;
+    private FragmentDetailListAudio fragmentDetailListAudio;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_library);
 
-        Bundle bundle = getIntent().getExtras();
-        audioSong = readAudio(new File(Environment.getExternalStorageDirectory() + File.separator + "Recorder"));
 
+        bundle = getIntent().getExtras();
 
-        intent = getIntent();
+        if (bundle != null) {
+            listAudio = bundle.getParcelableArrayList("list");
+            position = bundle.getInt("position");
+        }
+        audio = listAudio.get(position);
+
+        this.fragmentDetailInformation = new FragmentDetailInformation().setArguments(audio);
+        this.fragmentDetailListAudio = new FragmentDetailListAudio().setArguments(listAudio);
+
+        List<Fragment> dataFragment = new ArrayList<>();
+        dataFragment.add(fragmentDetailInformation);
+        dataFragment.add(fragmentDetailListAudio);
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(), dataFragment);
+        ViewPager viewPager = findViewById(R.id.vp_detail);
+        viewPager.setAdapter(sectionsPagerAdapter);
+        CircleIndicator indicator = findViewById(R.id.indicator);
+        indicator.setViewPager(viewPager);
+
+        this.mediaPlayer = MediaPlayer.create(this, Uri.fromFile(new File(audio.getPath())));
 
         mappingTv();
-        mediaPlayer = MediaPlayer.create(this, Uri.fromFile(audioSong.get(position)));
-//        mediaPlayer = MediaPlayer.create(this, Uri.parse(intent.getStringExtra("path")));
-        if (mediaPlayer != null) {
-            mediaPlayer.start();
-            iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_24dp));
-        }
+
+        thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int totalDuration = mediaPlayer.getDuration();
+                int curenposition = 0;
+                while (curenposition < totalDuration) {
+                    try {
+                        thread.sleep(1000);
+                        curenposition = mediaPlayer.getCurrentPosition();
+                        seekBarDetail.setProgress(curenposition);
+                        tv_detail_dration_start.setText(fomatTime.format(curenposition));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                if (mediaPlayer != null) {
+                    iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_24dp));
+                    seekBarDetail.setMax(mediaPlayer.getDuration());
+                    mediaPlayer.start();
+                    thread.start();
+                }
+            }
+        });
+
         if (mediaPlayer == null) {
             Toast.makeText(DetailAudioActivity.this, "Play audio fail !", Toast.LENGTH_SHORT).show();
+
             return;
         }
 
@@ -61,14 +117,24 @@ public class DetailAudioActivity extends AppCompatActivity implements View.OnCli
 
             }
         });
-        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+
+        seekBarDetail.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public boolean onError(MediaPlayer mp, int what, int extra) {
-                return false;
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mediaPlayer.seekTo(seekBarDetail.getProgress());
             }
         });
-
-
         iv_detail_play_audio.setOnClickListener(this);
         iv_detail_next1_audio.setOnClickListener(this);
         iv_detail_next2_audio.setOnClickListener(this);
@@ -77,30 +143,21 @@ public class DetailAudioActivity extends AppCompatActivity implements View.OnCli
 
     }
 
+
     private void mappingTv() {
-        seekBarDetail = (SeekBar) findViewById(R.id.seekBar_detail);
+        seekBarDetail = findViewById(R.id.seekBar_detail);
 
         iv_detail_play_audio = findViewById(R.id.iv_detail_play_audio);
         iv_detail_next1_audio = findViewById(R.id.iv_detail_next1_audio);
         iv_detail_next2_audio = findViewById(R.id.iv_detail_next2_audio);
         iv_detail_prev1_audio = findViewById(R.id.iv_detail_prev1_audio);
         iv_detail_prev2_audio = findViewById(R.id.iv_detail_prev2_audio);
-        tv_duration_detail = findViewById(R.id.tv_duration_detail);
 
 
-        tv_name_detail = (TextView) findViewById(R.id.tv_name_detail);
-        tv_path_detail = (TextView) findViewById(R.id.tv_path_detail);
-        tv_size_detail = (TextView) findViewById(R.id.tv_size_detail);
-        tv_time_detail = (TextView) findViewById(R.id.tv_time_detail);
+        tv_detail_dration_start = findViewById(R.id.tv_detail_dration_start);
+        tv_detail_dration_stop = findViewById(R.id.tv_detail_dration_stop);
 
-        tv_name_detail.setText(intent.getStringExtra("name"));
-        tv_size_detail.setText(intent.getStringExtra("size"));
-        tv_path_detail.setText(intent.getStringExtra("path"));
-        tv_time_detail.setText(intent.getStringExtra("date"));
-        tv_duration_detail.setText(intent.getStringExtra("duration"));
-        position = intent.getIntExtra("position", 0);
-
-
+        tv_detail_dration_stop.setText(fomatTime.format(mediaPlayer.getDuration()));
     }
 
     @Override
@@ -108,113 +165,140 @@ public class DetailAudioActivity extends AppCompatActivity implements View.OnCli
         super.onStop();
         if (mediaPlayer != null) {
             mediaPlayer.pause();
+            iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mediaPlayer != null) {
+        try {
+            mediaPlayer.stop();
             mediaPlayer.release();
+            mediaPlayer = null;
+        } catch (Exception e) {
         }
+
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (mediaPlayer != null) {
-            mediaPlayer.start();
-        }
-    }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_detail_play_audio:
-                if (mediaPlayer.isPlaying()) {
+                if (this.mediaPlayer.isPlaying()) {
                     iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
-                    mediaPlayer.pause();
+                    this.mediaPlayer.pause();
                 } else {
                     iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_24dp));
-                    mediaPlayer.start();
+                    this.mediaPlayer.start();
                 }
+                this.mediaPlayer.seekTo(seekBarDetail.getProgress());
                 break;
 
             case R.id.iv_detail_next2_audio:
-                position++;
-                if (position > audioSong.size() - 1) {
-                    position = 0;
+                this.position++;
+                if (this.position > listAudio.size() - 1) {
+                    this.position = 0;
                 }
+                this.audio = listAudio.get(position);
+                try {
+                    if (this.mediaPlayer.isPlaying()) {
+                        this.mediaPlayer.stop();
+                        this.mediaPlayer.release();
+                    }
+                    this.mediaPlayer = MediaPlayer.create(this, Uri.fromFile(new File(audio.getPath())));
 
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.stop();
+                    if (this.mediaPlayer != null) {
+                        this.mediaPlayer.start();
+                        tv_detail_dration_stop.setText(fomatTime.format(mediaPlayer.getDuration()));
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                mediaPlayer = MediaPlayer.create(this, Uri.fromFile(audioSong.get(position)));
-                if (mediaPlayer!=null){
-                    mediaPlayer.start();
-                }
-                if (mediaPlayer == null) {
+                if (this.mediaPlayer == null) {
                     Toast.makeText(DetailAudioActivity.this, "Play audio fail !", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                tv_name_detail.setText(audioSong.get(position).getName());
-                tv_path_detail.setText(audioSong.get(position).getPath());
 
-//                tv_duration_detail.setText(simpleDateFormat.format(mediaPlayer.getDuration()));
-
-                String date = dateFormat.format(audioSong.get(position).lastModified());
-                tv_time_detail.setText(date);
                 iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_24dp));
+
+                fragmentDetailInformation.updateFragInfor(audio);
 
                 break;
 
             case R.id.iv_detail_prev2_audio:
-                position--;
-                if (position < 0) {
-                    position = audioSong.size() - 1;
+                this.position--;
+
+                if (this.position < 0) {
+                    this.position = listAudio.size() - 1;
                 }
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.stop();
+                this.audio = listAudio.get(position);
+                try {
+
+                    if (this.mediaPlayer != null && mediaPlayer.isPlaying()) {
+                        this.mediaPlayer.stop();
+                        this.mediaPlayer.release();
+                    }
+                    this.mediaPlayer = MediaPlayer.create(this, Uri.fromFile(new File(audio.getPath())));
+
+                    if (this.mediaPlayer != null) {
+                        this.mediaPlayer.start();
+                        tv_detail_dration_stop.setText(fomatTime.format(mediaPlayer.getDuration()));
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                mediaPlayer = MediaPlayer.create(this, Uri.fromFile(audioSong.get(position)));
-                if (mediaPlayer!=null){
-                    mediaPlayer.start();
-                }
-                if (mediaPlayer == null) {
+                if (this.mediaPlayer == null) {
                     Toast.makeText(DetailAudioActivity.this, "Play audio fail !", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                tv_name_detail.setText(audioSong.get(position).getName());
-                tv_path_detail.setText(audioSong.get(position).getPath());
-//                tv_duration_detail.setText(simpleDateFormat.format(mediaPlayer.getDuration()));
-                String date2 = dateFormat.format(audioSong.get(position).lastModified());
-                tv_time_detail.setText(date2);
+
+
                 iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_24dp));
+                fragmentDetailInformation.updateFragInfor(audio);
 
                 break;
+//
+//            case R.id.iv_detail_next1_audio:
+//                mediaPlayer.seekTo(mediaPlayer.getCurrentPosition()+5000);
+//                break;
+//            case R.id.iv_detail_prev1_audio:
+//                mediaPlayer.seekTo(mediaPlayer.getCurrentPosition()-5000);
+//                break;
         }
     }
 
-    public ArrayList<File> readAudio(File file) {
-        ArrayList<File> arrayList = new ArrayList<>();
 
-
-        File[] files = file.listFiles();
-
-        if (files == null) {
-            return arrayList;
-        }
-        for (File invidualFile : files) {
-            if (invidualFile.isDirectory() && !invidualFile.isHidden()) {
-                arrayList.addAll(readAudio(invidualFile));
-
-            } else {
-                if (invidualFile.getName().endsWith(".mp3") || invidualFile.getName().endsWith(".wav")) {
-                    arrayList.add(invidualFile);
-                }
+    @Override
+    public void sendPosition(int i) {
+        this.position = i;
+        this.audio = listAudio.get(position);
+        try {
+            if (this.mediaPlayer.isPlaying()) {
+                this.mediaPlayer.stop();
+                this.mediaPlayer.release();
             }
+            this.mediaPlayer = MediaPlayer.create(this, Uri.fromFile(new File(audio.getPath())));
+
+            if (this.mediaPlayer != null) {
+                this.mediaPlayer.start();
+                tv_detail_dration_stop.setText(fomatTime.format(mediaPlayer.getDuration()));
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return arrayList;
+        if (this.mediaPlayer == null) {
+            Toast.makeText(DetailAudioActivity.this, "Play audio fail !", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_24dp));
+
+        fragmentDetailInformation.updateFragInfor(audio);
     }
 }
 

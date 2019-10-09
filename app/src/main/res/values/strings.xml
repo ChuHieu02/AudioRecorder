@@ -26,6 +26,9 @@
     <string name="dialog_bt_yes">Yes</string>
     <string name="dialog_bt_no">No</string>
     <string name="dialog_tv_rename">Are you sure rename ?</string>
+    <!--    detail-->
+    <string name="tv_dtail_time_start_stop">00:00</string>
+    <string name="list_library_empty"> No recording files available !</string>
 
 
 </resources>
