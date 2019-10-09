@@ -41,31 +41,31 @@ public class LibraryActivity extends AppCompatActivity {
     String isTail;
 
 
-    private boolean openAndroidPermissionsWriteSetting() {
-        boolean retVal = true;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            retVal = Settings.System.canWrite(this);
-            if (retVal) {
-//                Toast.makeText(this, "Write allowed :-)", Toast.LENGTH_LONG).show();
-            } else {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                intent.setData(Uri.parse("package:" + this.getPackageName()));
-                startActivity(intent);
-//                Toast.makeText(this, "Write not allowed :-(", Toast.LENGTH_LONG).show();
-            }
-        }
-        return retVal;
-    }
+//    private boolean openAndroidPermissionsWriteSetting() {
+//        boolean retVal = true;
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            retVal = Settings.System.canWrite(this);
+//            if (retVal) {
+////                Toast.makeText(this, "Write allowed :-)", Toast.LENGTH_LONG).show();
+//            } else {
+//                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+//                intent.setData(Uri.parse("package:" + this.getPackageName()));
+//                startActivity(intent);
+////                Toast.makeText(this, "Write not allowed :-(", Toast.LENGTH_LONG).show();
+//            }
+//        }
+//        return retVal;
+//    }
 
-    private void openAndroidPermissionsWriteStorage() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        PERMISSION_REQUEST_CODE);
-            }
-        }
-    }
+//    private void openAndroidPermissionsWriteStorage() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//
+//            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+//                        PERMISSION_REQUEST_CODE);
+//            }
+//        }
+//    }
 
 
     @Override
@@ -76,10 +76,10 @@ public class LibraryActivity extends AppCompatActivity {
         mappingToolbar();
 
         mappingRecyclerView();
-
-        openAndroidPermissionsWriteSetting();
-
-        openAndroidPermissionsWriteStorage();
+//
+//        openAndroidPermissionsWriteSetting();
+//
+//        openAndroidPermissionsWriteStorage();
 
         final ArrayList<File> audioSong = readAudio(new File(Environment.getExternalStorageDirectory() + File.separator + "Recorder"));
         for (int i = 0; i < audioSong.size(); i++) {

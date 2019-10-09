@@ -128,6 +128,7 @@
             android:inputType="number|numberDecimal"
             android:layout_marginLeft="10dip"
             android:layout_marginRight="30dip"
+            android:textColor="#ffff"
             android:layout_width="70dip"
             android:layout_height="31dip"
             android:gravity="center" />

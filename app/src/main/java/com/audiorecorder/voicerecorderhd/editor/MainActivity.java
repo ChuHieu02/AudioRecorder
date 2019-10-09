@@ -1,24 +1,30 @@
 package com.audiorecorder.voicerecorderhd.editor;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.view.View;
 import android.webkit.PermissionRequest;
 import android.widget.Chronometer;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -28,40 +34,41 @@ import androidx.core.content.ContextCompat;
 import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.activity.SettingsActivity;
 import com.google.android.material.snackbar.Snackbar;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.Permission;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private Toolbar toolbar;
     private ImageView ivBottomLibrary;
     private ImageView ivBottomRecoder;
     private ImageView ivBottomSettings;
     private MediaRecorder mAudioRecorder;
     private ImageView ivRecord , ivPauseResume;
+    private TextView tvRecordingStatus;
     private String outputFile;
-    private int recordingStatus;
-    private int pauseStatus;
-    private FrameLayout frameLayout;
+    private static int recordingStatus = 0;
+    private static int pauseStatus = 0;
     private long pauseOffsetChorno;
     private boolean isRunning;
     private Chronometer chronometerTimer;
-    private int formatType;
-    private long duration;
     public static final String FORMAT_TYPE = "formatType";
     public static final String FORMAT_QUALITY = "formatQuality";
-    public static final  String RECORDER_FOLDER = "DemoRecorderApp";
-    public static final int SAMPLE_RATR_QUALITY = 1000;
+    public static final int SAMPLE_RATE_QUALITY = 1000;
     public static final String DIRECTION_CHOOSER_PATH = "directionPath";
+    private SimplePermissonListener simplePermissonListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        simplePermissonListener = new SimplePermissonListener(this);
+        requestAllPermission();
         setContentView(R.layout.activity_main);
         mappingBottomNavigation();
         createFile();
-        recordingStatus = 0;
-        pauseStatus = 0;
         onRecordAudio();
 
     }
@@ -74,6 +81,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         chronometerTimer = (Chronometer) findViewById(R.id.chronoTime);
         ivPauseResume =(ImageView) findViewById(R.id.imageViewPauseResume);
         ivRecord =(ImageView) findViewById(R.id.imageViewRecord);
+        tvRecordingStatus = (TextView) findViewById(R.id.textView2);
+        ivPauseResume.setVisibility(View.INVISIBLE);
         ivPauseResume.setEnabled(false);
         ivBottomSettings.setOnClickListener(this);
         ivBottomLibrary.setOnClickListener(this);
@@ -116,15 +125,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int checkQuality = sharedPreferences.getInt(FORMAT_QUALITY,16);
             if(checkQuality == 16){
                 mAudioRecorder.setAudioEncodingBitRate(16);
-                mAudioRecorder.setAudioSamplingRate(16 * SAMPLE_RATR_QUALITY);
+                mAudioRecorder.setAudioSamplingRate(16 * SAMPLE_RATE_QUALITY);
 
             }else if(checkQuality == 22){
                 mAudioRecorder.setAudioEncodingBitRate(22);
-                mAudioRecorder.setAudioSamplingRate(22 * SAMPLE_RATR_QUALITY);
+                mAudioRecorder.setAudioSamplingRate(22 * SAMPLE_RATE_QUALITY);
 
             }else if(checkQuality == 32){
                 mAudioRecorder.setAudioEncodingBitRate(32);
-                mAudioRecorder.setAudioSamplingRate(32 * SAMPLE_RATR_QUALITY);
+                mAudioRecorder.setAudioSamplingRate(32 * SAMPLE_RATE_QUALITY);
 
             }else if(checkQuality == 44){
                 mAudioRecorder.setAudioEncodingBitRate(44);
@@ -146,7 +155,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (IOException ioe) {
             // make something
         }
-        Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -158,9 +166,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void resumeRecording(){
-        if (mAudioRecorder!=null){
-            mAudioRecorder.resume();
-        }
+            if (mAudioRecorder != null) {
+                mAudioRecorder.resume();
+            }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -170,24 +178,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mAudioRecorder.stop();
                 mAudioRecorder.release();
                 mAudioRecorder = null;
-                Toast.makeText(getApplicationContext(), "Audio Recorder successfully", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "Audio Recorder successfully", Toast.LENGTH_SHORT).show();
             }
         }catch (Exception e){
-            Toast.makeText(getApplicationContext(), "Null Media File", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Null Media File", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void playRecodingResult(){
-        MediaPlayer mediaPlayer = new MediaPlayer();
-        try {
-            mediaPlayer.setDataSource(outputFile);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-            Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-            // make something
-        }
-    }
 
     private  void onRecordAudio(){
         ivRecord.setOnClickListener(new View.OnClickListener() {
@@ -196,24 +193,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View view) {
                 if(recordingStatus == 0){
                     startRecording();
-                    ivRecord.setImageResource(R.drawable.ic_home_pause);
+                    ivRecord.setImageResource(R.drawable.ic_play_record_pr);
                     recordingStatus =1;
                     pauseStatus = 0;
                     ivPauseResume.setImageResource(R.drawable.ic_home_pause);
                     ivPauseResume.setEnabled(true);
                     resetChoronometer();
                     startChoronometer();
-                }else {
-                    if(recordingStatus == 1){
+                    ivPauseResume.setVisibility(View.VISIBLE);
+                    tvRecordingStatus.setText("Recording...");
+                }else if(recordingStatus == 1){
                         stopRecording();
                         ivRecord.setImageResource(R.drawable.ic_home_record);
                         recordingStatus =0;
                         pauseStatus = 0;
                         ivPauseResume.setImageResource(R.drawable.ic_home_pause);
                         ivPauseResume.setEnabled(false);
+                        ivPauseResume.setVisibility(View.INVISIBLE);
+                        tvRecordingStatus.setText("Stop recording");
                         pauseChoronometer();
-                    }
+
+                        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
+                        builderDiaglog.setTitle("File save at ")
+                                      .setMessage(outputFile)
+                                      .setPositiveButton("Open", new DialogInterface.OnClickListener() {
+                                          @Override
+                                          public void onClick(DialogInterface dialog, int which) {
+                                              Intent openLibrary = new Intent(getApplicationContext(), LibraryActivity.class);
+                                              startActivity(openLibrary);
+                                          }
+                                      })
+                                      .setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                                          @Override
+                                          public void onClick(DialogInterface dialog, int which) {
+                                              dialog.dismiss();
+                                          }
+                                      });
+                        builderDiaglog.create().show();
+
+
+
+                }else if(recordingStatus == 2){
+                      requestAllPermission();
+                      recordingStatus = 0;
                 }
+
             }
         });
         ivPauseResume.setOnClickListener(new View.OnClickListener() {
@@ -225,42 +249,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     pauseStatus = 1;
                     ivPauseResume.setImageResource(R.drawable.ic_home_play);
                     pauseChoronometer();
-                    Toast.makeText(getApplicationContext(), "Pause Recording", Toast.LENGTH_LONG).show();
+                    tvRecordingStatus.setText("Pause Recording");
+                 //   Toast.makeText(getApplicationContext(), "Pause Recording", Toast.LENGTH_SHORT).show();
                 }else{
                     if(pauseStatus == 1){
                         resumeRecording();
                         pauseStatus = 0;
                         ivPauseResume.setImageResource(R.drawable.ic_home_pause);
                         startChoronometer();
-                        Toast.makeText(getApplicationContext(), "Resume Recording", Toast.LENGTH_LONG).show();
+                        tvRecordingStatus.setText("Recording...");
+                      //  Toast.makeText(getApplicationContext(), "Resume Recording", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         });
     }
-
-
-    private String formatTime(long miliseconds) {
-        String finaltimeSting = "";
-        String timeSecond;
-
-        int hourse = (int) (miliseconds / (1000 * 60 * 60));
-        int minutes = (int) (miliseconds % (1000 * 60 * 60)) / (1000 * 60);
-        int seconds = (int) (miliseconds % (1000 * 60 * 60)) % (1000 * 60) / 1000;
-
-        if (hourse > 0) {
-            finaltimeSting = hourse + ":";
-        }
-        if (seconds < 10) {
-            timeSecond = "0" + seconds;
-
-        } else {
-            timeSecond = "" + seconds;
-        }
-        finaltimeSting = finaltimeSting + minutes + ":" + timeSecond;
-        return finaltimeSting;
-    }
-
 
     @Override
     public void onClick(View view) {
@@ -292,6 +295,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private  void resetChoronometer(){
         chronometerTimer.setBase(SystemClock.elapsedRealtime());
         pauseOffsetChorno = 0;
+    }
+
+    public void showPermissionRationalbe(final PermissionToken token){
+        new AlertDialog.Builder(this).setTitle("We need some Permission")
+                .setMessage("Please allow some permissions to record audio !")
+                .setPositiveButton("Allow", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                            token.continuePermissionRequest();
+                            recordingStatus = 0;
+                            dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        token.cancelPermissionRequest();
+                        recordingStatus = 2;
+                        dialog.dismiss();
+                    }
+                })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        recordingStatus = 2;
+                        token.cancelPermissionRequest();
+                    }
+                }).show();
+    }
+
+
+    public void requestAllPermission(){
+        Dexter.withActivity(this)
+                .withPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ,Manifest.permission.RECORD_AUDIO
+        ,Manifest.permission.WRITE_SETTINGS)
+                .withListener(simplePermissonListener).check();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopRecording();
     }
 
 }

@@ -64,7 +64,6 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
     private String mTitle;
     private int mNewFileKind;
     private boolean mWasGetContentIntent;
-    private String fildAudioName;
     private WaveformView mWaveformView;
     private MarkerView mStartMarker;
     private MarkerView mEndMarker;

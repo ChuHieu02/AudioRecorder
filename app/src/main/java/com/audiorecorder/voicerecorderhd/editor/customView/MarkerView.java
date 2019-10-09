@@ -10,7 +10,7 @@ import android.view.MotionEvent;
 import android.widget.ImageView;
 
 @SuppressLint("AppCompatCustomView")
-public class MarkerView extends ImageView{
+public  class MarkerView extends ImageView {
     public interface MarkerListener {
         public void markerTouchStart(MarkerView marker, float pos);
         public void markerTouchMove(MarkerView marker, float pos);
@@ -103,9 +103,5 @@ public class MarkerView extends ImageView{
         if (mListener != null)
             mListener.markerKeyUp();
         return super.onKeyDown(keyCode, event);
-    }
-
-    public MarkerView(Context context) {
-        super(context);
     }
 }

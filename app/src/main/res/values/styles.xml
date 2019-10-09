@@ -28,7 +28,7 @@
     </style>
 
     <style name="ToolbarBackground">
-        <item name="android:background">#222233</item>
+        <item name="android:background">#367efd</item>
     </style>
 
     <style name="ChooseContactBackground">

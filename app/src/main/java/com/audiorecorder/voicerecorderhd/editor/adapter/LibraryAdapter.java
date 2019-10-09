@@ -7,7 +7,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.audiorecorder.voicerecorderhd.editor.MainActivity;
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.activity.DetailAudioActivity;
 import com.audiorecorder.voicerecorderhd.editor.activity.EditContentActivity;
@@ -198,27 +201,35 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
                                 break;
                             case R.id.pp_setRingTone_item_library:
+                                boolean retVal = true;
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    retVal = Settings.System.canWrite(context);
+                                    if (retVal) {
+                                        ContentValues values = new ContentValues();
+                                        values.put(MediaStore.MediaColumns.DATA, audio.getPath());
+                                        values.put(MediaStore.MediaColumns.TITLE, audio.getName());
+                                        values.put(MediaStore.MediaColumns.SIZE, audio.getDuration());
+                                        values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/*");
+                                        values.put(MediaStore.Audio.AudioColumns.ARTIST, context.getString(R.string.app_name));
+                                        values.put(MediaStore.Audio.AudioColumns.IS_RINGTONE, true);
+                                        values.put(MediaStore.Audio.AudioColumns.IS_NOTIFICATION, false);
+                                        values.put(MediaStore.Audio.AudioColumns.IS_ALARM, false);
+                                        values.put(MediaStore.Audio.AudioColumns.IS_MUSIC, false);
 
-                                ContentValues values = new ContentValues();
-                                values.put(MediaStore.MediaColumns.DATA, audio.getPath());
-                                values.put(MediaStore.MediaColumns.TITLE, audio.getName());
-                                values.put(MediaStore.MediaColumns.SIZE, audio.getDuration());
-                                values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/*");
-                                values.put(MediaStore.Audio.AudioColumns.ARTIST, context.getString(R.string.app_name));
-                                values.put(MediaStore.Audio.AudioColumns.IS_RINGTONE, true);
-                                values.put(MediaStore.Audio.AudioColumns.IS_NOTIFICATION, false);
-                                values.put(MediaStore.Audio.AudioColumns.IS_ALARM, false);
-                                values.put(MediaStore.Audio.AudioColumns.IS_MUSIC, false);
+                                        Uri uri_ringtone = MediaStore.Audio.Media.getContentUriForPath(audio.getPath());
+                                        context.getContentResolver().
 
-                                Uri uri_ringtone = MediaStore.Audio.Media.getContentUriForPath(audio.getPath());
-                                context.getContentResolver().
+                                                delete(uri_ringtone, MediaStore.MediaColumns.DATA + "=\"" + audio.getPath() + "\"", null);
 
-                                        delete(uri_ringtone, MediaStore.MediaColumns.DATA + "=\"" + audio.getPath() + "\"", null);
+                                        Uri newUri = context.getContentResolver().insert(uri_ringtone, values);
 
-                                Uri newUri = context.getContentResolver().insert(uri_ringtone, values);
-
-                                RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, newUri);
-
+                                        RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, newUri);
+                                    } else {
+                                        Intent intentPermission = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                                        intentPermission.setData(Uri.parse("package:" + context.getPackageName()));
+                                        context.startActivity(intentPermission);
+                                    }
+                                }
                                 break;
                         }
                         return false;
@@ -251,4 +262,3 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     }
 
 }
-
