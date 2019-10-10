@@ -1131,7 +1131,6 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
 
     private String makeRingtoneFilename(CharSequence title, String extension) {
         String subdir = null;
-        String defaul = null;
         String externalRootDir = Environment.getExternalStorageDirectory().getAbsolutePath();
         if (!externalRootDir.endsWith("/")) {
             externalRootDir += "/";
@@ -1162,7 +1161,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
 
         // Create the parent directory
         File parentDirFile = new File(parentdir);
-       // parentDirFile.mkdirs();
+        parentDirFile.mkdirs();
 
         // If we can't write to that special path, try just writing
         // directly to the sdcard
