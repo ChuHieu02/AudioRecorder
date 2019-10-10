@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String outputFile;
     private static int recordingStatus = 2;
     private static int pauseStatus = 0;
-    private static int permissionResultStatus = 0;
     private long pauseOffsetChorno;
     private boolean isRunning;
     private Chronometer chronometerTimer;
@@ -65,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final String FORMAT_QUALITY = "formatQuality";
     public static final int SAMPLE_RATE_QUALITY = 1000;
     public static final String DIRECTION_CHOOSER_PATH = "directionPath";
-    private static String recordingStatusNoPermission ="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         SharedPreferences sharedPreferences= this.getSharedPreferences("audioSetting", Context.MODE_PRIVATE);
         if(sharedPreferences!= null){
             int checkStatus = sharedPreferences.getInt(FORMAT_TYPE,0);
-            String pathDirector = sharedPreferences.getString(DIRECTION_CHOOSER_PATH,Environment.getExternalStorageDirectory() + File.separator + "Recorder");
+            String pathDirector = sharedPreferences.getString(DIRECTION_CHOOSER_PATH,Environment.getExternalStorageDirectory() + File.separator + "Recorder" );
             File file = new File(pathDirector);
             if(checkStatus == 0){
                 outputFile ="/"+ file.getAbsolutePath()+"/RecordFile"+System.currentTimeMillis()+".mp3";
@@ -127,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }else if(checkStatus == 1){
                 mAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                mAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+                mAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.MPEG_4);
 
             }
             int checkQuality = sharedPreferences.getInt(FORMAT_QUALITY,16);

@@ -7,8 +7,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.media.RingtoneManager;
@@ -1128,33 +1130,39 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
     }
 
     private String makeRingtoneFilename(CharSequence title, String extension) {
-        String subdir;
-        String externalRootDir = Environment.getExternalStorageDirectory().getPath();
+        String subdir = null;
+        String defaul = null;
+        String externalRootDir = Environment.getExternalStorageDirectory().getAbsolutePath();
         if (!externalRootDir.endsWith("/")) {
             externalRootDir += "/";
         }
+
         switch(mNewFileKind) {
             default:
-            case FileSaveDialog.FILE_KIND_MUSIC:
+            case FileSaveDialog.FILE_KIND_DEFAULT:
                 // TODO(nfaralli): can directly use Environment.getExternalStoragePublicDirectory(
                 // Environment.DIRECTORY_MUSIC).getPath() instead
-                subdir = "media/audio/music/";
+                SharedPreferences sharedPreferences= this.getSharedPreferences("audioSetting", Context.MODE_PRIVATE);
+                if(sharedPreferences!= null) {
+                    subdir = sharedPreferences.getString("directionPath",externalRootDir)+"/";
+                }
                 break;
             case FileSaveDialog.FILE_KIND_ALARM:
-                subdir = "media/audio/alarms/";
+                subdir = externalRootDir +"media/audio/alarms/";
                 break;
             case FileSaveDialog.FILE_KIND_NOTIFICATION:
-                subdir = "media/audio/notifications/";
+                subdir = externalRootDir +"media/audio/notifications/";
                 break;
             case FileSaveDialog.FILE_KIND_RINGTONE:
-                subdir = "media/audio/ringtones/";
+                subdir = externalRootDir +"media/audio/ringtones/";
                 break;
         }
-        String parentdir = externalRootDir + subdir;
+      //  String parentdir = externalRootDir + subdir;
+        String parentdir =  subdir;
 
         // Create the parent directory
         File parentDirFile = new File(parentdir);
-        parentDirFile.mkdirs();
+       // parentDirFile.mkdirs();
 
         // If we can't write to that special path, try just writing
         // directly to the sdcard
@@ -1171,7 +1179,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
         }
 
         // Try to make the filename unique
-        String path = null;
+        String path = parentdir;
         for (int i = 0; i < 100; i++) {
             String testPath;
             if (i > 0)
@@ -1211,7 +1219,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
         mSaveSoundFileThread = new Thread() {
             public void run() {
                 // Try AAC first.
-                String outPath = makeRingtoneFilename(title, ".m4a");
+                String outPath = makeRingtoneFilename(title, ".mp3");
                 if (outPath == null) {
                     Runnable runnable = new Runnable() {
                         public void run() {
@@ -1381,7 +1389,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
         values.put(MediaStore.Audio.Media.IS_ALARM,
                 mNewFileKind == FileSaveDialog.FILE_KIND_ALARM);
         values.put(MediaStore.Audio.Media.IS_MUSIC,
-                mNewFileKind == FileSaveDialog.FILE_KIND_MUSIC);
+                mNewFileKind == FileSaveDialog.FILE_KIND_DEFAULT);
 
         // Insert it into the database
         Uri uri = MediaStore.Audio.Media.getContentUriForPath(outPath);
@@ -1396,7 +1404,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
 
         // There's nothing more to do with music or an alarm.  Show a
         // success message and then quit.
-        if (mNewFileKind == FileSaveDialog.FILE_KIND_MUSIC ||
+        if (mNewFileKind == FileSaveDialog.FILE_KIND_DEFAULT ||
                 mNewFileKind == FileSaveDialog.FILE_KIND_ALARM) {
             Toast.makeText(this,
                     R.string.save_success_message,
