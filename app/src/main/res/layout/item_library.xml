@@ -62,7 +62,7 @@
             app:layout_constraintTop_toTopOf="@+id/tv_size_item_audio" />
 
         <ImageView
-            android:src="@drawable/ic_music_note_black_24dp"
+            android:src="@drawable/ic_library_audio"
             android:id="@+id/imageView"
             android:layout_width="@dimen/all_50dp"
             android:layout_height="@dimen/all_50dp"
@@ -90,7 +90,7 @@
                 android:layout_width="@dimen/all_24dp"
                 android:layout_height="@dimen/all_24dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_more_vert_black_24dp" />
+                android:src="@drawable/ic_library_more" />
         </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

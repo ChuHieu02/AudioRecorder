@@ -12,7 +12,7 @@
         android:layout_width="@dimen/all_50dp"
         android:layout_height="match_parent"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_headset_black_24dp"
+        android:src="@drawable/ic_library"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/iv_bottom_recoder"
         app:layout_constraintHorizontal_bias="0.5"
@@ -21,11 +21,10 @@
 
     <ImageView
         android:id="@+id/iv_bottom_recoder"
-
         android:layout_width="@dimen/all_50dp"
         android:layout_height="match_parent"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_mic_none_black_24dp"
+        android:src="@drawable/ic_record_pr"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/iv_bottom_settings"
         app:layout_constraintHorizontal_bias="0.5"
@@ -38,7 +37,7 @@
         android:layout_width="@dimen/all_50dp"
         android:layout_height="match_parent"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_settings_black_24dp"
+        android:src="@drawable/ic_settings"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

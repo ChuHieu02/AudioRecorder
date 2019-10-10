@@ -17,6 +17,14 @@
 
     </ImageView>
 
+    <TextView
+        android:textSize="@dimen/all_30dp"
+        android:gravity="center"
+        android:text="@string/tv_recoder_home"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:textColor="@android:color/white"></TextView>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">

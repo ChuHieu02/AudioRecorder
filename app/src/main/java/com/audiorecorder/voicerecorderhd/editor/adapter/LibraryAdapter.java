@@ -24,6 +24,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
@@ -31,6 +33,8 @@ import com.audiorecorder.voicerecorderhd.editor.activity.EditContentActivity;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 
 public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHolder> {
@@ -38,11 +42,6 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     private List<Audio> audioList;
     private AlertDialog dialog;
     public OnclickItem onclickItem;
-    public OnclickItemRefesh onclickItemRefesh;
-
-    public interface OnclickItemRefesh {
-        void onClick(int i);
-    }
 
     public interface OnclickItem {
         void onClick(int i);
@@ -52,9 +51,6 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         this.onclickItem = onclickItem;
     }
 
-    public void setOnclickItemRefesh(OnclickItemRefesh onclickItemRefesh) {
-        this.onclickItemRefesh = onclickItemRefesh;
-    }
 
     private boolean isMp3;
 
@@ -92,6 +88,22 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                 PopupMenu popup = new PopupMenu(context, v);
                 MenuInflater inflater = popup.getMenuInflater();
                 inflater.inflate(R.menu.popup_menu, popup.getMenu());
+                try {
+                    Field[] fields = popup.getClass().getDeclaredFields();
+                    for (Field field : fields) {
+                        if ("mPopup".equals(field.getName())) {
+                            field.setAccessible(true);
+                            Object menuPopupHelper = field.get(popup);
+                            Class<?> classPopupHelper = Class.forName(menuPopupHelper.getClass().getName());
+                            Method setForceIcons = classPopupHelper.getMethod("setForceShowIcon", boolean.class);
+                            setForceIcons.invoke(menuPopupHelper, true);
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
@@ -164,9 +176,10 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
                                                 boolean success = file.renameTo(file2);
                                                 if (success) {
-                                                    file.delete();
-                                                    notifyDataSetChanged();
-                                                    onclickItemRefesh.onClick(position);
+                                                    audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
+                                                    audio.setName(ed_name_item_library.getText().toString() + ".mp3");
+                                                    notifyItemChanged(position);
+
                                                     dialog.dismiss();
                                                     Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
                                                 } else {
@@ -184,8 +197,10 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                                             } else {
                                                 boolean success = file.renameTo(file2);
                                                 if (success) {
-                                                    file.delete();
-                                                    notifyDataSetChanged();
+                                                    audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
+                                                    audio.setName(ed_name_item_library.getText().toString() + ".wav");
+                                                    notifyItemChanged(position);
+
                                                     dialog.dismiss();
                                                     Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
                                                 } else {
@@ -203,7 +218,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                             case R.id.pp_editContent_item_library:
                                 try {
                                     Intent intentEditContent = new Intent(context, EditContentActivity.class);
-                                    intentEditContent.putExtra("fileAudioName",audio.getPath());
+                                    intentEditContent.putExtra("fileAudioName", audio.getPath());
 
                                     context.startActivity(intentEditContent);
                                     Log.e("Ringdroid", audio.getPath());
@@ -215,7 +230,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
                                 break;
                             case R.id.pp_setRingTone_item_library:
-                                boolean retVal = true;
+                                boolean retVal;
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                     retVal = Settings.System.canWrite(context);
                                     if (retVal) {
@@ -236,6 +251,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                                         Uri newUri = context.getContentResolver().insert(uri_ringtone, values);
 
                                         RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, newUri);
+                                        Toast.makeText(context, "Set ringtone success !", Toast.LENGTH_SHORT).show();
                                     } else {
                                         Intent intentPermission = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
                                         intentPermission.setData(Uri.parse("package:" + context.getPackageName()));
@@ -258,10 +274,6 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         return audioList.size();
     }
 
-    public void updateFile(List<Audio> audio) {
-        this.audioList.addAll(audio);
-        notifyDataSetChanged();
-    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView tv_name_item_audio;
@@ -277,5 +289,6 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
             iv_setting_item_audio = itemView.findViewById(R.id.iv_setting_item_audio);
         }
     }
+
 
 }

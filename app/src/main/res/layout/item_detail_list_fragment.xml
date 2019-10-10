@@ -29,7 +29,7 @@
         android:layout_height="@dimen/all_35dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:src="@drawable/ic_music_note_black_24dp"
+        android:src="@drawable/ic_library_audio"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tv_name_item_audio"
         app:layout_constraintHorizontal_bias="0.5"

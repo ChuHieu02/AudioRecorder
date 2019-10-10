@@ -26,8 +26,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private RadioGroup radioGroupFormatType, radioGroupSetQuality;
     private RadioButton radioButtonMp3, radioButtonWav;
-    private RadioButton radioButton16kHz, radioButton22kHz,
-            radioButton32kHz, radioButton44kHz;
+    private RadioButton radioButton16kHz, radioButton22kHz, radioButton32kHz, radioButton44kHz;
     private Button buttonChooseFolder;
     private TextView textView;
     private TextView tv_path_setting;
@@ -42,9 +41,9 @@ public class SettingsActivity extends AppCompatActivity {
         loadAudioSetting();
         SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.AUDIO_SETTING, Context.MODE_PRIVATE);
         if (sharedPreferences != null) {
-            String path = sharedPreferences.getString(Constants.DIRECTION_CHOOSER_PATH,Constants.DEFALT_PATH );
+            String path = sharedPreferences.getString(Constants.DIRECTION_CHOOSER_PATH, Constants.DEFALT_PATH);
             tv_path_setting.setText(path);
-        }else {
+        } else {
             tv_path_setting.setText(Constants.DEFALT_PATH);
 
         }
@@ -52,12 +51,15 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void mappingToolbar() {
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Settings");
-        tv_path_setting = findViewById(R.id.tv_path_setting);
+        toolbar.setTitle("Library");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        tv_path_setting = findViewById(R.id.tv_path_setting);
+
         radioGroupFormatType = findViewById(R.id.rgFormatType);
         radioGroupSetQuality = findViewById(R.id.rgSetQuality);
         radioButtonMp3 = findViewById(R.id.rbMp3);
