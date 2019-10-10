@@ -25,8 +25,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.audiorecorder.voicerecorderhd.editor.MainActivity;
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.activity.DetailAudioActivity;
 import com.audiorecorder.voicerecorderhd.editor.activity.EditContentActivity;
@@ -222,7 +220,6 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                                                 delete(uri_ringtone, MediaStore.MediaColumns.DATA + "=\"" + audio.getPath() + "\"", null);
 
                                         Uri newUri = context.getContentResolver().insert(uri_ringtone, values);
-
                                         RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, newUri);
                                     } else {
                                         Intent intentPermission = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);

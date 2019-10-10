@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,6 +44,9 @@ import java.io.IOException;
 import java.security.Permission;
 import java.util.List;
 
+import static android.Manifest.permission.RECORD_AUDIO;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private ImageView ivBottomLibrary;
     private ImageView ivBottomRecoder;
@@ -51,8 +55,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView ivRecord , ivPauseResume;
     private TextView tvRecordingStatus;
     private String outputFile;
-    private static int recordingStatus = 0;
+    private static int recordingStatus = 2;
     private static int pauseStatus = 0;
+    private static int permissionResultStatus = 0;
     private long pauseOffsetChorno;
     private boolean isRunning;
     private Chronometer chronometerTimer;
@@ -60,17 +65,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final String FORMAT_QUALITY = "formatQuality";
     public static final int SAMPLE_RATE_QUALITY = 1000;
     public static final String DIRECTION_CHOOSER_PATH = "directionPath";
-    private SimplePermissonListener simplePermissonListener;
+    private static String recordingStatusNoPermission ="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        simplePermissonListener = new SimplePermissonListener(this);
-        requestAllPermission();
         setContentView(R.layout.activity_main);
         mappingBottomNavigation();
-        createFile();
-        onRecordAudio();
+        if(checkPermissionsResult()) {
+            createFile();
+            onRecordAudio();
+            recordingStatus = 0;
+        }else {
+            requestPermissions();
 
+        }
     }
 
     private void mappingBottomNavigation() {
@@ -191,10 +199,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                if(recordingStatus == 0){
+                if(recordingStatus == 0 && checkPermissionsResult()){
                     startRecording();
                     ivRecord.setImageResource(R.drawable.ic_play_record_pr);
-                    recordingStatus =1;
                     pauseStatus = 0;
                     ivPauseResume.setImageResource(R.drawable.ic_home_pause);
                     ivPauseResume.setEnabled(true);
@@ -202,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     startChoronometer();
                     ivPauseResume.setVisibility(View.VISIBLE);
                     tvRecordingStatus.setText("Recording...");
+                    recordingStatus =1;
                 }else if(recordingStatus == 1){
                         stopRecording();
                         ivRecord.setImageResource(R.drawable.ic_home_record);
@@ -212,33 +220,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         ivPauseResume.setVisibility(View.INVISIBLE);
                         tvRecordingStatus.setText("Stop recording");
                         pauseChoronometer();
-
-                        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
-                        builderDiaglog.setTitle("File save at ")
-                                      .setMessage(outputFile)
-                                      .setPositiveButton("Open", new DialogInterface.OnClickListener() {
-                                          @Override
-                                          public void onClick(DialogInterface dialog, int which) {
-                                              Intent openLibrary = new Intent(getApplicationContext(), LibraryActivity.class);
-                                              startActivity(openLibrary);
-                                          }
-                                      })
-                                      .setNegativeButton("Back", new DialogInterface.OnClickListener() {
-                                          @Override
-                                          public void onClick(DialogInterface dialog, int which) {
-                                              dialog.dismiss();
-                                          }
-                                      });
-                        builderDiaglog.create().show();
-
-
-
-                }else if(recordingStatus == 2){
-                      requestAllPermission();
-                      recordingStatus = 0;
+                        creatCompleteDiaglog();
+                }
+                else if(recordingStatus == 2 && !checkPermissionsResult() ){
+                    tvRecordingStatus.setText("Please go to setting and permisson");
+                    creatSettingActivityDialog();
                 }
 
-            }
+        }
         });
         ivPauseResume.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -297,48 +286,103 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pauseOffsetChorno = 0;
     }
 
-    public void showPermissionRationalbe(final PermissionToken token){
-        new AlertDialog.Builder(this).setTitle("We need some Permission")
-                .setMessage("Please allow some permissions to record audio !")
-                .setPositiveButton("Allow", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                            token.continuePermissionRequest();
-                            recordingStatus = 0;
-                            dialog.dismiss();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        token.cancelPermissionRequest();
-                        recordingStatus = 2;
-                        dialog.dismiss();
-                    }
-                })
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        recordingStatus = 2;
-                        token.cancelPermissionRequest();
-                    }
-                }).show();
-    }
-
-
-    public void requestAllPermission(){
-        Dexter.withActivity(this)
-                .withPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ,Manifest.permission.RECORD_AUDIO
-        ,Manifest.permission.WRITE_SETTINGS)
-                .withListener(simplePermissonListener).check();
-    }
-
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onDestroy() {
         super.onDestroy();
         stopRecording();
     }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if(checkPermissionsResult()) {
+            tvRecordingStatus.setText("Tab to recording");
+            recordingStatus = 0;
+        }else {
+            requestPermissions();
+
+        }
+    }
+
+    private void creatCompleteDiaglog(){
+        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
+        builderDiaglog.setTitle("File save at ")
+                .setMessage(outputFile)
+                .setPositiveButton("Open", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent openLibrary = new Intent(getApplicationContext(), LibraryActivity.class);
+                        startActivity(openLibrary);
+                    }
+                })
+                .setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        builderDiaglog.create().show();
+    }
+
+
+    private void creatSettingActivityDialog(){
+        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
+        builderDiaglog.setTitle("You need go to setting and perrmission for recording")
+                .setMessage(outputFile)
+                .setPositiveButton("Open", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                       // Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                       // intent.setData(Uri.parse("package:" + packageName));
+                         intent.setData(Uri.parse("package:" + getApplicationContext().getPackageName()));
+                        startActivity(intent);
+                        //recordingStatus = 0;
+
+                    }
+                })
+                .setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        recordingStatus = 2;
+                        dialog.dismiss();
+                    }
+                });
+        builderDiaglog.create().show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_AUDIO_PERMISSION_CODE:
+                if (grantResults.length> 0) {
+                    boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean permissionToStore = grantResults[1] ==  PackageManager.PERMISSION_GRANTED;
+                    if (permissionToRecord && permissionToStore) {
+                       recordingStatus = 0;
+                       Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(),"Permission Denied :"+recordingStatus,Toast.LENGTH_LONG).show();
+                        tvRecordingStatus.setText("You need go to setting and perrmisson to record");
+                        recordingStatus = 2;
+                        onRecordAudio();
+                    }
+                }
+                break;
+        }
+    }
+    public boolean checkPermissionsResult() {
+        int result = ContextCompat.checkSelfPermission(getApplicationContext(),WRITE_EXTERNAL_STORAGE);
+        int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
+        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
+    }
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(MainActivity.this, new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
+    //    recordingStatus =1;
+    }
+    public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+
 
 }

@@ -1,7 +1,6 @@
 package com.audiorecorder.voicerecorderhd.editor.activity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,16 +14,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
-import com.audiorecorder.voicerecorderhd.editor.MainActivity;
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.codekidlabs.storagechooser.StorageChooser;
-import com.nbsp.materialfilepicker.MaterialFilePicker;
-import com.nbsp.materialfilepicker.ui.FilePickerActivity;
-
-import java.io.File;
-
-import lib.folderpicker.FolderPicker;
 
 public class SettingsActivity extends AppCompatActivity {
     private static final String STATIC_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() ;
@@ -70,17 +61,18 @@ public class SettingsActivity extends AppCompatActivity {
         buttonChooseFolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences sharedPreferences= getSharedPreferences(AUDIO_SETTING, Context.MODE_PRIVATE);
+//                SharedPreferences sharedPreferences= getSharedPreferences(AUDIO_SETTING, Context.MODE_PRIVATE);
+//                String prePath = sharedPreferences.getString(DIRECTION_CHOOSER_PATH,STATIC_PATH);
                 StorageChooser chooser = new StorageChooser.Builder()
                         .withActivity(SettingsActivity.this)
                         .withPredefinedPath(STATIC_PATH)
-                        .actionSave(true)
                         .withFragmentManager(getFragmentManager())
                         .allowCustomPath(true)
                         .allowAddFolder(true)
-                        .withPreference(sharedPreferences)
                         .setType(StorageChooser.DIRECTORY_CHOOSER)
                         .withMemoryBar(true)
+                        .hideFreeSpaceLabel(true)
+                        .skipOverview(true)
                         .build()
                         ;
                 chooser.show();
