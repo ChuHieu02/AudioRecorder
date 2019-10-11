@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.DetailAudioActivity">
+    tools:context=".activity.DetailActivity">
 
 
     <me.relex.circleindicator.CircleIndicator
         android:id="@+id/indicator"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/all_16dp"
-        android:layout_marginTop="@dimen/all_8dp"
+        android:layout_height="@dimen/dp16"
+        android:layout_marginTop="@dimen/dp8"
         app:ci_drawable="@drawable/color_circleindicator"
         app:ci_gravity="center"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -30,97 +30,96 @@
 
         <ImageView
 
-            android:id="@+id/iv_detail_next2_audio"
-            android:layout_width="@dimen/all_35dp"
-            android:layout_height="@dimen/all_35dp"
-            android:contentDescription="@string/title_image"
+            android:id="@+id/iv_next2"
+            android:layout_width="@dimen/dp35"
+            android:layout_height="@dimen/dp35"
+            android:contentDescription="all_title_image"
             android:src="@drawable/ic_play_next2"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_detail_next1_audio"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_next1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/iv_detail_next1_audio"
-            app:layout_constraintTop_toTopOf="@+id/iv_detail_next1_audio"></ImageView>
+            app:layout_constraintStart_toEndOf="@+id/iv_next1"
+            app:layout_constraintTop_toTopOf="@+id/iv_next1"></ImageView>
 
         <ImageView
-            android:id="@+id/iv_detail_prev2_audio"
-            android:layout_width="@dimen/all_35dp"
-            android:layout_height="@dimen/all_35dp"
+            android:id="@+id/iv_prev2"
+            android:layout_width="@dimen/dp35"
+            android:layout_height="@dimen/dp35"
             android:layout_marginBottom="?actionBarSize"
-            android:contentDescription="@string/title_image"
+            android:contentDescription="all_title_image"
             android:src="@drawable/ic_play_prev2"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/iv_detail_prev1_audio"
+            app:layout_constraintEnd_toStartOf="@+id/iv_prev1"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"></ImageView>
 
         <ImageView
-            android:id="@+id/iv_detail_prev1_audio"
-            android:layout_width="@dimen/all_35dp"
-            android:layout_height="@dimen/all_35dp"
-            android:contentDescription="@string/title_image"
+            android:id="@+id/iv_prev1"
+            android:layout_width="@dimen/dp35"
+            android:layout_height="@dimen/dp35"
+            android:contentDescription="all_title_image"
             android:src="@drawable/ic_play_prev1"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_detail_prev2_audio"
-            app:layout_constraintEnd_toStartOf="@+id/iv_detail_play_audio"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_prev2"
+            app:layout_constraintEnd_toStartOf="@+id/iv_play"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/iv_detail_prev2_audio"
-            app:layout_constraintTop_toTopOf="@+id/iv_detail_prev2_audio"></ImageView>
+            app:layout_constraintStart_toEndOf="@+id/iv_prev2"
+            app:layout_constraintTop_toTopOf="@+id/iv_prev2"></ImageView>
 
         <ImageView
-            android:id="@+id/iv_detail_play_audio"
-            android:layout_width="@dimen/all_70dp"
-            android:layout_height="@dimen/all_70dp"
-            android:contentDescription="@string/title_image"
+            android:id="@+id/iv_play"
+            android:layout_width="@dimen/dp70"
+            android:layout_height="@dimen/dp70"
+            android:contentDescription="all_title_image"
             android:src="@drawable/ic_play_play"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_detail_prev1_audio"
-            app:layout_constraintEnd_toStartOf="@+id/iv_detail_next1_audio"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_prev1"
+            app:layout_constraintEnd_toStartOf="@+id/iv_next1"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/iv_detail_prev1_audio"
-            app:layout_constraintTop_toTopOf="@+id/iv_detail_prev1_audio"></ImageView>
+            app:layout_constraintStart_toEndOf="@+id/iv_prev1"
+            app:layout_constraintTop_toTopOf="@+id/iv_prev1"></ImageView>
 
         <ImageView
 
-            android:id="@+id/iv_detail_next1_audio"
-            android:layout_width="@dimen/all_35dp"
-            android:layout_height="@dimen/all_35dp"
-            android:contentDescription="@string/title_image"
+            android:id="@+id/iv_next1"
+            android:layout_width="@dimen/dp35"
+            android:layout_height="@dimen/dp35"
+            android:contentDescription="all_title_image"
             android:src="@drawable/ic_play_next1"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_detail_play_audio"
-            app:layout_constraintEnd_toStartOf="@+id/iv_detail_next2_audio"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_play"
+            app:layout_constraintEnd_toStartOf="@+id/iv_next2"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/iv_detail_play_audio"
-            app:layout_constraintTop_toTopOf="@+id/iv_detail_play_audio"></ImageView>
+            app:layout_constraintStart_toEndOf="@+id/iv_play"
+            app:layout_constraintTop_toTopOf="@+id/iv_play"></ImageView>
 
         <SeekBar
-            android:id="@+id/seekBar_detail"
+            android:id="@+id/seekbar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:layout_constraintBottom_toTopOf="@+id/tv_detail_dration_stop"
+            app:layout_constraintBottom_toTopOf="@+id/tv_stop_duration"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
-            android:id="@+id/tv_detail_dration_start"
+            android:id="@+id/tv_start_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginBottom="16dp"
-            android:text="@string/tv_dtail_time_start_stop"
-            app:layout_constraintBottom_toTopOf="@+id/iv_detail_play_audio"
-            app:layout_constraintStart_toStartOf="@+id/seekBar_detail" />
+            android:layout_marginStart="@dimen/dp16"
+            android:layout_marginLeft="@dimen/dp16"
+            android:layout_marginBottom="@dimen/dp16"
+            android:text="@string/detail_duration"
+            app:layout_constraintBottom_toTopOf="@+id/iv_play"
+            app:layout_constraintStart_toStartOf="@+id/seekbar" />
 
         <TextView
-            android:id="@+id/tv_detail_dration_stop"
+            android:id="@+id/tv_stop_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
-            android:text="@string/tv_dtail_time_start_stop"
-            app:layout_constraintBottom_toTopOf="@+id/iv_detail_play_audio"
-            app:layout_constraintEnd_toEndOf="@+id/seekBar_detail" />
+            android:layout_marginEnd="@dimen/dp16"
+            android:layout_marginRight="@dimen/dp16"
+            android:layout_marginBottom="@dimen/dp16"
+            android:text="@string/detail_duration"
+            app:layout_constraintBottom_toTopOf="@+id/iv_play"
+            app:layout_constraintEnd_toEndOf="@+id/seekbar" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -128,7 +127,7 @@
         android:id="@+id/vp_detail"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/dp8"
         app:layout_constraintBottom_toTopOf="@+id/view1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

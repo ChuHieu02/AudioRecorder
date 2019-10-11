@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat;
 
 import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.activity.SettingsActivity;
+import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,10 +47,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private long pauseOffsetChorno;
     private boolean isRunning;
     private Chronometer chronometerTimer;
-    public static final String FORMAT_TYPE = "formatType";
-    public static final String FORMAT_QUALITY = "formatQuality";
-    public static final int SAMPLE_RATE_QUALITY = 1000;
-    public static final String DIRECTION_CHOOSER_PATH = "directionPath";
+    public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,8 +70,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivBottomRecoder = (ImageView) findViewById(R.id.iv_bottom_recoder);
         ivBottomSettings = (ImageView) findViewById(R.id.iv_bottom_settings);
         chronometerTimer = (Chronometer) findViewById(R.id.chronoTime);
-        ivPauseResume =(ImageView) findViewById(R.id.imageViewPauseResume);
-        ivRecord =(ImageView) findViewById(R.id.imageViewRecord);
+        ivPauseResume =(ImageView) findViewById(R.id.ivPauseResume);
+        ivRecord =(ImageView) findViewById(R.id.iv_recoder);
         tvRecordingStatus = (TextView) findViewById(R.id.textView2);
         ivPauseResume.setVisibility(View.INVISIBLE);
         ivPauseResume.setEnabled(false);
@@ -85,8 +84,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "Recorder");
         SharedPreferences sharedPreferences= this.getSharedPreferences("audioSetting", Context.MODE_PRIVATE);
         if(sharedPreferences!= null){
-            int checkStatus = sharedPreferences.getInt(FORMAT_TYPE,0);
-            String pathDirector = sharedPreferences.getString(DIRECTION_CHOOSER_PATH,Environment.getExternalStorageDirectory() + File.separator + "Recorder" );
+            int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE,0);
+            String pathDirector = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Environment.getExternalStorageDirectory() + File.separator + "Recorder" );
             File file = new File(pathDirector);
             if(checkStatus == 0){
                 outputFile ="/"+ file.getAbsolutePath()+"/RecordFile"+System.currentTimeMillis()+".mp3";
@@ -102,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private  void  setupMediaRecorder(){
         SharedPreferences sharedPreferences= this.getSharedPreferences("audioSetting", Context.MODE_PRIVATE);
         if(sharedPreferences!= null){
-            int checkStatus = sharedPreferences.getInt(FORMAT_TYPE,0);
+            int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE,0);
             mAudioRecorder = new MediaRecorder();
             mAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             if(checkStatus == 0){
@@ -114,18 +113,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.MPEG_4);
 
             }
-            int checkQuality = sharedPreferences.getInt(FORMAT_QUALITY,16);
+            int checkQuality = sharedPreferences.getInt(Constants.K_FORMAT_QUALITY,16);
             if(checkQuality == 16){
                 mAudioRecorder.setAudioEncodingBitRate(16);
-                mAudioRecorder.setAudioSamplingRate(16 * SAMPLE_RATE_QUALITY);
+                mAudioRecorder.setAudioSamplingRate(16 * Constants.K_SAMPLE_RATE_QUALITY);
 
             }else if(checkQuality == 22){
                 mAudioRecorder.setAudioEncodingBitRate(22);
-                mAudioRecorder.setAudioSamplingRate(22 * SAMPLE_RATE_QUALITY);
+                mAudioRecorder.setAudioSamplingRate(22 * Constants.K_SAMPLE_RATE_QUALITY);
 
             }else if(checkQuality == 32){
                 mAudioRecorder.setAudioEncodingBitRate(32);
-                mAudioRecorder.setAudioSamplingRate(32 * SAMPLE_RATE_QUALITY);
+                mAudioRecorder.setAudioSamplingRate(32 * Constants.K_SAMPLE_RATE_QUALITY);
 
             }else if(checkQuality == 44){
                 mAudioRecorder.setAudioEncodingBitRate(44);
@@ -367,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ActivityCompat.requestPermissions(MainActivity.this, new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
     //    recordingStatus =1;
     }
-    public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+
 
 
 }

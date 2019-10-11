@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/all_10dp"
+    android:layout_margin="@dimen/dp10"
     android:orientation="vertical"
-    app:cardCornerRadius="@dimen/all_10dp">
+    app:cardCornerRadius="@dimen/dp10">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/view_item_audio"
@@ -14,81 +14,81 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tv_name_item_audio"
+            android:id="@+id/tv_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="@dimen/dp16"
+            android:layout_marginLeft="@dimen/dp16"
+            android:layout_marginTop="@dimen/dp16"
             android:ellipsize="end"
             android:gravity="center|start"
             android:maxLines="2"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/iv_setting_item_audio"
+            app:layout_constraintEnd_toStartOf="@+id/iv_setting"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/imageView"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tv_size_item_audio"
+            android:id="@+id/tv_size"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginStart="@dimen/dp16"
+            android:layout_marginLeft="@dimen/dp16"
+            android:layout_marginTop="@dimen/dp8"
+            android:layout_marginBottom="@dimen/dp8"
             android:ellipsize="end"
             android:gravity="center|start"
             android:lines="1"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tv_time_item_audio"
+            app:layout_constraintEnd_toStartOf="@+id/tv_time"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
         <TextView
-            android:id="@+id/tv_time_item_audio"
+            android:id="@+id/tv_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
+            android:layout_marginStart="@dimen/dp16"
+            android:layout_marginLeft="@dimen/dp16"
+            android:layout_marginEnd="@dimen/dp16"
+            android:layout_marginRight="@dimen/dp16"
             android:ellipsize="end"
             android:gravity="center|end"
             android:lines="1"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_size_item_audio"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_size"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/tv_size_item_audio"
-            app:layout_constraintTop_toTopOf="@+id/tv_size_item_audio" />
+            app:layout_constraintStart_toEndOf="@+id/tv_size"
+            app:layout_constraintTop_toTopOf="@+id/tv_size" />
 
         <ImageView
             android:src="@drawable/ic_library_audio"
             android:id="@+id/imageView"
-            android:layout_width="@dimen/all_50dp"
-            android:layout_height="@dimen/all_50dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintEnd_toStartOf="@+id/tv_name_item_audio"
+            android:layout_width="@dimen/dp50"
+            android:layout_height="@dimen/dp50"
+            android:layout_marginStart="@dimen/dp16"
+            android:layout_marginLeft="@dimen/dp16"
+            android:layout_marginTop="@dimen/dp16"
+            app:layout_constraintEnd_toStartOf="@+id/tv_name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
 
         <FrameLayout
-            android:id="@+id/iv_setting_item_audio"
-            android:layout_width="@dimen/all_50dp"
-            android:layout_height="@dimen/all_50dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
+            android:id="@+id/iv_setting"
+            android:layout_width="@dimen/dp50"
+            android:layout_height="@dimen/dp50"
+            android:layout_marginStart="@dimen/dp16"
+            android:layout_marginLeft="@dimen/dp16"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/tv_name_item_audio"
+            app:layout_constraintStart_toEndOf="@+id/tv_name"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
 
-                android:layout_width="@dimen/all_24dp"
-                android:layout_height="@dimen/all_24dp"
+                android:layout_width="@dimen/dp24"
+                android:layout_height="@dimen/dp24"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_library_more" />
         </FrameLayout>

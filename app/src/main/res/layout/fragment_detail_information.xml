@@ -6,7 +6,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/tv_time_audio"
+        android:id="@+id/tv_time"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -23,7 +23,7 @@
         app:layout_constraintTop_toTopOf="@+id/textView4" />
 
     <TextView
-        android:id="@+id/tv_name_audio"
+        android:id="@+id/tv_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -50,9 +50,9 @@
         android:ellipsize="end"
         android:gravity="center|start"
         android:lines="1"
-        android:text="@string/tv_location_detail_audio"
+        android:text="@string/library_location"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/tv_path_audio"
+        app:layout_constraintEnd_toStartOf="@+id/tv_path"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView6" />
@@ -69,9 +69,9 @@
         android:ellipsize="end"
         android:gravity="center|start"
         android:lines="1"
-        android:text="@string/tv_size_detail_audio"
+        android:text="@string/library_size"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/tv_size_audio"
+        app:layout_constraintEnd_toStartOf="@+id/tv_size"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
@@ -88,9 +88,9 @@
         android:ellipsize="end"
         android:gravity="center|start"
         android:lines="1"
-        android:text="@string/tv_time_detail_audio"
+        android:text="@string/library_time"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/tv_time_audio"
+        app:layout_constraintEnd_toStartOf="@+id/tv_time"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
@@ -107,9 +107,9 @@
         android:ellipsize="end"
         android:gravity="center|start"
         android:lines="1"
-        android:text="@string/tv_duration_detail_audio"
+        android:text="@string/library_duration"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/tv_duration_audio"
+        app:layout_constraintEnd_toStartOf="@+id/tv_duration"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4" />
@@ -125,15 +125,15 @@
         android:ellipsize="end"
         android:gravity="center|start"
         android:lines="1"
-        android:text="@string/tv_name_detail_audio"
+        android:text="@string/library_name"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/tv_name_audio"
+        app:layout_constraintEnd_toStartOf="@+id/tv_name"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tv_path_audio"
+        android:id="@+id/tv_path"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -149,7 +149,7 @@
         app:layout_constraintTop_toTopOf="@+id/textView2" />
 
     <TextView
-        android:id="@+id/tv_size_audio"
+        android:id="@+id/tv_size"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -165,7 +165,7 @@
         app:layout_constraintTop_toTopOf="@+id/textView3" />
 
     <TextView
-        android:id="@+id/tv_duration_audio"
+        android:id="@+id/tv_duration"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

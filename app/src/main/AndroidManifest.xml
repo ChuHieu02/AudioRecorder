@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:screenOrientation="portrait"
-            android:name=".activity.EditContentActivity"
+            android:name=".activity.EditActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize" />
@@ -31,7 +31,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:screenOrientation="portrait"
-            android:name=".activity.DetailAudioActivity"
+            android:name=".activity.DetailActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:screenOrientation="portrait"

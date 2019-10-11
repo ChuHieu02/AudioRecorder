@@ -9,7 +9,7 @@
 
     <ImageView
         android:id="@+id/iv_bottom_library"
-        android:layout_width="@dimen/all_50dp"
+        android:layout_width="@dimen/dp50"
         android:layout_height="match_parent"
         android:scaleType="centerInside"
         android:src="@drawable/ic_library"
@@ -21,7 +21,7 @@
 
     <ImageView
         android:id="@+id/iv_bottom_recoder"
-        android:layout_width="@dimen/all_50dp"
+        android:layout_width="@dimen/dp50"
         android:layout_height="match_parent"
         android:scaleType="centerInside"
         android:src="@drawable/ic_record_pr"
@@ -34,7 +34,7 @@
     <ImageView
         android:id="@+id/iv_bottom_settings"
 
-        android:layout_width="@dimen/all_50dp"
+        android:layout_width="@dimen/dp50"
         android:layout_height="match_parent"
         android:scaleType="centerInside"
         android:src="@drawable/ic_settings"

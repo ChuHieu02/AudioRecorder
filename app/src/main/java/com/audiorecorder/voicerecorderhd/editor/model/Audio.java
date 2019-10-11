@@ -9,8 +9,20 @@ public class Audio implements Parcelable {
     private String date;
     private String duration;
     private String size;
+    private boolean click;
 
 
+
+
+
+    public Audio(String name, String path, String size, String date, String duration, boolean click) {
+        this.name = name;
+        this.path = path;
+        this.date = date;
+        this.duration = duration;
+        this.size = size;
+        this.click = click;
+    }
 
     public Audio(String name, String path, String date, String duration, String size) {
         this.name = name;
@@ -21,12 +33,13 @@ public class Audio implements Parcelable {
     }
 
 
-    protected Audio(Parcel in) {
+    public Audio(Parcel in) {
         name = in.readString();
         path = in.readString();
         date = in.readString();
         duration = in.readString();
         size = in.readString();
+        click = in.readByte() != 0;
     }
 
     public static final Creator<Audio> CREATOR = new Creator<Audio>() {
@@ -40,6 +53,14 @@ public class Audio implements Parcelable {
             return new Audio[size];
         }
     };
+
+    public boolean isClick() {
+        return click;
+    }
+
+    public void setClick(boolean click) {
+        this.click = click;
+    }
 
     public String getName() {
         return name;
@@ -81,6 +102,7 @@ public class Audio implements Parcelable {
         this.size = size;
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -93,8 +115,6 @@ public class Audio implements Parcelable {
         dest.writeString(date);
         dest.writeString(duration);
         dest.writeString(size);
+        dest.writeByte((byte) (click ? 1 : 0));
     }
-
-
-
 }

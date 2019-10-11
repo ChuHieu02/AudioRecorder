@@ -24,12 +24,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
-import com.audiorecorder.voicerecorderhd.editor.activity.EditContentActivity;
+import com.audiorecorder.voicerecorderhd.editor.activity.EditActivity;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 
 import java.io.File;
@@ -69,9 +67,9 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         final Audio audio = audioList.get(position);
-        holder.tv_name_item_audio.setText(audio.getName());
-        holder.tv_time_item_audio.setText(audio.getDate());
-        holder.tv_size_item_audio.setText(audio.getSize() + " | " + audio.getDuration());
+        holder.tv_name.setText(audio.getName());
+        holder.tv_time.setText(audio.getDate());
+        holder.tv_size.setText(audio.getSize() + " | " + audio.getDuration());
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -81,7 +79,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
             }
         });
-        holder.iv_setting_item_audio.setOnClickListener(new View.OnClickListener() {
+        holder.iv_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -226,7 +224,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                                 break;
                             case R.id.pp_editContent_item_library:
                                 try {
-                                    Intent intentEditContent = new Intent(context, EditContentActivity.class);
+                                    Intent intentEditContent = new Intent(context, EditActivity.class);
                                     intentEditContent.putExtra("fileAudioName", audio.getPath());
 
                                     context.startActivity(intentEditContent);
@@ -285,17 +283,17 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView tv_name_item_audio;
-        private TextView tv_time_item_audio;
-        private TextView tv_size_item_audio;
-        private FrameLayout iv_setting_item_audio;
+        private TextView tv_name;
+        private TextView tv_time;
+        private TextView tv_size;
+        private FrameLayout iv_setting;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tv_name_item_audio = itemView.findViewById(R.id.tv_name_item_audio);
-            tv_size_item_audio = itemView.findViewById(R.id.tv_size_item_audio);
-            tv_time_item_audio = itemView.findViewById(R.id.tv_time_item_audio);
-            iv_setting_item_audio = itemView.findViewById(R.id.iv_setting_item_audio);
+            tv_name = itemView.findViewById(R.id.tv_name);
+            tv_size = itemView.findViewById(R.id.tv_size);
+            tv_time = itemView.findViewById(R.id.tv_time);
+            iv_setting = itemView.findViewById(R.id.iv_setting);
         }
     }
 

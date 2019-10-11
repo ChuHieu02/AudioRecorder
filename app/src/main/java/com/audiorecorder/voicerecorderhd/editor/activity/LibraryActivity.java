@@ -6,10 +6,8 @@ import android.content.SharedPreferences;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -44,9 +42,9 @@ public class LibraryActivity extends AppCompatActivity {
         mappingToolbar();
 
         mapping();
-        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.AUDIO_SETTING, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
         if (sharedPreferences != null) {
-            String checkFormatType = sharedPreferences.getString(Constants.DIRECTION_CHOOSER_PATH, Environment.getExternalStorageDirectory() + File.separator + "Recorder");
+            String checkFormatType = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH, Environment.getExternalStorageDirectory() + File.separator + "Recorder");
             final ArrayList<File> audioSong = readAudio(new File(checkFormatType));
             MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
             for (int i = audioSong.size() - 1; i >= 0; i--) {
@@ -68,7 +66,7 @@ public class LibraryActivity extends AppCompatActivity {
         adapter.setOnclickItem(new LibraryAdapter.OnclickItem() {
             @Override
             public void onClick(int i) {
-                startActivity(new Intent(LibraryActivity.this, DetailAudioActivity.class)
+                startActivity(new Intent(LibraryActivity.this, DetailActivity.class)
                         .putExtra("position", i)
                         .putParcelableArrayListExtra("list", audioList));
             }

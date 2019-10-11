@@ -1,36 +1,36 @@
 <resources>
     <string name="app_name">AudioRecoder</string>
-    <!--    main activity-->
-    <string name="tv_recoder_home">Voice recoder</string>
-    <string name="ct_recoder">00</string>
-    <!--navigation-->
-    <string name="title_list_recording">Library</string>
-    <string name="title_recording">Voice Recorder</string>
-    <string name="title_setting">Settings</string>
-    <!-- recorder-->
-    <string name="tv_recorder">Tap to start recording</string>
+    <!--    home-->
+    <string name="home_recoder">Voice recoder</string>
+    <string name="home_duration">00</string>
+    <string name="home_label">Voice Recorder</string>
+    <string name="home_clickRecoder">Tap to start recording</string>
 
-    <!-- Library recoder-->
-    <string name="tv_name_detail_audio">File name</string>
-    <string name="tv_location_detail_audio">File location</string>
-    <string name="tv_size_detail_audio">File size</string>
-    <string name="tv_time_detail_audio">Creation time</string>
-    <string name="tv_duration_detail_audio">Duration</string>
-    <string name="title_image">image</string>
+    <!-- Library -->
+    <string name="library_name">File name</string>
+    <string name="library_location">File location</string>
+    <string name="library_size">File size</string>
+    <string name="library_time">Creation time</string>
+    <string name="library_duration">Duration</string>
+    <string name="library_empty">No recording files available !</string>
+    <string name="all_title_image">image</string>
 
-    <!-- popop menu item library-->
-    <string name="pp_edit_item_library">Rename</string>
-    <string name="pp_delete_item_library">Delete</string>
-    <string name="pp_share_item_library">Share</string>
-    <string name="pp_editContent_item_library">Edit Content</string>
-    <string name="pp_setRingTone_item_library">Set as ringtone</string>
-    <string name="dialog_bt_yes">Yes</string>
-    <string name="dialog_bt_no">No</string>
-    <string name="dialog_tv_rename">Are you sure rename ?</string>
-    <!--    detail-->
-    <string name="tv_dtail_time_start_stop">00:00</string>
-    <string name="list_library_empty"> No recording files available !</string>
+    <!-- popop menu-->
+    <string name="pp_rename">Rename</string>
+    <string name="pp_delete">Delete</string>
+    <string name="pp_share">Share</string>
+    <string name="pp_editConten">Edit Content</string>
+    <string name="pp_setRingTone">Set as ringtone</string>
 
+    <!--    dialog-->
+    <string name="dialog_yes">Yes</string>
+    <string name="dialog_no">No</string>
+    <string name="dialog_rename">Are you sure rename ?</string>
+
+    <!--   detail-->
+    <string name="detail_duration">00:00</string>
+
+    <!--    -->
     <string name="bt_choose_director_path">Choose Folder</string>
     <string name="tv_setting_format_type">Format Type</string>
     <string name="tv_setting_quality">Quality</string>
@@ -40,10 +40,6 @@
     <string name="rb_quality_22kHz">22kHz</string>
     <string name="rb_quality_32kHz">32kHz</string>
     <string name="rb_quality_44kHz">44kHz</string>
-
-
-
-    <string name="main_activity_label">Ringdroid</string>
 
     <string name="search_edit_box">Search</string>
 
@@ -144,8 +140,7 @@
     <string name="delete_audio">Delete Audio</string>
 
     <string name="confirm_delete_ringdroid">Are you sure?</string>
-    <string name="confirm_delete_non_ringdroid"
-        >Are you sure?  This file was not created using Ringdroid!</string>
+    <string name="confirm_delete_non_ringdroid">Are you sure?  This file was not created using Ringdroid!</string>
 
     <string name="delete_ok_button">Delete</string>
     <string name="delete_cancel_button">Cancel</string>
@@ -190,7 +185,6 @@
 
     <string name="about_title">About Ringdroid</string>
     <string name="about_text"><![CDATA[Use Ringdroid to edit MP3, OGG, WAV, AAC, and AMR audio files and create ringtones, alarms, and notifications from them.\n\nTip: copy audio files to your SD card using a USB cable.\n\nTip: tap anywhere on the waveform to start playing at that position.\n\nTip: while playing, tap the word Start or End to quickly set the start and end markers to the current playback time.\n\nVersion %s\n\nDeveloper: Dominic Mazzoni, Nicolas Faralli\nGraphics: Joseph Wain\nSupport and evangelizing: Eugene Koh\nEnhancements: Dan Klufas\n\nRingdroid is free software, distributed under the Apache 2.0 license.  Source code is on github.com/google/ringdroid\n]]></string>
-
 
 
     <!-- Messages Preferences -->

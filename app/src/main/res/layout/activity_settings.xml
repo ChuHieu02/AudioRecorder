@@ -9,14 +9,12 @@
 
     <include
         android:id="@+id/include4"
-        layout="@layout/view_toolbar"
-        tools:layout_editor_absoluteX="-52dp"
-        tools:layout_editor_absoluteY="26dp">
+        layout="@layout/view_toolbar">
 
     </include>
 
     <RadioGroup
-        android:id="@+id/rgFormatType"
+        android:id="@+id/rg_FormatType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -28,14 +26,14 @@
         app:layout_constraintTop_toBottomOf="@+id/textView7">
 
         <RadioButton
-            android:id="@+id/rbMp3"
+            android:id="@+id/rb_Mp3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
             android:text="@string/rb_fomat_type_mp3" />
 
         <RadioButton
-            android:id="@+id/rbWav"
+            android:id="@+id/rb_Wav"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
@@ -44,7 +42,7 @@
     </RadioGroup>
 
     <RadioGroup
-        android:id="@+id/rgSetQuality"
+        android:id="@+id/rg_SetQuality"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -56,28 +54,28 @@
         app:layout_constraintTop_toBottomOf="@+id/textView8">
 
         <RadioButton
-            android:id="@+id/rb16kHz"
+            android:id="@+id/rb_16kHz"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
             android:text="@string/rb_quality_16kHz" />
 
         <RadioButton
-            android:id="@+id/rb22kHz"
+            android:id="@+id/rb_22kHz"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
             android:text="@string/rb_quality_22kHz" />
 
         <RadioButton
-            android:id="@+id/rb32kHz"
+            android:id="@+id/rb_32kHz"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
             android:text="@string/rb_quality_32kHz" />
 
         <RadioButton
-            android:id="@+id/rb44kHz"
+            android:id="@+id/rb_44kHz"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
@@ -86,16 +84,16 @@
     </RadioGroup>
 
     <Button
-        android:id="@+id/btChooseFolder"
-        android:layout_width="@dimen/all_135dp"
-        android:layout_height="@dimen/all_34dp"
+        android:id="@+id/bt_Choose_Folder"
+        android:layout_width="@dimen/dp135"
+        android:layout_height="@dimen/dp34"
         android:layout_marginTop="12dp"
         android:background="@drawable/all_custom_button_background"
         android:text="@string/bt_choose_director_path"
         android:textColor="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rgSetQuality" />
+        app:layout_constraintTop_toBottomOf="@+id/rg_SetQuality" />
 
     <TextView
         android:id="@+id/textView7"
@@ -104,7 +102,7 @@
         android:layout_marginTop="72dp"
         android:text="@string/tv_setting_format_type"
         android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/all_20sp"
+        android:textSize="@dimen/sp20"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -116,10 +114,10 @@
         android:layout_marginTop="15dp"
         android:text="@string/tv_setting_quality"
         android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/all_20sp"
+        android:textSize="@dimen/sp20"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rgFormatType" />
+        app:layout_constraintTop_toBottomOf="@+id/rg_FormatType" />
 
     <TextView
 
@@ -129,9 +127,9 @@
         android:layout_marginTop="16dp"
         android:gravity="center|start"
         android:maxLines="3"
-        app:layout_constraintEnd_toEndOf="@+id/btChooseFolder"
-        app:layout_constraintStart_toStartOf="@+id/btChooseFolder"
-        app:layout_constraintTop_toBottomOf="@+id/btChooseFolder" />
+        app:layout_constraintEnd_toEndOf="@+id/bt_Choose_Folder"
+        app:layout_constraintStart_toStartOf="@+id/bt_Choose_Folder"
+        app:layout_constraintTop_toBottomOf="@+id/bt_Choose_Folder" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
