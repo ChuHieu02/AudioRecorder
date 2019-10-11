@@ -2,7 +2,9 @@ package com.audiorecorder.voicerecorderhd.editor.activity;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaPlayer;
@@ -80,26 +82,29 @@ public class LibraryActivity extends AppCompatActivity {
 //        openAndroidPermissionsWriteSetting();
 //
 //        openAndroidPermissionsWriteStorage();
+        SharedPreferences sharedPreferences= this.getSharedPreferences("audioSetting", Context.MODE_PRIVATE);
+        if(sharedPreferences!= null) {
+            String pathDriector = sharedPreferences.getString("directionPath",Environment.getExternalStorageDirectory() + File.separator + "Recorder");
+            final ArrayList<File> audioSong = readAudio(new File(pathDriector));
+            for (int i = 0; i < audioSong.size(); i++) {
+                File file = audioSong.get(i);
+                String path = file.getAbsolutePath();
+                String name = file.getName();
+                long date = file.lastModified();
+                long size = file.length();
 
-        final ArrayList<File> audioSong = readAudio(new File(Environment.getExternalStorageDirectory() + File.separator + "Recorder"));
-        for (int i = 0; i < audioSong.size(); i++) {
-            File file = audioSong.get(i);
-            String path = file.getAbsolutePath();
-            String name = file.getName();
-            long date = file.lastModified();
-            long size = file.length();
+                isTail = String.valueOf(file.getTotalSpace());
+                String formatSize = (CommonUtils.formatToNumber(String.valueOf(size / 1024)));
+                String formatDate = String.valueOf(dateFormat.format(date));
 
-            isTail = String.valueOf(file.getTotalSpace());
-            String formatSize = (CommonUtils.formatToNumber(String.valueOf(size / 1024)));
-            String formatDate = String.valueOf(dateFormat.format(date));
-
-            Audio audio = new Audio(name, path, formatDate,"", formatSize + " kb", isTail);
-            audioList.add(audio);
+                Audio audio = new Audio(name, path, formatDate, "", formatSize + " kb", isTail);
+                audioList.add(audio);
+            }
+            layoutManager = new LinearLayoutManager(this);
+            rvLibrary.setLayoutManager(layoutManager);
+            adapter = new LibraryAdapter(LibraryActivity.this, audioList);
+            rvLibrary.setAdapter(adapter);
         }
-        layoutManager = new LinearLayoutManager(this);
-        rvLibrary.setLayoutManager(layoutManager);
-        adapter = new LibraryAdapter(LibraryActivity.this, audioList);
-        rvLibrary.setAdapter(adapter);
 
     }
 

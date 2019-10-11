@@ -64,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final String FORMAT_QUALITY = "formatQuality";
     public static final int SAMPLE_RATE_QUALITY = 1000;
     public static final String DIRECTION_CHOOSER_PATH = "directionPath";
+    public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,12 +74,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mappingBottomNavigation();
         if(checkPermissionsResult()) {
             createFile();
-            onRecordAudio();
             recordingStatus = 0;
         }else {
             requestPermissions();
-
         }
+           onRecordAudio();
     }
 
     private void mappingBottomNavigation() {
@@ -96,7 +98,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void createFile() {
-//        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "Recorder");
         SharedPreferences sharedPreferences= this.getSharedPreferences("audioSetting", Context.MODE_PRIVATE);
         if(sharedPreferences!= null){
             int checkStatus = sharedPreferences.getInt(FORMAT_TYPE,0);
@@ -184,8 +185,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mAudioRecorder.stop();
                 mAudioRecorder.release();
                 mAudioRecorder = null;
-                //Toast.makeText(getApplicationContext(), "Audio Recorder successfully", Toast.LENGTH_SHORT).show();
             }
+            File file = new File(outputFile);
+            long fileSize = file.length();
+            fileSize = fileSize/1024;
+            Toast.makeText(getApplicationContext(), "FileSize :"+fileSize, Toast.LENGTH_SHORT).show();
         }catch (Exception e){
             Toast.makeText(getApplicationContext(), "Null Media File", Toast.LENGTH_SHORT).show();
         }
@@ -237,7 +241,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ivPauseResume.setImageResource(R.drawable.ic_home_play);
                     pauseChoronometer();
                     tvRecordingStatus.setText("Pause Recording");
-                 //   Toast.makeText(getApplicationContext(), "Pause Recording", Toast.LENGTH_SHORT).show();
                 }else{
                     if(pauseStatus == 1){
                         resumeRecording();
@@ -245,7 +248,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         ivPauseResume.setImageResource(R.drawable.ic_home_pause);
                         startChoronometer();
                         tvRecordingStatus.setText("Recording...");
-                      //  Toast.makeText(getApplicationContext(), "Resume Recording", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -272,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             isRunning= true;
         }
     }
+
     private  void pauseChoronometer(){
         if(isRunning){
             chronometerTimer.stop();
@@ -279,16 +282,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             isRunning = false;
         }
     }
+
     private  void resetChoronometer(){
         chronometerTimer.setBase(SystemClock.elapsedRealtime());
         pauseOffsetChorno = 0;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stopRecording();
     }
 
     @Override
@@ -299,7 +296,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             recordingStatus = 0;
         }else {
             requestPermissions();
-
         }
     }
 
@@ -323,7 +319,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         builderDiaglog.create().show();
     }
 
-
     private void creatSettingActivityDialog(){
         final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
         builderDiaglog.setTitle("You need go to setting and perrmission for recording")
@@ -331,13 +326,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setPositiveButton("Open", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                       // Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
                         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                       // intent.setData(Uri.parse("package:" + packageName));
-                         intent.setData(Uri.parse("package:" + getApplicationContext().getPackageName()));
+                        intent.setData(Uri.parse("package:" + getApplicationContext().getPackageName()));
                         startActivity(intent);
-                        //recordingStatus = 0;
 
                     }
                 })
@@ -361,26 +353,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (permissionToRecord && permissionToStore) {
                        recordingStatus = 0;
                        Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
+                       break;
                     } else {
-                        Toast.makeText(getApplicationContext(),"Permission Denied :"+recordingStatus,Toast.LENGTH_LONG).show();
-                        tvRecordingStatus.setText("You need go to setting and perrmisson to record");
+                        Toast.makeText(getApplicationContext(),"Permission Denied ",Toast.LENGTH_LONG).show();
                         recordingStatus = 2;
-                        onRecordAudio();
+                        break;
                     }
                 }
                 break;
         }
     }
+
     public boolean checkPermissionsResult() {
         int result = ContextCompat.checkSelfPermission(getApplicationContext(),WRITE_EXTERNAL_STORAGE);
         int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
-        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
+        return result == PackageManager.PERMISSION_GRANTED
+                && result1 == PackageManager.PERMISSION_GRANTED;
     }
+
     private void requestPermissions() {
-        ActivityCompat.requestPermissions(MainActivity.this, new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
-    //    recordingStatus =1;
+        ActivityCompat.requestPermissions(MainActivity.this
+                , new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}
+                , REQUEST_AUDIO_PERMISSION_CODE);
+
     }
-    public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+
 
 
 }
