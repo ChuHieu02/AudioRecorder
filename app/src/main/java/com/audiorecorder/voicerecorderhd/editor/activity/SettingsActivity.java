@@ -172,7 +172,7 @@ public class SettingsActivity extends AppCompatActivity {
             if (checkFormatType == 0) {
                 radioButtonMp3.setChecked(true);
                 radioButtonWav.setChecked(false);
-            } else if (checkFormatType == 1) {
+            }else if(checkFormatType == 1){
                 radioButtonMp3.setChecked(false);
                 radioButtonWav.setChecked(true);
             }

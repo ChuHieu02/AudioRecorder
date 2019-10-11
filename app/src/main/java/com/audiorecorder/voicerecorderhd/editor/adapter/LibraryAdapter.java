@@ -173,18 +173,21 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                                             if (file2.exists()) {
                                                 Toast.makeText(context, "Audio name exist", Toast.LENGTH_SHORT).show();
                                             } else {
+                                                if (ed_name_item_library.getText().toString().length() != 0) {
 
-                                                boolean success = file.renameTo(file2);
-                                                if (success) {
-                                                    audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
-                                                    audio.setName(ed_name_item_library.getText().toString() + ".mp3");
-                                                    notifyItemChanged(position);
-
-                                                    dialog.dismiss();
-                                                    Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                                                    boolean success = file.renameTo(file2);
+                                                    if (success) {
+                                                        audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
+                                                        audio.setName(ed_name_item_library.getText().toString() + ".mp3");
+                                                        notifyItemChanged(position);
+                                                        dialog.dismiss();
+                                                        Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                                                    } else {
+                                                        dialog.dismiss();
+                                                        Toast.makeText(context, "Fail", Toast.LENGTH_SHORT).show();
+                                                    }
                                                 } else {
-                                                    dialog.dismiss();
-                                                    Toast.makeText(context, "Fail", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(context, "Enter name", Toast.LENGTH_SHORT).show();
                                                 }
                                             }
 
@@ -195,17 +198,23 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                                             if (file2.exists()) {
                                                 Toast.makeText(context, "The name exist", Toast.LENGTH_SHORT).show();
                                             } else {
-                                                boolean success = file.renameTo(file2);
-                                                if (success) {
-                                                    audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
-                                                    audio.setName(ed_name_item_library.getText().toString() + ".wav");
-                                                    notifyItemChanged(position);
+                                                if (ed_name_item_library.getText().toString().length() != 0) {
 
-                                                    dialog.dismiss();
-                                                    Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                                                    boolean success = file.renameTo(file2);
+                                                    if (success) {
+                                                        audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
+                                                        audio.setName(ed_name_item_library.getText().toString() + ".wav");
+                                                        notifyItemChanged(position);
+
+                                                        dialog.dismiss();
+                                                        Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                                                    } else {
+                                                        dialog.dismiss();
+                                                        Toast.makeText(context, "Fail", Toast.LENGTH_SHORT).show();
+                                                    }
                                                 } else {
-                                                    dialog.dismiss();
-                                                    Toast.makeText(context, "Fail", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(context, "Enter name", Toast.LENGTH_SHORT).show();
+
                                                 }
                                             }
                                         }

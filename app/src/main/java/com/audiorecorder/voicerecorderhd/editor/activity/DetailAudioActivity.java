@@ -3,6 +3,7 @@ package com.audiorecorder.voicerecorderhd.editor.activity;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,6 +22,7 @@ import com.audiorecorder.voicerecorderhd.editor.adapter.SectionsPagerAdapter;
 import com.audiorecorder.voicerecorderhd.editor.fragment.FragmentDetailInformation;
 import com.audiorecorder.voicerecorderhd.editor.fragment.FragmentDetailListAudio;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
+import com.audiorecorder.voicerecorderhd.editor.utils.CommonUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -43,11 +45,33 @@ public class DetailAudioActivity extends AppCompatActivity implements View.OnCli
     private TextView tv_detail_dration_start, tv_detail_dration_stop;
     private FragmentDetailInformation fragmentDetailInformation;
     private FragmentDetailListAudio fragmentDetailListAudio;
-    private int totalDuration;
-    private int curenposition;
+    private Handler mHandler = new Handler();
 
 
-    @Override
+    private int seekForwardTime = 5000; // 5000 milliseconds
+    private int seekBackwardTime = 5000; // 5000 milliseconds
+    private int currentSongIndex = 0;
+    private boolean isShuffle = false;
+    private boolean isRepeat = false;
+    private Runnable mUpdateTimeTask = new Runnable() {
+
+        @Override
+        public void run() {
+            long totalDuration = (long)DetailAudioActivity.this.mediaPlayer.getDuration();
+            long currentDuration = (long)DetailAudioActivity.this.mediaPlayer.getCurrentPosition();
+            DetailAudioActivity.this.tv_detail_dration_start.setText(CommonUtils.formatTime(currentDuration));
+            DetailAudioActivity.this.tv_detail_dration_stop.setText(CommonUtils.formatTime(currentDuration));
+            int progress = CommonUtils.getProgressPercentage(currentDuration, totalDuration);
+            DetailAudioActivity.this.seekBarDetail.setProgress(progress);
+            DetailAudioActivity.this.mHandler.postDelayed(this, 100L);
+
+
+        }
+    };
+
+
+
+        @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_library);
@@ -79,41 +103,9 @@ public class DetailAudioActivity extends AppCompatActivity implements View.OnCli
 
         mappingTv();
 
-        thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (mediaPlayer != null) {
-                    totalDuration = mediaPlayer.getDuration();
-                } else {
-                    mediaPlayer = null;
-                    totalDuration = mediaPlayer.getDuration();
-                }
-                 curenposition = 0;
-                while (curenposition < totalDuration) {
-                    try {
-                        thread.sleep(1000);
-                        curenposition = mediaPlayer.getCurrentPosition();
-                        seekBarDetail.setProgress(curenposition);
-                        tv_detail_dration_start.setText(fomatTime.format(curenposition));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
 
 
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                if (mediaPlayer != null) {
-                    iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
-                    seekBarDetail.setMax(mediaPlayer.getDuration());
-                    thread.start();
-                    mediaPlayer.start();
-                }
-            }
-        });
+
 
         if (mediaPlayer == null) {
             Toast.makeText(DetailAudioActivity.this, "Play audio fail !", Toast.LENGTH_SHORT).show();
@@ -126,7 +118,6 @@ public class DetailAudioActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void onCompletion(MediaPlayer mp) {
                 if (mediaPlayer != null) {
-                    seekBarDetail.setMax(0);
                     mp.release();
                     mp = null;
                 }
@@ -134,26 +125,26 @@ public class DetailAudioActivity extends AppCompatActivity implements View.OnCli
 
             }
         });
-
-        seekBarDetail.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                if (mediaPlayer != null) {
-                    mediaPlayer.seekTo(seekBarDetail.getProgress());
-                }
-            }
-        });
+//
+//        seekBarDetail.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//
+//
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                if (mediaPlayer != null) {
+//                    mediaPlayer.seekTo(seekBarDetail.getProgress());
+//                }
+//            }
+//        });
         iv_detail_play_audio.setOnClickListener(this);
         iv_detail_next1_audio.setOnClickListener(this);
         iv_detail_next2_audio.setOnClickListener(this);
@@ -258,19 +249,11 @@ public class DetailAudioActivity extends AppCompatActivity implements View.OnCli
                         this.mediaPlayer = null;
                         this.mediaPlayer = MediaPlayer.create(this, Uri.fromFile(new File(audio.getPath())));
                         this.mediaPlayer.start();
-
-                        this.curenposition = mediaPlayer.getCurrentPosition();
-                        seekBarDetail.setProgress(curenposition);
-
                         tv_detail_dration_stop.setText(fomatTime.format(this.mediaPlayer.getDuration()));
                         iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
                     } else if (this.mediaPlayer == null) {
                         this.mediaPlayer = MediaPlayer.create(this, Uri.fromFile(new File(audio.getPath())));
                         this.mediaPlayer.start();
-
-                        this.curenposition = mediaPlayer.getCurrentPosition();
-                        seekBarDetail.setProgress(curenposition);
-
                         tv_detail_dration_stop.setText(fomatTime.format(this.mediaPlayer.getDuration()));
                         iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
                         Log.e("media", mediaPlayer + "");
@@ -296,14 +279,11 @@ public class DetailAudioActivity extends AppCompatActivity implements View.OnCli
                         this.mediaPlayer = null;
                         this.mediaPlayer = MediaPlayer.create(this, Uri.fromFile(new File(audio.getPath())));
                         this.mediaPlayer.start();
-
                         tv_detail_dration_stop.setText(fomatTime.format(this.mediaPlayer.getDuration()));
                         iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
                     } else if (this.mediaPlayer == null) {
                         this.mediaPlayer = MediaPlayer.create(this, Uri.fromFile(new File(audio.getPath())));
                         this.mediaPlayer.start();
-
-
                         tv_detail_dration_stop.setText(fomatTime.format(this.mediaPlayer.getDuration()));
                         iv_detail_play_audio.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
                         Log.e("media", mediaPlayer + "");
@@ -315,12 +295,12 @@ public class DetailAudioActivity extends AppCompatActivity implements View.OnCli
                 }
                 break;
 //
-            case R.id.iv_detail_next1_audio:
-                this.mediaPlayer.seekTo(mediaPlayer.getCurrentPosition() + 5000);
-                break;
-            case R.id.iv_detail_prev1_audio:
-                this.mediaPlayer.seekTo(mediaPlayer.getCurrentPosition() - 5000);
-                break;
+//            case R.id.iv_detail_next1_audio:
+//                this.mediaPlayer.seekTo(mediaPlayer.getCurrentPosition() + 5000);
+//                break;
+//            case R.id.iv_detail_prev1_audio:
+//                this.mediaPlayer.seekTo(mediaPlayer.getCurrentPosition() - 5000);
+//                break;
         }
     }
 

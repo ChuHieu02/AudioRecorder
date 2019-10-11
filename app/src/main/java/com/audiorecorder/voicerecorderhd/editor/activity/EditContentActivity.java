@@ -1,14 +1,14 @@
 package com.audiorecorder.voicerecorderhd.editor.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -30,6 +30,8 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.customView.MarkerView;
@@ -137,8 +139,14 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
 
         Intent intent = getIntent();
 
-
+        // If the Ringdroid media select activity was launched via a
+        // GET_CONTENT intent, then we shouldn't display a "saved"
+        // message when the user saves, we should just return whatever
+        // they create.
+     //   mWasGetContentIntent = intent.getBooleanExtra("was_get_content_intent", false);
         mFilename = intent.getStringExtra("fileAudioName");
+
+      //  mFilename = intent.getData().toString().replaceFirst("file://", "").replaceAll("%20", " ");
         mSoundFile = null;
         mKeyDown = false;
 
@@ -935,7 +943,8 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
 
     private Runnable mTimerRunnable = new Runnable() {
         public void run() {
-
+            // Updating an EditText is slow on Android.  Make sure
+            // we only do the update if the text has actually changed.
             if (mStartPos != mLastDisplayedStartPos &&
                     !mStartText.hasFocus()) {
                 mStartText.setText(formatTime(mStartPos));
@@ -1120,29 +1129,34 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
     }
 
     private String makeRingtoneFilename(CharSequence title, String extension) {
-        String subdir;
-        String externalRootDir = Environment.getExternalStorageDirectory().getPath();
+        String subdir = null;
+        String externalRootDir = Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator+"Recorder";
         if (!externalRootDir.endsWith("/")) {
             externalRootDir += "/";
         }
+
         switch(mNewFileKind) {
             default:
-            case FileSaveDialog.FILE_KIND_MUSIC:
+            case FileSaveDialog.FILE_KIND_DEFAULT:
                 // TODO(nfaralli): can directly use Environment.getExternalStoragePublicDirectory(
                 // Environment.DIRECTORY_MUSIC).getPath() instead
-                subdir = "media/audio/music/";
+                SharedPreferences sharedPreferences= this.getSharedPreferences("audioSetting", Context.MODE_PRIVATE);
+                if(sharedPreferences!= null) {
+                    subdir = sharedPreferences.getString("directionPath",externalRootDir)+"/";
+                }
                 break;
             case FileSaveDialog.FILE_KIND_ALARM:
-                subdir = "media/audio/alarms/";
+                subdir = externalRootDir +"media/audio/alarms/";
                 break;
             case FileSaveDialog.FILE_KIND_NOTIFICATION:
-                subdir = "media/audio/notifications/";
+                subdir = externalRootDir +"media/audio/notifications/";
                 break;
             case FileSaveDialog.FILE_KIND_RINGTONE:
-                subdir = "media/audio/ringtones/";
+                subdir = externalRootDir +"media/audio/ringtones/";
                 break;
         }
-        String parentdir = externalRootDir + subdir;
+      //  String parentdir = externalRootDir + subdir;
+        String parentdir =  subdir;
 
         // Create the parent directory
         File parentDirFile = new File(parentdir);
@@ -1163,7 +1177,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
         }
 
         // Try to make the filename unique
-        String path = null;
+        String path = parentdir;
         for (int i = 0; i < 100; i++) {
             String testPath;
             if (i > 0)
@@ -1199,11 +1213,11 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
         mProgressDialog.setCancelable(false);
         mProgressDialog.show();
 
-
+        // Save the sound file in a background thread
         mSaveSoundFileThread = new Thread() {
             public void run() {
                 // Try AAC first.
-                String outPath = makeRingtoneFilename(title, ".m4a");
+                String outPath = makeRingtoneFilename(title, ".mp3");
                 if (outPath == null) {
                     Runnable runnable = new Runnable() {
                         public void run() {
@@ -1373,7 +1387,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
         values.put(MediaStore.Audio.Media.IS_ALARM,
                 mNewFileKind == FileSaveDialog.FILE_KIND_ALARM);
         values.put(MediaStore.Audio.Media.IS_MUSIC,
-                mNewFileKind == FileSaveDialog.FILE_KIND_MUSIC);
+                mNewFileKind == FileSaveDialog.FILE_KIND_DEFAULT);
 
         // Insert it into the database
         Uri uri = MediaStore.Audio.Media.getContentUriForPath(outPath);
@@ -1388,7 +1402,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
 
         // There's nothing more to do with music or an alarm.  Show a
         // success message and then quit.
-        if (mNewFileKind == FileSaveDialog.FILE_KIND_MUSIC ||
+        if (mNewFileKind == FileSaveDialog.FILE_KIND_DEFAULT ||
                 mNewFileKind == FileSaveDialog.FILE_KIND_ALARM) {
             Toast.makeText(this,
                     R.string.save_success_message,

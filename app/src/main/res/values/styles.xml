@@ -13,8 +13,6 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-
-
     <style name="AudioFileInfoOverlayText">
         <item name="android:paddingLeft">4px</item>
         <item name="android:paddingBottom">4px</item>
@@ -57,12 +55,12 @@
 
     <style name="HorizontalDividerTop">
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">1px</item>
+        <item name="android:layout_height">1sp</item>
         <item name="android:background">#666677</item>
     </style>
     <style name="HorizontalDividerBottom">
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">1px</item>
+        <item name="android:layout_height">1sp</item>
         <item name="android:background">#000022</item>
     </style>
 

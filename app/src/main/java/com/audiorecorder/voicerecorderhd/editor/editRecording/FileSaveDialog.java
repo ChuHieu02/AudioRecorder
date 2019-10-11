@@ -16,7 +16,7 @@ import com.audiorecorder.voicerecorderhd.editor.R;
 import java.util.ArrayList;
 
 public class FileSaveDialog extends Dialog {
-    public static final int FILE_KIND_MUSIC = 0;
+    public static final int FILE_KIND_DEFAULT = 0;
     public static final int FILE_KIND_ALARM = 1;
     public static final int FILE_KIND_NOTIFICATION = 2;
     public static final int FILE_KIND_RINGTONE = 3;
@@ -37,8 +37,8 @@ public class FileSaveDialog extends Dialog {
         switch(kind) {
             default:
                 return "Unknown";
-            case FILE_KIND_MUSIC:
-                return "Music";
+            case FILE_KIND_DEFAULT:
+                return "Defaul";
             case FILE_KIND_ALARM:
                 return "Alarm";
             case FILE_KIND_NOTIFICATION:
@@ -60,7 +60,7 @@ public class FileSaveDialog extends Dialog {
         setTitle(resources.getString(R.string.file_save_title));
 
         mTypeArray = new ArrayList<String>();
-        mTypeArray.add(resources.getString(R.string.type_music));
+        mTypeArray.add(resources.getString(R.string.type_default));
         mTypeArray.add(resources.getString(R.string.type_alarm));
         mTypeArray.add(resources.getString(R.string.type_notification));
         mTypeArray.add(resources.getString(R.string.type_ringtone));
@@ -110,7 +110,8 @@ public class FileSaveDialog extends Dialog {
 
         int newSelection = mTypeSpinner.getSelectedItemPosition();
         String newSuffix = mTypeArray.get(newSelection);
-        mFilename.setText(mOriginalName + " " + newSuffix);
+    //    mFilename.setText(mOriginalName + " " + newSuffix);
+        mFilename.setText(mOriginalName);
         mPreviousSelection = mTypeSpinner.getSelectedItemPosition();
     }
 

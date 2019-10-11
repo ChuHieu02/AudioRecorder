@@ -3,6 +3,7 @@ package com.audiorecorder.voicerecorderhd.editor.editRecording;
 import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 
 import java.util.HashMap;
@@ -95,6 +96,7 @@ public class SongMetadataReader {
                         .append("/")
                         .append(CONTENTDIR)
                         .toString());
+
     }
 
     private String getStringFromColumn(Cursor c, String columnName) {
