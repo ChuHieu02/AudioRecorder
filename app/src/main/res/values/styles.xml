@@ -12,7 +12,10 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-
+    <declare-styleable name="AppCompatTheme">
+        <attr format="reference" name="selectableItemBackground"/>
+        <attr format="reference" name="selectableItemBackgroundBorderless"/>
+    </declare-styleable>
     <style name="AudioFileInfoOverlayText">
         <item name="android:paddingLeft">4px</item>
         <item name="android:paddingBottom">4px</item>

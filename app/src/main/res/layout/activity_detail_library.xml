@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".activity.DetailActivity">
 
-
     <me.relex.circleindicator.CircleIndicator
         android:id="@+id/indicator"
         android:layout_width="match_parent"
@@ -29,7 +28,8 @@
         app:layout_constraintVertical_weight="1">
 
         <ImageView
-
+            android:adjustViewBounds="true"
+            android:background="?selectableItemBackgroundBorderless"
             android:id="@+id/iv_next2"
             android:layout_width="@dimen/dp35"
             android:layout_height="@dimen/dp35"
@@ -42,6 +42,8 @@
             app:layout_constraintTop_toTopOf="@+id/iv_next1"></ImageView>
 
         <ImageView
+            android:adjustViewBounds="true"
+            android:background="?selectableItemBackgroundBorderless"
             android:id="@+id/iv_prev2"
             android:layout_width="@dimen/dp35"
             android:layout_height="@dimen/dp35"
@@ -54,6 +56,8 @@
             app:layout_constraintStart_toStartOf="parent"></ImageView>
 
         <ImageView
+            android:adjustViewBounds="true"
+            android:background="?selectableItemBackgroundBorderless"
             android:id="@+id/iv_prev1"
             android:layout_width="@dimen/dp35"
             android:layout_height="@dimen/dp35"
@@ -66,6 +70,8 @@
             app:layout_constraintTop_toTopOf="@+id/iv_prev2"></ImageView>
 
         <ImageView
+            android:adjustViewBounds="true"
+            android:background="?selectableItemBackgroundBorderless"
             android:id="@+id/iv_play"
             android:layout_width="@dimen/dp70"
             android:layout_height="@dimen/dp70"
@@ -78,7 +84,8 @@
             app:layout_constraintTop_toTopOf="@+id/iv_prev1"></ImageView>
 
         <ImageView
-
+            android:adjustViewBounds="true"
+            android:background="?selectableItemBackgroundBorderless"
             android:id="@+id/iv_next1"
             android:layout_width="@dimen/dp35"
             android:layout_height="@dimen/dp35"

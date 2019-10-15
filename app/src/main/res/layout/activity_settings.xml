@@ -9,7 +9,9 @@
 
     <include
         android:id="@+id/include4"
-        layout="@layout/view_toolbar">
+        layout="@layout/view_toolbar"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
     </include>
 

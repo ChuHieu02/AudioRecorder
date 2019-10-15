@@ -3,8 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/dp10"
+    android:layout_marginLeft="@dimen/dp10"
+    android:layout_marginTop="@dimen/dp10"
+    android:layout_marginRight="@dimen/dp10"
     android:orientation="vertical"
+    android:focusable="true"
+    android:foreground="?selectableItemBackground"
     app:cardCornerRadius="@dimen/dp10">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -62,19 +66,21 @@
             app:layout_constraintTop_toTopOf="@+id/tv_size" />
 
         <ImageView
-            android:src="@drawable/ic_library_audio"
             android:id="@+id/imageView"
             android:layout_width="@dimen/dp50"
             android:layout_height="@dimen/dp50"
             android:layout_marginStart="@dimen/dp16"
             android:layout_marginLeft="@dimen/dp16"
             android:layout_marginTop="@dimen/dp16"
+            android:src="@drawable/ic_library_audio"
             app:layout_constraintEnd_toStartOf="@+id/tv_name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
 
         <FrameLayout
+            android:adjustViewBounds="true"
+            android:background="?selectableItemBackgroundBorderless"
             android:id="@+id/iv_setting"
             android:layout_width="@dimen/dp50"
             android:layout_height="@dimen/dp50"

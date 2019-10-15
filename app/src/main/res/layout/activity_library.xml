@@ -20,26 +20,50 @@
         app:layout_constraintTop_toTopOf="@+id/include2">
 
         <TextView
-            android:drawablePadding="@dimen/dp10"
-            android:drawableBottom="@drawable/ic_mic_off_black_24dp"
             android:id="@+id/tv_library_empty"
-            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:drawableBottom="@drawable/ic_mic_off_black_24dp"
+            android:drawablePadding="@dimen/dp10"
+            android:text="@string/library_empty"
             android:textColor="@color/colorPrimary"
             android:textSize="@dimen/sp20"
-            android:text="@string/library_empty"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:visibility="gone">
 
         </TextView>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_library"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/include2" />
+
+        <LinearLayout
+
+            android:id="@+id/prb_library"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:layout_width="@dimen/dp50"
+                android:layout_height="@dimen/dp50"
+                android:layout_gravity="center"
+                android:backgroundTint="@android:color/holo_red_light"></ProgressBar>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/progress_dialog_loading"
+                android:textColor="@color/colorPrimary"
+                android:textSize="@dimen/sp20"></TextView>
+        </LinearLayout>
     </FrameLayout>
 
 

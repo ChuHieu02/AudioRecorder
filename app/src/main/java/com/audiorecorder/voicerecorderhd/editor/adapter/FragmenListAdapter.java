@@ -60,7 +60,9 @@ public class FragmenListAdapter extends RecyclerView.Adapter<FragmenListAdapter.
         }
 
         void bind(final Audio audio, final int position) {
-            tv_name_detail_item_fragment.setText(audio.getName());
+            if (audio.getName()!=null){
+                tv_name_detail_item_fragment.setText(audio.getName());
+            }
             if (checkedPosition == -1) {
                 tv_name_detail_item_fragment.setSelected(false);
                 iv_check_item_detail_list.setVisibility(View.GONE);
@@ -73,8 +75,6 @@ public class FragmenListAdapter extends RecyclerView.Adapter<FragmenListAdapter.
                     iv_check_item_detail_list.setVisibility(View.GONE);
                 }
             }
-
-
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

@@ -31,10 +31,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             return null;
         }
         return fragments.get(position);
-
     }
-
-
 
     @Override
     public int getCount() {
