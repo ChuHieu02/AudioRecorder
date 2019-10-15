@@ -1,31 +1,45 @@
 package com.audiorecorder.voicerecorderhd.editor.model;
 
-public class Audio {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Audio implements Parcelable {
     private String name;
     private String path;
     private String date;
     private String duration;
     private String size;
-    private String isTail;
 
 
 
-    public Audio(String name, String path, String date, String duration, String size, String isTail) {
+    public Audio(String name, String path, String date, String duration, String size) {
         this.name = name;
         this.path = path;
         this.date = date;
         this.duration = duration;
         this.size = size;
-        this.isTail = isTail;
     }
 
-    public String getIsTail() {
-        return isTail;
+
+    protected Audio(Parcel in) {
+        name = in.readString();
+        path = in.readString();
+        date = in.readString();
+        duration = in.readString();
+        size = in.readString();
     }
 
-    public void setIsTail(String isTail) {
-        this.isTail = isTail;
-    }
+    public static final Creator<Audio> CREATOR = new Creator<Audio>() {
+        @Override
+        public Audio createFromParcel(Parcel in) {
+            return new Audio(in);
+        }
+
+        @Override
+        public Audio[] newArray(int size) {
+            return new Audio[size];
+        }
+    };
 
     public String getName() {
         return name;
@@ -66,4 +80,21 @@ public class Audio {
     public void setSize(String size) {
         this.size = size;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(path);
+        dest.writeString(date);
+        dest.writeString(duration);
+        dest.writeString(size);
+    }
+
+
+
 }

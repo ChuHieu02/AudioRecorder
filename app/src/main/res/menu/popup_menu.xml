@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orderInCategory="1">
 
     <item
-        android:icon="@drawable/ic_settings_black_24dp"
         android:id="@+id/pp_edit_item_library"
+        android:icon="@drawable/ic_library_menu_editname"
         android:title="@string/pp_edit_item_library" />
     <item
+        android:icon="@drawable/ic_library_menu_delete"
         android:id="@+id/pp_delete_item_library"
         android:title="@string/pp_delete_item_library" />
     <item
+        android:icon="@drawable/ic_library_menu_share"
         android:id="@+id/pp_share_item_library"
         android:title="@string/pp_share_item_library" />
     <item
+        android:icon="@drawable/ic_library_menu_editcontent"
         android:id="@+id/pp_editContent_item_library"
         android:title="@string/pp_editContent_item_library" />
     <item
+        android:icon="@drawable/ic_library_menu_setasringtone"
         android:id="@+id/pp_setRingTone_item_library"
         android:title="@string/pp_setRingTone_item_library" />
 

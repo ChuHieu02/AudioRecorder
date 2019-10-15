@@ -24,19 +24,33 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.audiorecorder.voicerecorderhd.editor.R;
-import com.audiorecorder.voicerecorderhd.editor.activity.DetailAudioActivity;
 import com.audiorecorder.voicerecorderhd.editor.activity.EditContentActivity;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 
 public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHolder> {
     private Context context;
     private List<Audio> audioList;
     private AlertDialog dialog;
+    public OnclickItem onclickItem;
+
+    public interface OnclickItem {
+        void onClick(int i);
+    }
+
+    public void setOnclickItem(OnclickItem onclickItem) {
+        this.onclickItem = onclickItem;
+    }
+
 
     private boolean isMp3;
 
@@ -60,30 +74,36 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         holder.tv_size_item_audio.setText(audio.getSize() + " | " + audio.getDuration());
 
 
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                onclickItem.onClick(position);
 
-                Intent intent = new Intent(context, DetailAudioActivity.class);
-                intent.putExtra("path", audio.getPath());
-                intent.putExtra("name", audio.getName());
-                intent.putExtra("size", String.valueOf(audio.getSize()));
-                intent.putExtra("date", audio.getDate());
-                intent.putExtra("position", position);
-                intent.putExtra("duration", audio.getDuration());
-
-                context.startActivity(intent);
             }
         });
         holder.iv_setting_item_audio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Toast.makeText(context, "" + audio.getDuration(), Toast.LENGTH_SHORT).show();
 
                 PopupMenu popup = new PopupMenu(context, v);
                 MenuInflater inflater = popup.getMenuInflater();
                 inflater.inflate(R.menu.popup_menu, popup.getMenu());
+                try {
+                    Field[] fields = popup.getClass().getDeclaredFields();
+                    for (Field field : fields) {
+                        if ("mPopup".equals(field.getName())) {
+                            field.setAccessible(true);
+                            Object menuPopupHelper = field.get(popup);
+                            Class<?> classPopupHelper = Class.forName(menuPopupHelper.getClass().getName());
+                            Method setForceIcons = classPopupHelper.getMethod("setForceShowIcon", boolean.class);
+                            setForceIcons.invoke(menuPopupHelper, true);
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
@@ -150,29 +170,52 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                                         if (isMp3) {
                                             File file = new File(audio.getPath());
                                             File file2 = new File(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
-                                            boolean success = file.renameTo(file2);
-                                            if (success) {
-                                                file.delete();
-                                                notifyDataSetChanged();
-                                                dialog.dismiss();
-                                                Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                                            if (file2.exists()) {
+                                                Toast.makeText(context, "Audio name exist", Toast.LENGTH_SHORT).show();
                                             } else {
-                                                dialog.dismiss();
-                                                Toast.makeText(context, "Fail", Toast.LENGTH_SHORT).show();
+                                                if (ed_name_item_library.getText().toString().length() != 0) {
+
+                                                    boolean success = file.renameTo(file2);
+                                                    if (success) {
+                                                        audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
+                                                        audio.setName(ed_name_item_library.getText().toString() + ".mp3");
+                                                        notifyItemChanged(position);
+                                                        dialog.dismiss();
+                                                        Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                                                    } else {
+                                                        dialog.dismiss();
+                                                        Toast.makeText(context, "Fail", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                } else {
+                                                    Toast.makeText(context, "Enter name", Toast.LENGTH_SHORT).show();
+                                                }
                                             }
+
                                         } else {
 
                                             File file = new File(audio.getPath());
                                             File file2 = new File(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
-                                            boolean success = file.renameTo(file2);
-                                            if (success) {
-                                                file.delete();
-                                                notifyDataSetChanged();
-                                                dialog.dismiss();
-                                                Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                                            if (file2.exists()) {
+                                                Toast.makeText(context, "The name exist", Toast.LENGTH_SHORT).show();
                                             } else {
-                                                dialog.dismiss();
-                                                Toast.makeText(context, "Fail", Toast.LENGTH_SHORT).show();
+                                                if (ed_name_item_library.getText().toString().length() != 0) {
+
+                                                    boolean success = file.renameTo(file2);
+                                                    if (success) {
+                                                        audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
+                                                        audio.setName(ed_name_item_library.getText().toString() + ".wav");
+                                                        notifyItemChanged(position);
+
+                                                        dialog.dismiss();
+                                                        Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                                                    } else {
+                                                        dialog.dismiss();
+                                                        Toast.makeText(context, "Fail", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                } else {
+                                                    Toast.makeText(context, "Enter name", Toast.LENGTH_SHORT).show();
+
+                                                }
                                             }
                                         }
                                     }
@@ -184,12 +227,9 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                             case R.id.pp_editContent_item_library:
                                 try {
                                     Intent intentEditContent = new Intent(context, EditContentActivity.class);
-                                    intentEditContent.putExtra("fileAudioName",audio.getPath());
-//                                    intentEditContent.setClassName(
-//                                            "com.audiorecorder.voicerecorderhd.editor.adapter",
-//                                            "com.audiorecorder.voicerecorderhd.editor.adapter.LibraryAdapter");
+                                    intentEditContent.putExtra("fileAudioName", audio.getPath());
+
                                     context.startActivity(intentEditContent);
-                                    Toast.makeText(context, audio.getPath(), Toast.LENGTH_LONG).show();
                                     Log.e("Ringdroid", audio.getPath());
                                 } catch (Exception e) {
                                     Log.e("Ringdroid", "Couldn't start editor");
@@ -199,7 +239,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
                                 break;
                             case R.id.pp_setRingTone_item_library:
-                                boolean retVal = true;
+                                boolean retVal;
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                     retVal = Settings.System.canWrite(context);
                                     if (retVal) {
@@ -215,12 +255,12 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                                         values.put(MediaStore.Audio.AudioColumns.IS_MUSIC, false);
 
                                         Uri uri_ringtone = MediaStore.Audio.Media.getContentUriForPath(audio.getPath());
-                                        context.getContentResolver().
-
-                                                delete(uri_ringtone, MediaStore.MediaColumns.DATA + "=\"" + audio.getPath() + "\"", null);
+                                        context.getContentResolver().delete(uri_ringtone, MediaStore.MediaColumns.DATA + "=\"" + audio.getPath() + "\"", null);
 
                                         Uri newUri = context.getContentResolver().insert(uri_ringtone, values);
+
                                         RingtoneManager.setActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE, newUri);
+                                        Toast.makeText(context, "Set ringtone success !", Toast.LENGTH_SHORT).show();
                                     } else {
                                         Intent intentPermission = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
                                         intentPermission.setData(Uri.parse("package:" + context.getPackageName()));
@@ -243,6 +283,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         return audioList.size();
     }
 
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView tv_name_item_audio;
         private TextView tv_time_item_audio;
@@ -257,5 +298,6 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
             iv_setting_item_audio = itemView.findViewById(R.id.iv_setting_item_audio);
         }
     }
+
 
 }

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">AudioRecoder</string>
     <!--    main activity-->
+    <string name="tv_recoder_home">Voice recoder</string>
     <string name="ct_recoder">00</string>
     <!--navigation-->
     <string name="title_list_recording">Library</string>
@@ -26,6 +27,9 @@
     <string name="dialog_bt_yes">Yes</string>
     <string name="dialog_bt_no">No</string>
     <string name="dialog_tv_rename">Are you sure rename ?</string>
+    <!--    detail-->
+    <string name="tv_dtail_time_start_stop">00:00</string>
+    <string name="list_library_empty"> No recording files available !</string>
 
     <string name="bt_choose_director_path">Choose Folder</string>
     <string name="tv_setting_format_type">Format Type</string>
@@ -188,6 +192,17 @@
     <string name="about_text"><![CDATA[Use Ringdroid to edit MP3, OGG, WAV, AAC, and AMR audio files and create ringtones, alarms, and notifications from them.\n\nTip: copy audio files to your SD card using a USB cable.\n\nTip: tap anywhere on the waveform to start playing at that position.\n\nTip: while playing, tap the word Start or End to quickly set the start and end markers to the current playback time.\n\nVersion %s\n\nDeveloper: Dominic Mazzoni, Nicolas Faralli\nGraphics: Joseph Wain\nSupport and evangelizing: Eugene Koh\nEnhancements: Dan Klufas\n\nRingdroid is free software, distributed under the Apache 2.0 license.  Source code is on github.com/google/ringdroid\n]]></string>
 
 
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
 
 
 </resources>

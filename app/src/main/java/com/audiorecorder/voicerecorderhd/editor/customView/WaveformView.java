@@ -13,7 +13,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
-import com.audiorecorder.voicerecorderhd.editor.demoRecord.SoundFile;
+import com.audiorecorder.voicerecorderhd.editor.editRecording.SoundFile;
 
 
 /**

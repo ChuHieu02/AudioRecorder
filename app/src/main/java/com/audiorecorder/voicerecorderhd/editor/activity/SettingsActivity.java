@@ -14,23 +14,22 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import com.audiorecorder.voicerecorderhd.editor.R;
+import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 import com.codekidlabs.storagechooser.StorageChooser;
 
+import java.io.File;
+
 public class SettingsActivity extends AppCompatActivity {
-    private static final String STATIC_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() ;
+    private static final String STATIC_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
     private Toolbar toolbar;
-    private RadioGroup radioGroupFormatType,radioGroupSetQuality;
+    private RadioGroup radioGroupFormatType, radioGroupSetQuality;
     private RadioButton radioButtonMp3, radioButtonWav;
-    private RadioButton radioButton16kHz,radioButton22kHz,
-            radioButton32kHz,radioButton44kHz;
+    private RadioButton radioButton16kHz, radioButton22kHz, radioButton32kHz, radioButton44kHz;
     private Button buttonChooseFolder;
     private TextView textView;
-    public static final String FORMAT_TYPE = "formatType";
-    public static final String FORMAT_QUALITY = "formatQuality";
-    public static final String AUDIO_SETTING = "audioSetting";
-    public static final String DIRECTION_CHOOSER_PATH = "directionPath";
-    private String pathDirection;
+    private TextView tv_path_setting;
 
 
     @Override
@@ -40,51 +39,64 @@ public class SettingsActivity extends AppCompatActivity {
         mappingToolbar();
         settingAudio();
         loadAudioSetting();
+        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.AUDIO_SETTING, Context.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            String path = sharedPreferences.getString(Constants.DIRECTION_CHOOSER_PATH, Constants.DEFALT_PATH);
+            tv_path_setting.setText(path);
+        } else {
+            tv_path_setting.setText(Constants.DEFALT_PATH);
+
+        }
 
     }
+
     private void mappingToolbar() {
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Settings");
+        toolbar.setTitle("Library");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        radioGroupFormatType = (RadioGroup) findViewById(R.id.rgFormatType);
-        radioGroupSetQuality = (RadioGroup) findViewById(R.id.rgSetQuality);
-        radioButtonMp3 = (RadioButton) findViewById(R.id.rbMp3);
-        radioButtonWav = (RadioButton) findViewById(R.id.rbWav);
-        radioButton16kHz = (RadioButton) findViewById(R.id.rb16kHz);
-        radioButton22kHz = (RadioButton) findViewById(R.id.rb22kHz);
-        radioButton32kHz = (RadioButton) findViewById(R.id.rb32kHz);
-        radioButton44kHz = (RadioButton) findViewById(R.id.rb44kHz);
-        buttonChooseFolder = (Button) findViewById(R.id.btChooseFolder);
-        textView = (TextView) findViewById(R.id.textView);
+
+        tv_path_setting = findViewById(R.id.tv_path_setting);
+
+        radioGroupFormatType = findViewById(R.id.rgFormatType);
+        radioGroupSetQuality = findViewById(R.id.rgSetQuality);
+        radioButtonMp3 = findViewById(R.id.rbMp3);
+        radioButtonWav = findViewById(R.id.rbWav);
+        radioButton16kHz = findViewById(R.id.rb16kHz);
+        radioButton22kHz = findViewById(R.id.rb22kHz);
+        radioButton32kHz = findViewById(R.id.rb32kHz);
+        radioButton44kHz = findViewById(R.id.rb44kHz);
+        buttonChooseFolder = findViewById(R.id.btChooseFolder);
+        textView = findViewById(R.id.textView);
         buttonChooseFolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                SharedPreferences sharedPreferences= getSharedPreferences(AUDIO_SETTING, Context.MODE_PRIVATE);
-//                String prePath = sharedPreferences.getString(DIRECTION_CHOOSER_PATH,STATIC_PATH);
+                SharedPreferences sharedPreferences = getSharedPreferences(Constants.AUDIO_SETTING, Context.MODE_PRIVATE);
                 StorageChooser chooser = new StorageChooser.Builder()
                         .withActivity(SettingsActivity.this)
                         .withPredefinedPath(STATIC_PATH)
+                        .actionSave(true)
                         .withFragmentManager(getFragmentManager())
                         .allowCustomPath(true)
                         .allowAddFolder(true)
+                        .withPreference(sharedPreferences)
                         .setType(StorageChooser.DIRECTORY_CHOOSER)
                         .withMemoryBar(true)
-                        .hideFreeSpaceLabel(true)
                         .skipOverview(true)
-                        .build()
-                        ;
+                        .build();
                 chooser.show();
                 chooser.setOnSelectListener(new StorageChooser.OnSelectListener() {
                     @Override
                     public void onSelect(String path) {
                         Log.e("SELECTED_PATH", path);
-                        SharedPreferences sharedPreferences= getSharedPreferences(AUDIO_SETTING, Context.MODE_PRIVATE);
+                        SharedPreferences sharedPreferences = getSharedPreferences(Constants.AUDIO_SETTING, Context.MODE_PRIVATE);
                         final SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString(DIRECTION_CHOOSER_PATH,path);
+                        editor.putString(Constants.DIRECTION_CHOOSER_PATH, path);
                         editor.apply();
-                        Toast.makeText(getApplicationContext(), path, Toast.LENGTH_LONG).show();
+                        tv_path_setting.setText(path);
+
                     }
                 });
             }
@@ -97,13 +109,13 @@ public class SettingsActivity extends AppCompatActivity {
         return true;
     }
 
-    private void settingAudio(){
-        SharedPreferences sharedPreferences= this.getSharedPreferences(AUDIO_SETTING, Context.MODE_PRIVATE);
+    private void settingAudio() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.AUDIO_SETTING, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = sharedPreferences.edit();
         radioButtonWav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editor.putInt(FORMAT_TYPE,1);
+                editor.putInt(Constants.FORMAT_TYPE, 1);
                 editor.apply();
             }
         });
@@ -111,7 +123,7 @@ public class SettingsActivity extends AppCompatActivity {
         radioButtonMp3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editor.putInt(FORMAT_TYPE,0);
+                editor.putInt(Constants.FORMAT_TYPE, 0);
                 editor.apply();
             }
         });
@@ -119,7 +131,7 @@ public class SettingsActivity extends AppCompatActivity {
         radioButton16kHz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editor.putInt(FORMAT_QUALITY,16);
+                editor.putInt(Constants.FORMAT_QUALITY, 16);
                 editor.apply();
 
             }
@@ -129,7 +141,7 @@ public class SettingsActivity extends AppCompatActivity {
         radioButton22kHz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editor.putInt(FORMAT_QUALITY,22);
+                editor.putInt(Constants.FORMAT_QUALITY, 22);
                 editor.apply();
 
             }
@@ -138,7 +150,7 @@ public class SettingsActivity extends AppCompatActivity {
         radioButton32kHz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editor.putInt(FORMAT_QUALITY,32);
+                editor.putInt(Constants.FORMAT_QUALITY, 32);
                 editor.apply();
             }
         });
@@ -146,18 +158,18 @@ public class SettingsActivity extends AppCompatActivity {
         radioButton44kHz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editor.putInt(FORMAT_QUALITY,44);
+                editor.putInt(Constants.FORMAT_QUALITY, 44);
                 editor.apply();
             }
         });
     }
 
-    private void loadAudioSetting()  {
+    private void loadAudioSetting() {
 
-        SharedPreferences sharedPreferences= this.getSharedPreferences(AUDIO_SETTING, Context.MODE_PRIVATE);
-        if(sharedPreferences!= null) {
-            int checkFormatType = sharedPreferences.getInt(FORMAT_TYPE,0);
-            if(checkFormatType == 0){
+        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.AUDIO_SETTING, Context.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            int checkFormatType = sharedPreferences.getInt(Constants.FORMAT_TYPE, 0);
+            if (checkFormatType == 0) {
                 radioButtonMp3.setChecked(true);
                 radioButtonWav.setChecked(false);
             }else if(checkFormatType == 1){
@@ -165,17 +177,17 @@ public class SettingsActivity extends AppCompatActivity {
                 radioButtonWav.setChecked(true);
             }
 
-            int checkQuality = sharedPreferences.getInt(FORMAT_QUALITY,16);
-            if(checkQuality == 16){
+            int checkQuality = sharedPreferences.getInt(Constants.FORMAT_QUALITY, 16);
+            if (checkQuality == 16) {
                 radioButton16kHz.setChecked(true);
 
-            } else if(checkQuality == 22){
+            } else if (checkQuality == 22) {
                 radioButton22kHz.setChecked(true);
 
-            } else if(checkQuality == 32){
+            } else if (checkQuality == 32) {
                 radioButton32kHz.setChecked(true);
 
-            } else if(checkQuality == 44){
+            } else if (checkQuality == 44) {
                 radioButton44kHz.setChecked(true);
 
             }

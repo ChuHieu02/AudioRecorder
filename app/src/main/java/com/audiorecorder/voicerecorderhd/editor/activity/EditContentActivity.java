@@ -1,7 +1,5 @@
 package com.audiorecorder.voicerecorderhd.editor.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -33,14 +31,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.customView.MarkerView;
 import com.audiorecorder.voicerecorderhd.editor.customView.WaveformView;
-import com.audiorecorder.voicerecorderhd.editor.demoRecord.AfterSaveActionDialog;
-import com.audiorecorder.voicerecorderhd.editor.demoRecord.FileSaveDialog;
-import com.audiorecorder.voicerecorderhd.editor.demoRecord.SamplePlayer;
-import com.audiorecorder.voicerecorderhd.editor.demoRecord.SongMetadataReader;
-import com.audiorecorder.voicerecorderhd.editor.demoRecord.SoundFile;
+import com.audiorecorder.voicerecorderhd.editor.editRecording.AfterSaveActionDialog;
+import com.audiorecorder.voicerecorderhd.editor.editRecording.FileSaveDialog;
+import com.audiorecorder.voicerecorderhd.editor.editRecording.SamplePlayer;
+import com.audiorecorder.voicerecorderhd.editor.editRecording.SongMetadataReader;
+import com.audiorecorder.voicerecorderhd.editor.editRecording.SoundFile;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -1130,7 +1130,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
 
     private String makeRingtoneFilename(CharSequence title, String extension) {
         String subdir = null;
-        String externalRootDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+        String externalRootDir = Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator+"Recorder";
         if (!externalRootDir.endsWith("/")) {
             externalRootDir += "/";
         }

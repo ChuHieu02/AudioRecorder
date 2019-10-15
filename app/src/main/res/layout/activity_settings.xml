@@ -10,8 +10,8 @@
     <include
         android:id="@+id/include4"
         layout="@layout/view_toolbar"
-        tools:layout_editor_absoluteX="-16dp"
-        tools:layout_editor_absoluteY="31dp">
+        tools:layout_editor_absoluteX="-52dp"
+        tools:layout_editor_absoluteY="26dp">
 
     </include>
 
@@ -25,8 +25,7 @@
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView7"
-        >
+        app:layout_constraintTop_toBottomOf="@+id/textView7">
 
         <RadioButton
             android:id="@+id/rbMp3"
@@ -121,5 +120,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rgFormatType" />
+
+    <TextView
+
+        android:id="@+id/tv_path_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center|start"
+        android:maxLines="3"
+        app:layout_constraintEnd_toEndOf="@+id/btChooseFolder"
+        app:layout_constraintStart_toStartOf="@+id/btChooseFolder"
+        app:layout_constraintTop_toBottomOf="@+id/btChooseFolder" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
