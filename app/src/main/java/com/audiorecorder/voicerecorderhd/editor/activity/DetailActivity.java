@@ -40,7 +40,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     private Audio audio;
     private Bundle bundle;
     private SimpleDateFormat fomatTime = new SimpleDateFormat("mm:ss");
-    private TextView tvStartDuration, tv_StopDuration;
+    private TextView tvStartDuration, tvStopDuration;
     private FragmentInforDetail fragmentDetailInformation;
     private FragmentListAudio fragmentDetailListAudio;
 
@@ -49,37 +49,30 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_library);
 
-        bundle = getIntent().getExtras();
-        if (bundle != null) {
-            listAudio = bundle.getParcelableArrayList("list");
-            position = bundle.getInt("position");
-            this.audio = listAudio.get(position);
-        }
-
-        this.fragmentDetailInformation = new FragmentInforDetail().setArguments(audio);
-        this.fragmentDetailListAudio = new FragmentListAudio().setArguments(listAudio,position);
-
-        List<Fragment> dataFragment = new ArrayList<>();
-        dataFragment.add(fragmentDetailInformation);
-        dataFragment.add(fragmentDetailListAudio);
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(), dataFragment);
-        ViewPager viewPager = findViewById(R.id.vp_detail);
-        viewPager.setAdapter(sectionsPagerAdapter);
-        CircleIndicator indicator = findViewById(R.id.indicator);
-        indicator.setViewPager(viewPager);
-
+        getBundle();
+        addFragment();
         mappingTv();
         pLayAudio();
+        mediaManager();
 
+        ivPlay.setOnClickListener(this);
+        ivNext1.setOnClickListener(this);
+        ivNext2.setOnClickListener(this);
+        ivPrev1.setOnClickListener(this);
+        ivPrev2.setOnClickListener(this);
+    }
+
+    private void mediaManager() {
         if (mediaPlayer == null) {
             showToast("Play audio fail !");
         } else {
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                        ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_play));
+                    ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_play));
                 }
             });
+
 
             seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
@@ -99,17 +92,35 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 }
             });
         }
+    }
 
-        ivPlay.setOnClickListener(this);
-        ivNext1.setOnClickListener(this);
-        ivNext2.setOnClickListener(this);
-        ivPrev1.setOnClickListener(this);
-        ivPrev2.setOnClickListener(this);
+    private void addFragment() {
+        this.fragmentDetailInformation = new FragmentInforDetail().setArguments(audio);
+        this.fragmentDetailListAudio = new FragmentListAudio().setArguments(listAudio, position);
+
+        List<Fragment> dataFragment = new ArrayList<>();
+        dataFragment.add(fragmentDetailInformation);
+        dataFragment.add(fragmentDetailListAudio);
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(), dataFragment);
+        ViewPager viewPager = findViewById(R.id.vp_detail);
+        viewPager.setAdapter(sectionsPagerAdapter);
+        CircleIndicator indicator = findViewById(R.id.indicator);
+        indicator.setViewPager(viewPager);
+    }
+
+    private void getBundle() {
+        bundle = getIntent().getExtras();
+        if (bundle != null) {
+            listAudio = bundle.getParcelableArrayList("list");
+            position = bundle.getInt("position");
+            this.audio = listAudio.get(position);
+        }
+
     }
 
     private void setMaxTime() {
         this.seekBar.setMax(this.mediaPlayer.getDuration());
-        tv_StopDuration.setText(CommonUtils.formatTime(this.mediaPlayer.getDuration()));
+        tvStopDuration.setText(CommonUtils.formatTime(this.mediaPlayer.getDuration()));
     }
 
     private void updateTime() {
@@ -136,7 +147,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         ivPrev2 = findViewById(R.id.iv_prev2);
 
         tvStartDuration = findViewById(R.id.tv_start_duration);
-        tv_StopDuration = findViewById(R.id.tv_stop_duration);
+        tvStopDuration = findViewById(R.id.tv_stop_duration);
     }
 
     @Override
@@ -249,9 +260,9 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         this.position = i;
         this.audio = listAudio.get(position);
         pLayAudio();
-        if (mediaPlayer!=null){
+        if (mediaPlayer != null) {
 
-            tv_StopDuration.setText(fomatTime.format(this.mediaPlayer.getDuration()));
+            tvStopDuration.setText(fomatTime.format(this.mediaPlayer.getDuration()));
         }
     }
 
@@ -271,10 +282,10 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
             } else {
                 this.mediaPlayer = MediaPlayer.create(this, Uri.fromFile(new File(audio.getPath())));
-                    this.mediaPlayer.start();
-                    setMaxTime();
-                    updateTime();
-                    ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
+                this.mediaPlayer.start();
+                setMaxTime();
+                updateTime();
+                ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
 
             }
 

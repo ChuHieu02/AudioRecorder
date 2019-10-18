@@ -39,38 +39,17 @@ public class LibraryActivity extends AppCompatActivity {
     private String formatDuration = "";
     private TextView tvEmpty;
     private LinearLayout progressDialog;
-    private DBQuerys dbQuerys;
     private static final String TAG = "library";
-    private onclickFragList onclick;
-
-    public interface onclickFragList{
-        void onclick(int i);
-    }
-
-    public void setOnclick(onclickFragList onclick) {
-        this.onclick = onclick;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library);
         mapping();
-        dbQuerys = new DBQuerys(LibraryActivity.this);
-//        dbQuerys.insertAudioString("bong dang ai do nhe nhang vut qua no iday" , ".mp3",132,465,79);
-//        dbQuerys.insertAudioString("thang nam khong quen" , ".mp3",132,465,79);
-        audioList = dbQuerys.getallNguoiDung();
-        Log.e(TAG, "" + audioList.size());
         new queryFile().execute();
     }
 
     private class queryFile extends AsyncTask<String, String, ArrayList<Audio>> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-        }
 
         @Override
         protected ArrayList<Audio> doInBackground(String... strings) {
@@ -80,7 +59,6 @@ public class LibraryActivity extends AppCompatActivity {
                 String checkFormatType = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,
                         Environment.getExternalStorageDirectory() + File.separator + "Recorder");
                 final ArrayList<File> audioSong = readAudio(new File(checkFormatType));
-                MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
                 for (int i = audioSong.size() - 1; i >= 0; i--) {
                     File file = audioSong.get(i);
                     String path = file.getAbsolutePath();
@@ -93,16 +71,8 @@ public class LibraryActivity extends AppCompatActivity {
                     Audio audio = new Audio(name, path, fomatSize, CommonUtils.fomatDate(date), formatDuration);
                     audioList.add(audio);
                 }
-                metaRetriever.release();
             }
-
             return audioList;
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-
         }
 
         @Override
@@ -111,7 +81,6 @@ public class LibraryActivity extends AppCompatActivity {
             progressDialog.setVisibility(View.GONE);
             rvLibrary.setVisibility(View.VISIBLE);
             setDataAdapter(list);
-
         }
     }
 
@@ -132,7 +101,6 @@ public class LibraryActivity extends AppCompatActivity {
         adapter.setOnclickItem(new LibraryAdapter.OnclickItem() {
             @Override
             public void onClick(int i) {
-//                Toast.makeText(LibraryActivity.this, ""+i, Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(LibraryActivity.this, DetailActivity.class)
                         .putExtra("position", i)
                         .putParcelableArrayListExtra("list", audioList));
