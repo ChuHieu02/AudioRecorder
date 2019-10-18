@@ -7,9 +7,11 @@ import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -27,16 +29,8 @@ import java.io.File;
 import java.util.ArrayList;
 
 
-
 public class LibraryActivity extends AppCompatActivity {
-//    @BindView(R.id.rv_library)
-//    RecyclerView rvLibrary;
-//    @BindView(R.id.toolbar)
-//    Toolbar toolbar;
-//    @BindView(R.id.tv_library_empty)
-//    Toolbar tvEmpty;
-//    @BindView(R.id.prb_library)
-//    LinearLayout progressDialog;
+
     private Toolbar toolbar;
     private RecyclerView rvLibrary;
     private LibraryAdapter adapter;
@@ -45,15 +39,28 @@ public class LibraryActivity extends AppCompatActivity {
     private String formatDuration = "";
     private TextView tvEmpty;
     private LinearLayout progressDialog;
-    private  DBQuerys dbQuerys;
+    private DBQuerys dbQuerys;
+    private static final String TAG = "library";
+    private onclickFragList onclick;
 
+    public interface onclickFragList{
+        void onclick(int i);
+    }
+
+    public void setOnclick(onclickFragList onclick) {
+        this.onclick = onclick;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library);
         mapping();
-
+        dbQuerys = new DBQuerys(LibraryActivity.this);
+//        dbQuerys.insertAudioString("bong dang ai do nhe nhang vut qua no iday" , ".mp3",132,465,79);
+//        dbQuerys.insertAudioString("thang nam khong quen" , ".mp3",132,465,79);
+        audioList = dbQuerys.getallNguoiDung();
+        Log.e(TAG, "" + audioList.size());
         new queryFile().execute();
     }
 
@@ -80,10 +87,10 @@ public class LibraryActivity extends AppCompatActivity {
                     String name = file.getName();
                     long date = file.lastModified();
                     long size = file.length();
-                    formatDuration = CommonUtils.GetDuration(file.getPath());
+                    formatDuration = CommonUtils.getDuration(file.getPath());
                     String fomatSize = CommonUtils.formatToNumber(CommonUtils.fomatSize(size)) + " kb";
 
-                    Audio audio = new Audio(name, path, CommonUtils.fomatDate(date), formatDuration, fomatSize);
+                    Audio audio = new Audio(name, path, fomatSize, CommonUtils.fomatDate(date), formatDuration);
                     audioList.add(audio);
                 }
                 metaRetriever.release();
@@ -125,6 +132,7 @@ public class LibraryActivity extends AppCompatActivity {
         adapter.setOnclickItem(new LibraryAdapter.OnclickItem() {
             @Override
             public void onClick(int i) {
+//                Toast.makeText(LibraryActivity.this, ""+i, Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(LibraryActivity.this, DetailActivity.class)
                         .putExtra("position", i)
                         .putParcelableArrayListExtra("list", audioList));

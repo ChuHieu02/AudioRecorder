@@ -2,10 +2,13 @@ package com.audiorecorder.voicerecorderhd.editor.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,6 +30,8 @@ public class FragmentListAudio extends Fragment {
     private FragmenListAdapter detaiListAdapter;
     private LinearLayoutManager layoutManager;
     private ArrayList audioList = new ArrayList<>();
+    private int i;
+
 
 
     @Nullable
@@ -39,13 +44,16 @@ public class FragmentListAudio extends Fragment {
         Bundle arguments = getArguments();
         try {
             audioList = arguments.getParcelableArrayList("listAudio");
+            this.i = arguments.getInt("position");
         } catch (Exception e) { e.printStackTrace(); }
         mapping();
+
 
         detaiListAdapter.setOnClickItemFragmentDetaiAdapter(new FragmenListAdapter.onClickItemFragmentDetaiAdapter() {
             @Override
             public void onClick(int i) {
                 listener.sendPosition(i);
+
             }
         });
         return view;
@@ -59,12 +67,15 @@ public class FragmentListAudio extends Fragment {
         rvFragmentListLibrary.setAdapter(detaiListAdapter);
     }
 
-    public FragmentListAudio setArguments(ArrayList<Audio> listAudio) {
+    public FragmentListAudio setArguments(ArrayList<Audio> listAudio, int position) {
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("listAudio", listAudio);
+        bundle.putInt("position", position);
         setArguments(bundle);
         return this;
     }
+
+
 
     public interface FragmentDetailListListener {
         void sendPosition(int i);

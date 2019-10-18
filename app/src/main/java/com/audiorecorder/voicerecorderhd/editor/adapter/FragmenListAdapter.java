@@ -11,22 +11,26 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
+import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 
 import java.util.List;
 
-public class FragmenListAdapter extends RecyclerView.Adapter<FragmenListAdapter.ViewHolder> {
+public class FragmenListAdapter extends RecyclerView.Adapter<FragmenListAdapter.ViewHolder>  {
     private List<Audio> audioList;
     private Context context;
     private onClickItemFragmentDetaiAdapter onClickItemFragmentDetaiAdapter;
     private int checkedPosition = 0;
 
+
     public interface onClickItemFragmentDetaiAdapter {
         void onClick(int i);
     }
+
     public void setOnClickItemFragmentDetaiAdapter(FragmenListAdapter.onClickItemFragmentDetaiAdapter onClickItemFragmentDetaiAdapter) {
         this.onClickItemFragmentDetaiAdapter = onClickItemFragmentDetaiAdapter;
     }
+
     public FragmenListAdapter(Context context, List<Audio> audioList) {
         this.audioList = audioList;
         this.context = context;
@@ -41,7 +45,7 @@ public class FragmenListAdapter extends RecyclerView.Adapter<FragmenListAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        holder.bind(audioList.get(position) , position);
+        holder.bind(audioList.get(position), position);
     }
 
     @Override
@@ -60,7 +64,7 @@ public class FragmenListAdapter extends RecyclerView.Adapter<FragmenListAdapter.
         }
 
         void bind(final Audio audio, final int position) {
-            if (audio.getName()!=null){
+            if (audio.getName() != null) {
                 tv_name_detail_item_fragment.setText(audio.getName());
             }
             if (checkedPosition == -1) {
@@ -89,8 +93,9 @@ public class FragmenListAdapter extends RecyclerView.Adapter<FragmenListAdapter.
             });
         }
     }
+
     public Audio getSelected() {
-        if (checkedPosition != -1) {
+        if (  checkedPosition != -1) {
             return audioList.get(checkedPosition);
         }
         return null;

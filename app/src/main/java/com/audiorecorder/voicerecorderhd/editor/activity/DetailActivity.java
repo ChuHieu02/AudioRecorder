@@ -44,7 +44,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     private FragmentInforDetail fragmentDetailInformation;
     private FragmentListAudio fragmentDetailListAudio;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,7 +57,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         this.fragmentDetailInformation = new FragmentInforDetail().setArguments(audio);
-        this.fragmentDetailListAudio = new FragmentListAudio().setArguments(listAudio);
+        this.fragmentDetailListAudio = new FragmentListAudio().setArguments(listAudio,position);
 
         List<Fragment> dataFragment = new ArrayList<>();
         dataFragment.add(fragmentDetailInformation);
@@ -73,15 +72,12 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         pLayAudio();
 
         if (mediaPlayer == null) {
-            Toast.makeText(DetailActivity.this, "Play audio fail !", Toast.LENGTH_SHORT).show();
-        }else {
+            showToast("Play audio fail !");
+        } else {
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    if (mediaPlayer != null) {
-                        mp.release();
                         ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_play));
-                    }
                 }
             });
 
@@ -104,7 +100,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
             });
         }
 
-
         ivPlay.setOnClickListener(this);
         ivNext1.setOnClickListener(this);
         ivNext2.setOnClickListener(this);
@@ -117,7 +112,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         tv_StopDuration.setText(CommonUtils.formatTime(this.mediaPlayer.getDuration()));
     }
 
-    private void UpdateTime() {
+    private void updateTime() {
         final Handler mHandler = new Handler();
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -125,11 +120,11 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 try {
                     tvStartDuration.setText(CommonUtils.formatTime(mediaPlayer.getCurrentPosition()));
                     seekBar.setProgress(mediaPlayer.getCurrentPosition());
-                    mHandler.postDelayed(this, 1000);
+                    mHandler.postDelayed(this, 10);
                 } catch (Exception ex) {
                 }
             }
-        }, 100);
+        }, 10);
     }
 
     private void mappingTv() {
@@ -212,7 +207,8 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.iv_next2:
                 this.position++;
                 if (this.position > listAudio.size() - 1) {
-                    this.position = 0; }
+                    this.position = 0;
+                }
                 this.audio = listAudio.get(position);
                 pLayAudio();
                 break;
@@ -220,7 +216,8 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.iv_prev2:
                 this.position--;
                 if (this.position < 0) {
-                    this.position = listAudio.size() - 1; }
+                    this.position = listAudio.size() - 1;
+                }
                 this.audio = listAudio.get(position);
                 //TODO: review va optimize lai doan nay
                 pLayAudio();
@@ -252,7 +249,14 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         this.position = i;
         this.audio = listAudio.get(position);
         pLayAudio();
-        tv_StopDuration.setText(fomatTime.format(this.mediaPlayer.getDuration()));
+        if (mediaPlayer!=null){
+
+            tv_StopDuration.setText(fomatTime.format(this.mediaPlayer.getDuration()));
+        }
+    }
+
+    private void showToast(String s) {
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
     private void pLayAudio() {
@@ -263,14 +267,15 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 this.mediaPlayer = MediaPlayer.create(this, Uri.fromFile(new File(audio.getPath())));
                 this.mediaPlayer.start();
                 setMaxTime();
-                UpdateTime();
+                updateTime();
                 ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
             } else {
                 this.mediaPlayer = MediaPlayer.create(this, Uri.fromFile(new File(audio.getPath())));
-                this.mediaPlayer.start();
-                setMaxTime();
-                UpdateTime();
-                ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
+                    this.mediaPlayer.start();
+                    setMaxTime();
+                    updateTime();
+                    ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
+
             }
 
             fragmentDetailInformation.updateFragInfor(audio);

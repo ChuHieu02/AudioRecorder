@@ -4,26 +4,34 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Audio implements Parcelable {
+
+    private int id;
     private String name;
     private String path;
     private String date;
     private String duration;
     private String size;
 
-    public Audio(String name, String path, String date, String duration, String size) {
+    public Audio(String name, String path, String size,String date, String duration) {
         this.name = name;
         this.path = path;
         this.date = date;
         this.duration = duration;
         this.size = size;
     }
-    public Audio(Parcel in) {
+
+    public Audio() {
+
+    }
+
+
+    protected Audio(Parcel in) {
+        id = in.readInt();
         name = in.readString();
         path = in.readString();
         date = in.readString();
         duration = in.readString();
         size = in.readString();
-
     }
 
     public static final Creator<Audio> CREATOR = new Creator<Audio>() {
@@ -38,6 +46,28 @@ public class Audio implements Parcelable {
         }
     };
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeString(path);
+        dest.writeString(date);
+        dest.writeString(duration);
+        dest.writeString(size);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -79,19 +109,7 @@ public class Audio implements Parcelable {
         this.size = size;
     }
 
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
-        dest.writeString(path);
-        dest.writeString(date);
-        dest.writeString(duration);
-        dest.writeString(size);
-
+    public static Creator<Audio> getCREATOR() {
+        return CREATOR;
     }
 }
