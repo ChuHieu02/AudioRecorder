@@ -1,18 +1,19 @@
 package com.audiorecorder.voicerecorderhd.editor;
 
 import android.app.ActivityManager;
-import android.content.ComponentName;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
+import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.view.View;
@@ -30,8 +31,9 @@ import androidx.core.content.ContextCompat;
 import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.activity.SettingsActivity;
 import com.audiorecorder.voicerecorderhd.editor.service.RecordService;
-import com.audiorecorder.voicerecorderhd.editor.utils.AudioRecordSetup;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
+
+import java.util.Locale;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -41,16 +43,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView ivBottomRecoder;
     private ImageView ivBottomSettings;
     private ImageView ivRecord , ivPauseResume;
-    private TextView tvRecordingStatus;
+    private TextView tvRecordingStatus, tvTimeRecord;
     private String outputFile;
     private static int recordingStatus = 2;
     private static int pauseStatus = 0;
-    private long pauseOffsetChorno;
-    private boolean isRunning;
-    private Chronometer chronometerTimer;
-    public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+    private static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
     private ServiceConnection serviceConnection;
     private RecordService recordService;
+    private Chronometer cnTimeRecord;
+    private long pauseOffsetChorno;
+    private static boolean isRunning ;
+
 
 
     @Override
@@ -59,39 +62,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         mappingBottomNavigation();
         recordService = new RecordService();
+        updateViewStage();
 
-        if(checkPermissionsResult()) {
-            if(!isMyServiceRunning(recordService.getClass())){
-                ivRecord.setImageResource(R.drawable.ic_home_record);
-                recordingStatus = 0;
-                onRecordAudio();
-            }
-            else {
-                ivRecord.setImageResource(R.drawable.ic_play_record_pr);
-                tvRecordingStatus.setText("Recording...");
-                recordingStatus = 1;
-                onRecordAudio();
-            }
-
-        }else {
-            requestPermissions();
-
-        }
     }
-
-
 
     private void mappingBottomNavigation() {
 
-        ivBottomLibrary = (ImageView) findViewById(R.id.iv_bottom_library);
-        ivBottomRecoder = (ImageView) findViewById(R.id.iv_bottom_recoder);
-        ivBottomSettings = (ImageView) findViewById(R.id.iv_bottom_settings);
-        chronometerTimer = (Chronometer) findViewById(R.id.chronoTime);
-        ivPauseResume =(ImageView) findViewById(R.id.imageViewPauseResume);
-        ivRecord =(ImageView) findViewById(R.id.imageViewRecord);
-        tvRecordingStatus = (TextView) findViewById(R.id.textView2);
+        ivBottomLibrary = findViewById(R.id.iv_bottom_library);
+        ivBottomRecoder = findViewById(R.id.iv_bottom_recoder);
+        ivBottomSettings = findViewById(R.id.iv_bottom_settings);
+        ivPauseResume = findViewById(R.id.imageViewPauseResume);
+        ivRecord = findViewById(R.id.imageViewRecord);
+        tvRecordingStatus = findViewById(R.id.textView2);
+        cnTimeRecord =(Chronometer) findViewById(R.id.cn_time_record);
         ivPauseResume.setVisibility(View.INVISIBLE);
-        ivPauseResume.setEnabled(false);
         ivBottomSettings.setOnClickListener(this);
         ivBottomLibrary.setOnClickListener(this);
 
@@ -102,40 +86,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-
                 if(recordingStatus == 0 && checkPermissionsResult()){
-                    ivRecord.setImageResource(R.drawable.ic_play_record_pr);
-                    pauseStatus = 0;
-                    ivPauseResume.setImageResource(R.drawable.ic_home_pause);
-                    ivPauseResume.setEnabled(true);
-                    resetChoronometer();
-                    startChoronometer();
-                    ivPauseResume.setVisibility(View.VISIBLE);
-                    tvRecordingStatus.setText("Recording...");
-                    Intent intentService = new Intent(MainActivity.this, RecordService.class);
-                    intentService.putExtra("inputExtra", "Recording...");
-                    ContextCompat.startForegroundService(MainActivity.this, intentService);
-                    recordingStatus =1;
-
+                    onStartRecording();
+                    updateIconStopRecord();
                 }else if(recordingStatus == 1){
-                    ivRecord.setImageResource(R.drawable.ic_home_record);
-                    recordingStatus =0;
-                    pauseStatus = 0;
-                    ivPauseResume.setImageResource(R.drawable.ic_home_pause);
-                    ivPauseResume.setEnabled(false);
-                    ivPauseResume.setVisibility(View.INVISIBLE);
-                    tvRecordingStatus.setText("Stop recording");
-                    creatCompleteDiaglog();
-                    pauseChoronometer();
-                    Intent intentService = new Intent(MainActivity.this, RecordService.class);
-                    stopService(intentService);
 
+                    onStopRecording();
+                    updateIconRecord();
+                    creatCompleteDiaglog();
                 }
                 else if(recordingStatus == 2 && !checkPermissionsResult() ){
+
                     tvRecordingStatus.setText("Please go to setting and permisson");
                     creatSettingActivityDialog();
                 }
-
             }
         });
 
@@ -145,23 +109,188 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View view) {
                 if(pauseStatus == 0) {
 
-                    pauseStatus = 1;
-                    ivPauseResume.setImageResource(R.drawable.ic_home_play);
-                    pauseChoronometer();
-                    tvRecordingStatus.setText("Pause Recording");
-
+                    onActionPasuse();
+                    updateIconResume();
                 }else{
                     if(pauseStatus == 1){
 
-                        pauseStatus = 0;
-                        ivPauseResume.setImageResource(R.drawable.ic_home_pause);
-                        startChoronometer();
-                        tvRecordingStatus.setText("Recording...");
-
+                        onActionResume();
+                        updateIconPause();
                     }
                 }
             }
         });
+    }
+
+    public void startChoronometer() {
+        if (!isRunning) {
+            cnTimeRecord.setBase(SystemClock.elapsedRealtime() - recordService.getPauseOffsetChorno());
+            cnTimeRecord.start();
+            isRunning = true;
+        }
+    }
+
+    public void  continueChronometer(){
+        if (!isRunning) {
+            cnTimeRecord.setBase(recordService.getPauseOffsetChorno());
+            cnTimeRecord.start();
+            isRunning = true;
+        }
+    }
+
+    public void pauseChoronometer() {
+        if (isRunning) {
+            cnTimeRecord.stop();
+            recordService.setPauseOffsetChorno(SystemClock.elapsedRealtime() - cnTimeRecord.getBase());
+            isRunning = false;
+        }
+    }
+
+    public void resetChoronometer() {
+        cnTimeRecord.setBase(SystemClock.elapsedRealtime());
+        recordService.setPauseOffsetChorno(0);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initReceiver();
+        updateViewStage();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        recordService.setPauseOffsetChorno(SystemClock.elapsedRealtime() - cnTimeRecord.getBase());
+    }
+
+    private void onStartRecording(){
+
+        Intent intentService = new Intent(MainActivity.this, RecordService.class);
+        ContextCompat.startForegroundService(MainActivity.this, intentService);
+
+        Intent startReceive = new Intent(Constants.START_ACTION);
+        PendingIntent pendingIntentStart = PendingIntent.getBroadcast(MainActivity.this
+                , 12345
+                , startReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        recordService.setPauseStatus(0);
+        recordService.setRecordingStatus(1);
+
+        startChoronometer();
+    }
+
+    private void onStopRecording(){
+        Intent intentService = new Intent(MainActivity.this, RecordService.class);
+        stopService(intentService);
+
+        resetChoronometer();
+        pauseChoronometer();
+    }
+
+    private void onActionResume(){
+        Intent pauseReceive = new Intent(Constants.PAUSE_ACTION);
+        PendingIntent pendingIntentPause = PendingIntent.getBroadcast(MainActivity.this
+                , 12345
+                , pauseReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        recordService.setPauseStatus(0);
+
+        startChoronometer();
+    }
+
+    private  void onActionPasuse(){
+        Intent resumeReceive = new Intent(Constants.RESUME_ACTION);
+        PendingIntent pendingIntentResume = PendingIntent.getBroadcast(MainActivity.this
+                , 12345
+                , resumeReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        recordService.setPauseStatus(1);
+
+        pauseChoronometer();
+    }
+
+    private void updateIconPause(){
+
+        pauseStatus = 0;
+        ivPauseResume.setVisibility(View.VISIBLE);
+        ivPauseResume.setImageResource(R.drawable.ic_home_pause);
+        tvRecordingStatus.setText("Recording...");
+
+    }
+
+    private void updateIconResume(){
+
+        pauseStatus = 1;
+        ivPauseResume.setVisibility(View.VISIBLE);
+        ivPauseResume.setImageResource(R.drawable.ic_home_play);
+        tvRecordingStatus.setText("Pause Recording");
+
+    }
+
+    private void updateIconRecord(){
+
+        ivPauseResume.setEnabled(false);
+        recordingStatus = 0;
+        pauseStatus = 0;
+        ivPauseResume.setVisibility(View.INVISIBLE);
+        ivRecord.setImageResource(R.drawable.ic_home_record);
+        tvRecordingStatus.setText("Tab to recording");
+
+    }
+
+    private void updateIconStopRecord(){
+
+        recordingStatus =1;
+        ivRecord.setImageResource(R.drawable.ic_play_record_pr);
+        pauseStatus = 0;
+        ivPauseResume.setImageResource(R.drawable.ic_home_pause);
+        ivPauseResume.setEnabled(true);
+        ivPauseResume.setVisibility(View.VISIBLE);
+        tvRecordingStatus.setText("Recording...");
+
+    }
+
+    public void initReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.RESUME_ACTION);
+        filter.addAction(Constants.PAUSE_ACTION);
+        filter.addAction(Constants.STOP_ACTION);
+        registerReceiver(new NotificationReceiver(), filter);
+    }
+
+    public  class NotificationReceiver extends BroadcastReceiver {
+
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Toast.makeText(context, action, Toast.LENGTH_SHORT).show();
+            if (Constants.PAUSE_ACTION.equals(action)) {
+                pauseChoronometer();
+                updateIconResume();
+
+            } else if (Constants.STOP_ACTION.equals(action)) {
+
+                resetChoronometer();
+                pauseChoronometer();
+                updateIconRecord();
+
+            } else if(Constants.RESUME_ACTION.equals(action)){
+                startChoronometer();
+                updateIconPause();
+
+            } else if(Constants.START_ACTION.equals(action)){
+
+                startChoronometer();
+                updateIconStopRecord();
+
+            }
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        updateViewStage();
     }
 
     @Override
@@ -177,36 +306,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private  void startChoronometer(){
-        if(!isRunning){
-            chronometerTimer.setBase(SystemClock.elapsedRealtime() - pauseOffsetChorno);
-            chronometerTimer.start();
-            isRunning= true;
-        }
-    }
-    private  void pauseChoronometer(){
-        if(isRunning){
-            chronometerTimer.stop();
-            pauseOffsetChorno = SystemClock.elapsedRealtime() - chronometerTimer.getBase();
-            isRunning = false;
-        }
-    }
-    private  void resetChoronometer(){
-        chronometerTimer.setBase(SystemClock.elapsedRealtime());
-        pauseOffsetChorno = 0;
-    }
-
-
     @Override
     protected void onRestart() {
         super.onRestart();
-        if(checkPermissionsResult()) {
-            tvRecordingStatus.setText("Tab to recording");
-            recordingStatus = 0;
-        }else {
-            requestPermissions();
-
-        }
+        updateViewStage();
     }
 
     private void creatCompleteDiaglog(){
@@ -302,5 +405,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
+    private void updateViewStage(){
+        if(checkPermissionsResult()) {
+            if(!isMyServiceRunning(recordService.getClass())){
+                ivRecord.setImageResource(R.drawable.ic_home_record);
+                recordingStatus = 0;
+                onRecordAudio();
+            }
+            else {
+                ivRecord.setImageResource(R.drawable.ic_play_record_pr);
+             //   tvRecordingStatus.setText("Recording...");
+              //  recordingStatus = 1;
+
+                int checkRecordingStatus = recordService.getRecordingStatus();
+                if(checkRecordingStatus == 0){
+
+                    updateIconRecord();
+                    //startChoronometer();
+                    continueChronometer();
+
+                }else if(checkRecordingStatus == 1){
+
+                    updateIconStopRecord();
+                    pauseChoronometer();
+                }
+
+                int checkPauseStatus =  recordService.getPauseStatus();
+                if(checkPauseStatus == 0){
+                    startChoronometer();
+                    updateIconPause();
+
+                }else if(checkPauseStatus == 1){
+                   pauseChoronometer();
+                   updateIconResume();
+                }
+                onRecordAudio();
+            }
+        }else {
+            requestPermissions();
+
+        }
+    }
 
 }

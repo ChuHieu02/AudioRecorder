@@ -2,7 +2,7 @@
     <string name="app_name">AudioRecoder</string>
     <!--    main activity-->
     <string name="tv_recoder_home">Voice recoder</string>
-    <string name="ct_recoder">00</string>
+    <string name="ct_recoder">00:00</string>
     <!--navigation-->
     <string name="title_list_recording">Library</string>
     <string name="title_recording">Voice Recorder</string>

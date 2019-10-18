@@ -16,10 +16,10 @@ public class AudioRecordSetup {
 
     public  void  setupMediaRecorder(Context context){
 
-        SharedPreferences sharedPreferences= context.getSharedPreferences(Constants.AUDIO_SETTING, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences= context.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
         if(sharedPreferences!= null){
-            int checkStatus = sharedPreferences.getInt(Constants.FORMAT_TYPE,0);
-            String pathDirector = sharedPreferences.getString(Constants.DIRECTION_CHOOSER_PATH,Constants.DEFALT_PATH);
+            int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE,0);
+            String pathDirector = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Constants.K_DEFALT_PATH);
             File file = new File(pathDirector);
             if(checkStatus == 0){
                 outputFile ="/"+ file.getAbsolutePath()+"/RecordFile"+System.currentTimeMillis()+".mp3";
@@ -32,7 +32,7 @@ public class AudioRecordSetup {
         }
         mAudioRecorder = new MediaRecorder();
         if(sharedPreferences!= null){
-            int checkStatus = sharedPreferences.getInt(Constants.FORMAT_TYPE,0);
+            int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE,0);
             mAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             if(checkStatus == 0){
                 mAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -43,18 +43,18 @@ public class AudioRecordSetup {
                 mAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.MPEG_4);
 
             }
-            int checkQuality = sharedPreferences.getInt(Constants.FORMAT_QUALITY,16);
+            int checkQuality = sharedPreferences.getInt(Constants.K_FORMAT_QUALITY,16);
             if(checkQuality == 16){
                 mAudioRecorder.setAudioEncodingBitRate(16);
-                mAudioRecorder.setAudioSamplingRate(16 * Constants.SAMPLE_RATE_QUALITY);
+                mAudioRecorder.setAudioSamplingRate(16 * Constants.K_SAMPLE_RATE_QUALITY);
 
             }else if(checkQuality == 22){
                 mAudioRecorder.setAudioEncodingBitRate(22);
-                mAudioRecorder.setAudioSamplingRate(22 * Constants.SAMPLE_RATE_QUALITY);
+                mAudioRecorder.setAudioSamplingRate(22 * Constants.K_SAMPLE_RATE_QUALITY);
 
             }else if(checkQuality == 32){
                 mAudioRecorder.setAudioEncodingBitRate(32);
-                mAudioRecorder.setAudioSamplingRate(32 * Constants.SAMPLE_RATE_QUALITY);
+                mAudioRecorder.setAudioSamplingRate(32 * Constants.K_SAMPLE_RATE_QUALITY);
 
             }else if(checkQuality == 44){
                 mAudioRecorder.setAudioEncodingBitRate(44);

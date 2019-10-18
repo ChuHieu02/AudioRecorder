@@ -46,6 +46,11 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
+                <action android:name="PAUSE_ACTION"/>
+                <action android:name="STOP_ACTION"/>
+                <action android:name="START_ACTION"/>
+                <action android:name="RESUME_ACTION"/>
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
