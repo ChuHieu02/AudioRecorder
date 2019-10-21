@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.audiorecorder.voicerecorderhd.editor.MainActivity;
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.adapter.LibraryAdapter;
 import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
@@ -29,9 +31,8 @@ import java.io.File;
 import java.util.ArrayList;
 
 
-public class LibraryActivity extends AppCompatActivity {
+public class LibraryActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Toolbar toolbar;
     private RecyclerView rvLibrary;
     private LibraryAdapter adapter;
     private LinearLayoutManager layoutManager;
@@ -40,6 +41,14 @@ public class LibraryActivity extends AppCompatActivity {
     private TextView tvEmpty;
     private LinearLayout progressDialog;
     private static final String TAG = "library";
+    private ImageView ivBottomLibrary;
+    private ImageView ivBottomRecoder;
+    private ImageView ivBottomSettings;
+    private TextView lbRecoder;
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +56,22 @@ public class LibraryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_library);
         mapping();
         new queryFile().execute();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.iv_bottom_recoder:
+                startActivity(new Intent(LibraryActivity.this, MainActivity.class));
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+
+                break;
+            case R.id.iv_bottom_settings:
+              startActivity(new Intent(LibraryActivity.this,SettingsActivity.class));
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+
+                break;
+        }
     }
 
     private class queryFile extends AsyncTask<String, String, ArrayList<Audio>> {
@@ -109,22 +134,22 @@ public class LibraryActivity extends AppCompatActivity {
     }
 
     private void mapping() {
-        toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Library");
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        ivBottomLibrary = (ImageView) findViewById(R.id.iv_bottom_library);
+        ivBottomRecoder = (ImageView) findViewById(R.id.iv_bottom_recoder);
+        ivBottomSettings = (ImageView) findViewById(R.id.iv_bottom_settings);
 
+        ivBottomRecoder.setOnClickListener(this);
+        ivBottomSettings.setOnClickListener(this);
+
+        lbRecoder =  findViewById(R.id.lb_recoder);
+        lbRecoder.setText(getResources().getString(R.string.label_library));
+        lbRecoder.setTextColor(getResources().getColor(R.color.all_color_black));
+
+        ivBottomLibrary.setImageDrawable(getResources().getDrawable(R.drawable.ic_library_pr));
         tvEmpty = findViewById(R.id.tv_library_empty);
         rvLibrary = findViewById(R.id.rv_library);
         progressDialog = findViewById(R.id.prb_library);
         rvLibrary.setHasFixedSize(true);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
     }
 
     public ArrayList<File> readAudio(File file) {

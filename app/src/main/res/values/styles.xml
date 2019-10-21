@@ -6,16 +6,24 @@
         <item name="colorPrimary">#367efd</item>
         <item name="colorPrimaryDark">#367efd</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
+    </style>
+
+    <style name="CustomActivityAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/slide_out_left</item>
+        <item name="android:activityCloseEnterAnimation">@anim/slide_in_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-    <declare-styleable name="AppCompatTheme">
-        <attr format="reference" name="selectableItemBackground"/>
-        <attr format="reference" name="selectableItemBackgroundBorderless"/>
-    </declare-styleable>
+<!--    <declare-styleable name="AppCompatTheme">-->
+<!--        <attr format="reference" name="selectableItemBackground"/>-->
+<!--        <attr format="reference" name="selectableItemBackgroundBorderless"/>-->
+<!--    </declare-styleable>-->
     <style name="AudioFileInfoOverlayText">
         <item name="android:paddingLeft">4px</item>
         <item name="android:paddingBottom">4px</item>

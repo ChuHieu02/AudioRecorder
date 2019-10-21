@@ -48,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isRunning;
     private Chronometer chronometerTimer;
     public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+    private TextView lbRecoder;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,12 +71,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivBottomLibrary = findViewById(R.id.iv_bottom_library);
         ivBottomRecoder = findViewById(R.id.iv_bottom_recoder);
         ivBottomSettings = findViewById(R.id.iv_bottom_settings);
+
+        lbRecoder =  findViewById(R.id.lb_recoder);
+        lbRecoder.setText(getResources().getString(R.string.label_recoder));
+
         chronometerTimer = findViewById(R.id.chronoTime);
         ivPauseResume = findViewById(R.id.ivPauseResume);
         ivRecord = findViewById(R.id.iv_recoder);
         tvRecordingStatus = findViewById(R.id.textView2);
         ivPauseResume.setVisibility(View.INVISIBLE);
         ivPauseResume.setEnabled(false);
+        ivBottomRecoder.setImageDrawable(getResources().getDrawable(R.drawable.ic_record_pr));
         ivBottomSettings.setOnClickListener(this);
         ivBottomLibrary.setOnClickListener(this);
 
@@ -241,9 +248,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.iv_bottom_library:
                 startActivity(new Intent(this, LibraryActivity.class));
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 break;
             case R.id.iv_bottom_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                 break;
         }
 

@@ -68,72 +68,72 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         final Audio audio = audioList.get(position);
 
-            if (audio.getName() != null) {
-                holder.tv_name.setText(audio.getName());
-            }
-            if (audio.getDate() != null) {
-                holder.tv_time.setText(audio.getDate());
-            }
-            if (audio.getSize() != null && audio.getDuration() != null) {
-                holder.tv_size.setText(audio.getSize() + " | " + audio.getDuration());
-            }
+        if (audio.getName() != null) {
+            holder.tv_name.setText(audio.getName());
+        }
+        if (audio.getDate() != null) {
+            holder.tv_time.setText(audio.getDate());
+        }
+        if (audio.getSize() != null && audio.getDuration() != null) {
+            holder.tv_size.setText(audio.getDuration() + " | " + audio.getSize());
+        }
 
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onclickItem.onClick(position);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onclickItem.onClick(position);
 
-                }
-            });
-            holder.iv_setting.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            }
+        });
+        holder.iv_setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-                    PopupMenu popup = new PopupMenu(context, v);
-                    MenuInflater inflater = popup.getMenuInflater();
-                    inflater.inflate(R.menu.popup_menu, popup.getMenu());
-                    try {
-                        Field[] fields = popup.getClass().getDeclaredFields();
-                        for (Field field : fields) {
-                            if ("mPopup".equals(field.getName())) {
-                                field.setAccessible(true);
-                                Object menuPopupHelper = field.get(popup);
-                                Class<?> classPopupHelper = Class.forName(menuPopupHelper.getClass().getName());
-                                Method setForceIcons = classPopupHelper.getMethod("setForceShowIcon", boolean.class);
-                                setForceIcons.invoke(menuPopupHelper, true);
-                                break;
-                            }
+                PopupMenu popup = new PopupMenu(context, v);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.popup_menu, popup.getMenu());
+                try {
+                    Field[] fields = popup.getClass().getDeclaredFields();
+                    for (Field field : fields) {
+                        if ("mPopup".equals(field.getName())) {
+                            field.setAccessible(true);
+                            Object menuPopupHelper = field.get(popup);
+                            Class<?> classPopupHelper = Class.forName(menuPopupHelper.getClass().getName());
+                            Method setForceIcons = classPopupHelper.getMethod("setForceShowIcon", boolean.class);
+                            setForceIcons.invoke(menuPopupHelper, true);
+                            break;
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
-
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem menuItem) {
-                            switch (menuItem.getItemId()) {
-                                case R.id.pp_delete_item_library:
-                                    deleteAudio(audio, position);
-                                    break;
-                                case R.id.pp_share_item_library:
-                                    shareAudio(audio);
-                                    break;
-                                case R.id.pp_edit_item_library:
-                                    renameAudio(audio, position);
-                                    break;
-                                case R.id.pp_editContent_item_library:
-                                    editContentAudio(audio);
-                                    break;
-                                case R.id.pp_setRingTone_item_library:
-                                    setRingtone(audio);
-                                    break;
-                            }
-                            return false;
-                        }
-                    });
-                    popup.show();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            });
+
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.pp_delete_item_library:
+                                deleteAudio(audio, position);
+                                break;
+                            case R.id.pp_share_item_library:
+                                shareAudio(audio);
+                                break;
+                            case R.id.pp_edit_item_library:
+                                renameAudio(audio, position);
+                                break;
+                            case R.id.pp_editContent_item_library:
+                                editContentAudio(audio);
+                                break;
+                            case R.id.pp_setRingTone_item_library:
+                                setRingtone(audio);
+                                break;
+                        }
+                        return false;
+                    }
+                });
+                popup.show();
+            }
+        });
 
     }
 
