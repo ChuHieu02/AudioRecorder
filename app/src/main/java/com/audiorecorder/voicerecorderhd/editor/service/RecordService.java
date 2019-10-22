@@ -1,5 +1,6 @@
 package com.audiorecorder.voicerecorderhd.editor.service;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -7,32 +8,21 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.MediaRecorder;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Chronometer;
-import android.widget.RemoteViews;
 import android.widget.Toast;
-
-import androidx.annotation.IdRes;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.view.menu.MenuView;
 import androidx.core.app.NotificationCompat;
 
 import com.audiorecorder.voicerecorderhd.editor.MainActivity;
 import com.audiorecorder.voicerecorderhd.editor.R;
-import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
 import java.io.File;
@@ -42,17 +32,20 @@ public class RecordService extends Service {
 
     private MediaRecorder mAudioRecorder;
     private String outputFile;
-    private static boolean isRunning ;
-    private Chronometer chronometerTimer;
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
     public static int pauseStatus;
     public static int recordingStatus;
-    public static long pauseOffsetChorno;
+    public static boolean isRunning = false;
     private NotificationManager mNotificationManager;
     private Notification mBuilder;
+    private long startTime = 0;
+    private long millis = 0;
+    private long countTimeRecord = 0;
+    private  Handler handler = new Handler();
 
 
     public RecordService() {
+
     }
 
     @Override
@@ -73,19 +66,27 @@ public class RecordService extends Service {
 
         createNotificationChannel();
         createNotification();
+        startRecording();
+       startCounter();
+        isRunning = true;
         initReceiver();
+
         startForeground(1, mBuilder);
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
 
     private void initReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.RESUME_ACTION);
-        filter.addAction(Constants.PAUSE_ACTION);
-        filter.addAction(Constants.STOP_ACTION);
-        filter.addAction(Constants.START_ACTION);
-        registerReceiver(new NotificationReceiver(), filter);
+        try {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Constants.RESUME_ACTION);
+            filter.addAction(Constants.PAUSE_ACTION);
+            filter.addAction(Constants.STOP_ACTION);
+            filter.addAction(Constants.START_ACTION);
+            registerReceiver(new NotificationReceiver(), filter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public  class NotificationReceiver extends BroadcastReceiver {
@@ -94,32 +95,75 @@ public class RecordService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Toast.makeText(context,action, Toast.LENGTH_SHORT).show();
-            if (Constants.PAUSE_ACTION.equals(action)) {
+            if (Constants.PAUSE_ACTION.equals(action) && isRunning == true) {
 
                 pauseRecording();
+                setIsRunning(false);
                 setPauseStatus(1);
-
+                stopCounter();
+                Toast.makeText(getApplicationContext(), action, Toast.LENGTH_SHORT).show();
             } else if (Constants.STOP_ACTION.equals(action)) {
 
                 setRecordingStatus(0);
                 stopRecording();
                 stopSelf();
+                setIsRunning(false);
+                Toast.makeText(getApplicationContext(), action, Toast.LENGTH_SHORT).show();
+            } else if(Constants.RESUME_ACTION.equals(action) && isRunning == false ){
 
-            } else if(Constants.RESUME_ACTION.equals(action) ){
-
+                setIsRunning(true);
                 resumeRecording();
                 setPauseStatus(0);
-
+                continueCouter();
+                Toast.makeText(getApplicationContext(), action, Toast.LENGTH_SHORT).show();
             } else if(Constants.START_ACTION.equals(action)){
 
                 setRecordingStatus(1);
-                startRecording();
-
+               // startCounter();
+                setIsRunning(true);
+                Toast.makeText(getApplicationContext(), action, Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    private void sendTimeToReceiver(){
+        Intent intentTimer = new Intent();
+        intentTimer.setAction(Constants.SEND_TIME);
+        intentTimer.putExtra(Constants.TIME_COUNT, millis);
+        sendBroadcast(intentTimer);
+    }
+
+    public void startCounter(){
+        startTime = System.currentTimeMillis();
+        countTimeRecord = 0;
+        handler.postDelayed(serviceRunnable, 0);
+
+    }
+    public void continueCouter(){
+        startTime = System.currentTimeMillis() - countTimeRecord;
+        handler.postDelayed(serviceRunnable, 0);
+    }
+
+    public void stopCounter(){
+        handler.removeCallbacks(serviceRunnable);
+    }
+
+    Runnable serviceRunnable = new Runnable() {
+        @Override
+        public void run() {
+            millis = System.currentTimeMillis() - startTime;
+            countTimeRecord += 1000;
+            sendTimeToReceiver();
+            handler.postDelayed(this, 1000);
+        }
+    };
+    public static boolean isIsRunning() {
+        return isRunning;
+    }
+
+    public static void setIsRunning(boolean isRunning) {
+        RecordService.isRunning = isRunning;
+    }
 
     public static int getPauseStatus() {
         return pauseStatus;
@@ -202,6 +246,7 @@ public class RecordService extends Service {
         } catch (IOException ioe) {
             // make something
         }
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -227,37 +272,8 @@ public class RecordService extends Service {
                 mAudioRecorder = null;
             }
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Null Media File", Toast.LENGTH_SHORT).show();
+           Toast.makeText(getApplicationContext(), "Null Media File", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    public long getPauseOffsetChorno() {
-        return pauseOffsetChorno;
-    }
-
-    public void setPauseOffsetChorno(long pauseOffsetChorno) {
-        this.pauseOffsetChorno = pauseOffsetChorno;
-    }
-
-    public void startChoronometer() {
-        if (!isRunning) {
-            chronometerTimer.setBase(SystemClock.elapsedRealtime() - pauseOffsetChorno);
-            chronometerTimer.start();
-            isRunning = true;
-        }
-    }
-
-    public void pauseChoronometer() {
-        if (isRunning) {
-            chronometerTimer.stop();
-            pauseOffsetChorno = SystemClock.elapsedRealtime() - chronometerTimer.getBase();
-            isRunning = false;
-        }
-    }
-
-    public void resetChoronometer() {
-        chronometerTimer.setBase(SystemClock.elapsedRealtime());
-        pauseOffsetChorno = 0;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -285,16 +301,16 @@ public class RecordService extends Service {
     private void createNotification(){
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 2019, notificationIntent, 0);
 
         Intent pauseReceive = new Intent(Constants.PAUSE_ACTION);
-        PendingIntent pendingIntentPause = PendingIntent.getBroadcast(this, 12345, pauseReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntentPause = PendingIntent.getBroadcast(this, 2019, pauseReceive, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent resumeReceive = new Intent(Constants.RESUME_ACTION);
-        PendingIntent pendingIntentResume = PendingIntent.getBroadcast(this, 12345, resumeReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntentResume = PendingIntent.getBroadcast(this, 2019, resumeReceive, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent stopReceive = new Intent(Constants.STOP_ACTION);
-        PendingIntent pendingIntentStop = PendingIntent.getBroadcast(this, 12345, stopReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntentStop = PendingIntent.getBroadcast(this, 2019, stopReceive, PendingIntent.FLAG_UPDATE_CURRENT);
 
         mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Recording")

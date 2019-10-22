@@ -1,7 +1,6 @@
 package com.audiorecorder.voicerecorderhd.editor;
 
 import android.app.ActivityManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,11 +12,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.SystemClock;
 import android.provider.Settings;
 import android.view.View;
-import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,12 +29,11 @@ import com.audiorecorder.voicerecorderhd.editor.activity.SettingsActivity;
 import com.audiorecorder.voicerecorderhd.editor.service.RecordService;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
-import java.util.Locale;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private ImageView ivBottomLibrary;
     private ImageView ivBottomRecoder;
     private ImageView ivBottomSettings;
@@ -50,11 +45,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
     private ServiceConnection serviceConnection;
     private RecordService recordService;
-    private Chronometer cnTimeRecord;
-    private long pauseOffsetChorno;
-    private static boolean isRunning ;
-
-
+    private TimeCountReceiver timeCountReceiver = new TimeCountReceiver();
+    private int seconds;
+    private int minutes;
+    private int hours;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivPauseResume = findViewById(R.id.imageViewPauseResume);
         ivRecord = findViewById(R.id.imageViewRecord);
         tvRecordingStatus = findViewById(R.id.textView2);
-        cnTimeRecord =(Chronometer) findViewById(R.id.cn_time_record);
+        tvTimeRecord =(TextView) findViewById(R.id.tv_time_record);
         ivPauseResume.setVisibility(View.INVISIBLE);
         ivBottomSettings.setOnClickListener(this);
         ivBottomLibrary.setOnClickListener(this);
@@ -122,35 +116,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    public void startChoronometer() {
-        if (!isRunning) {
-            cnTimeRecord.setBase(SystemClock.elapsedRealtime() - recordService.getPauseOffsetChorno());
-            cnTimeRecord.start();
-            isRunning = true;
-        }
-    }
-
-    public void  continueChronometer(){
-        if (!isRunning) {
-            cnTimeRecord.setBase(recordService.getPauseOffsetChorno());
-            cnTimeRecord.start();
-            isRunning = true;
-        }
-    }
-
-    public void pauseChoronometer() {
-        if (isRunning) {
-            cnTimeRecord.stop();
-            recordService.setPauseOffsetChorno(SystemClock.elapsedRealtime() - cnTimeRecord.getBase());
-            isRunning = false;
-        }
-    }
-
-    public void resetChoronometer() {
-        cnTimeRecord.setBase(SystemClock.elapsedRealtime());
-        recordService.setPauseOffsetChorno(0);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -159,53 +124,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        recordService.setPauseOffsetChorno(SystemClock.elapsedRealtime() - cnTimeRecord.getBase());
-    }
-
     private void onStartRecording(){
 
         Intent intentService = new Intent(MainActivity.this, RecordService.class);
         ContextCompat.startForegroundService(MainActivity.this, intentService);
 
-        Intent startReceive = new Intent(Constants.START_ACTION);
-        PendingIntent pendingIntentStart = PendingIntent.getBroadcast(MainActivity.this
-                , 12345
-                , startReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intentStart = new Intent(Constants.START_ACTION);
         recordService.setPauseStatus(0);
         recordService.setRecordingStatus(1);
+        recordService.setIsRunning(true);
+        sendBroadcast(intentStart);
 
-        startChoronometer();
     }
 
     private void onStopRecording(){
+
         Intent intentService = new Intent(MainActivity.this, RecordService.class);
         stopService(intentService);
 
-        resetChoronometer();
-        pauseChoronometer();
     }
 
     private void onActionResume(){
-        Intent pauseReceive = new Intent(Constants.PAUSE_ACTION);
-        PendingIntent pendingIntentPause = PendingIntent.getBroadcast(MainActivity.this
-                , 12345
-                , pauseReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intentService = new Intent(Constants.RESUME_ACTION);
+        sendBroadcast(intentService);
         recordService.setPauseStatus(0);
-
-        startChoronometer();
     }
 
     private  void onActionPasuse(){
-        Intent resumeReceive = new Intent(Constants.RESUME_ACTION);
-        PendingIntent pendingIntentResume = PendingIntent.getBroadcast(MainActivity.this
-                , 12345
-                , resumeReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intentService = new Intent(Constants.PAUSE_ACTION);
         recordService.setPauseStatus(1);
+        sendBroadcast(intentService);
 
-        pauseChoronometer();
+
     }
 
     private void updateIconPause(){
@@ -249,12 +199,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+
+
     public void initReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Constants.RESUME_ACTION);
         filter.addAction(Constants.PAUSE_ACTION);
         filter.addAction(Constants.STOP_ACTION);
+        filter.addAction(Constants.SEND_TIME);
         registerReceiver(new NotificationReceiver(), filter);
+        registerReceiver(timeCountReceiver, filter);
+
     }
 
     public  class NotificationReceiver extends BroadcastReceiver {
@@ -263,28 +218,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Toast.makeText(context, action, Toast.LENGTH_SHORT).show();
-            if (Constants.PAUSE_ACTION.equals(action)) {
-                pauseChoronometer();
+         //   Toast.makeText(context, action, Toast.LENGTH_SHORT).show();
+            if (Constants.PAUSE_ACTION.equals(action) ) {
+
                 updateIconResume();
+                unregisterReceiver(timeCountReceiver);
 
-            } else if (Constants.STOP_ACTION.equals(action)) {
+            } else if (Constants.STOP_ACTION.equals(action) ) {
 
-                resetChoronometer();
-                pauseChoronometer();
                 updateIconRecord();
+                unregisterReceiver(timeCountReceiver);
 
-            } else if(Constants.RESUME_ACTION.equals(action)){
-                startChoronometer();
+            } else if(Constants.RESUME_ACTION.equals(action) ){
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(Constants.SEND_TIME);
+                registerReceiver(timeCountReceiver, filter);
                 updateIconPause();
 
             } else if(Constants.START_ACTION.equals(action)){
 
-                startChoronometer();
                 updateIconStopRecord();
 
             }
         }
+    }
+
+
+    public class TimeCountReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            long time_count = intent.getLongExtra(Constants.TIME_COUNT, 0);
+            seconds = (int) (time_count / 1000) % 60 ;
+            minutes = (int) ((time_count/ (1000*60)) % 60);
+            hours   = (int) ((time_count / (1000*60*60)) % 24);
+            tvTimeRecord.setText((hours>0 ? String.format("%d:", hours) : "")
+                    + ((minutes<10 && hours > 0)? "0"
+                    + String.format("%d:", minutes) :  String.format("%d:", minutes))
+                    + (seconds<10 ? "0" + seconds: seconds));
+        }
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(timeCountReceiver);
     }
 
     @Override
@@ -313,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void creatCompleteDiaglog(){
-        SharedPreferences sharedPreferences= this.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences= getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
         if(sharedPreferences!= null){
             outputFile = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Constants.K_DEFALT_PATH);
         }
@@ -414,30 +390,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             else {
                 ivRecord.setImageResource(R.drawable.ic_play_record_pr);
-             //   tvRecordingStatus.setText("Recording...");
-              //  recordingStatus = 1;
 
                 int checkRecordingStatus = recordService.getRecordingStatus();
                 if(checkRecordingStatus == 0){
 
                     updateIconRecord();
-                    //startChoronometer();
-                    continueChronometer();
+
 
                 }else if(checkRecordingStatus == 1){
 
                     updateIconStopRecord();
-                    pauseChoronometer();
                 }
 
                 int checkPauseStatus =  recordService.getPauseStatus();
                 if(checkPauseStatus == 0){
-                    startChoronometer();
                     updateIconPause();
 
                 }else if(checkPauseStatus == 1){
-                   pauseChoronometer();
-                   updateIconResume();
+
+                    updateIconResume();
                 }
                 onRecordAudio();
             }

@@ -45,6 +45,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
 
                 <action android:name="PAUSE_ACTION"/>
                 <action android:name="STOP_ACTION"/>
@@ -64,6 +65,12 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
+        <receiver android:name=".MainActivity$TimeCountReceiver" >
+            <intent-filter>
+                <action android:name="intent.send.TIME_COUNT"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -15,4 +15,6 @@ public class Constants {
     public static final String RESUME_ACTION = "RESUME_ACTION";
     public static final String STOP_ACTION = "STOP_ACTION";
     public static final String START_ACTION = "START_ACTION";
+    public static final String SEND_TIME = "SEND_TIMER";
+    public static final String TIME_COUNT = "time_count";
 }
