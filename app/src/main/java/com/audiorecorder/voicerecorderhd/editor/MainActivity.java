@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,6 +31,8 @@ import com.audiorecorder.voicerecorderhd.editor.service.RecordService;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
 
+import javax.security.auth.login.LoginException;
+
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
@@ -46,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ServiceConnection serviceConnection;
     private RecordService recordService;
     private TimeCountReceiver timeCountReceiver = new TimeCountReceiver();
+    private NotificationReceiver notificationReceiver = new NotificationReceiver();
     private int seconds;
     private int minutes;
     private int hours;
@@ -82,6 +86,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View view) {
                 if(recordingStatus == 0 && checkPermissionsResult()){
                     onStartRecording();
+//                    if(isMyServiceRunning(recordService.getClass())){
+//                        onReadyStart();
+//                    }
+                   // onReadyStart();
                     updateIconStopRecord();
                 }else if(recordingStatus == 1){
 
@@ -129,16 +137,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intentService = new Intent(MainActivity.this, RecordService.class);
         ContextCompat.startForegroundService(MainActivity.this, intentService);
 
-        Intent intentStart = new Intent(Constants.START_ACTION);
         recordService.setPauseStatus(0);
         recordService.setRecordingStatus(1);
-        recordService.setIsRunning(true);
-        sendBroadcast(intentStart);
 
     }
 
-    private void onStopRecording(){
+    private void  onReadyStart(){
+        Intent intentService = new Intent(Constants.START_ACTION);
+        sendBroadcast(intentService);
+    }
 
+    private void onStopRecording(){
+        Intent intentStop = new Intent(Constants.STOP_ACTION);
+        sendBroadcast(intentStop);
         Intent intentService = new Intent(MainActivity.this, RecordService.class);
         stopService(intentService);
 
@@ -206,9 +217,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         filter.addAction(Constants.RESUME_ACTION);
         filter.addAction(Constants.PAUSE_ACTION);
         filter.addAction(Constants.STOP_ACTION);
+        filter.addAction(Constants.START_ACTION);
         filter.addAction(Constants.SEND_TIME);
-        registerReceiver(new NotificationReceiver(), filter);
-        registerReceiver(timeCountReceiver, filter);
+        registerReceiver(notificationReceiver, filter);
+        registerReceiver(timeCountReceiver,filter);
 
     }
 
@@ -218,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-         //   Toast.makeText(context, action, Toast.LENGTH_SHORT).show();
+          //  Log.e("Test", action: 1212" );
             if (Constants.PAUSE_ACTION.equals(action) ) {
 
                 updateIconResume();
@@ -227,7 +239,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else if (Constants.STOP_ACTION.equals(action) ) {
 
                 updateIconRecord();
-                unregisterReceiver(timeCountReceiver);
+                unregisterReceiver(notificationReceiver);
+                if(pauseStatus == 1){
+                    unregisterReceiver(timeCountReceiver);
+                }
+//                unregisterReceiver(timeCountReceiver);
+
 
             } else if(Constants.RESUME_ACTION.equals(action) ){
                 IntentFilter filter = new IntentFilter();
@@ -236,7 +253,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 updateIconPause();
 
             } else if(Constants.START_ACTION.equals(action)){
-
+               // Toast.makeText(getApplicationContext(), action, Toast.LENGTH_SHORT).show();
+            //    Log.e("Test", "onReadyStart: 1212" );
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(Constants.SEND_TIME);
+                registerReceiver(timeCountReceiver, filter);
+                updateIconPause();
                 updateIconStopRecord();
 
             }
@@ -260,8 +282,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceiver(timeCountReceiver);
+        if(pauseStatus == 1){
+            unregisterReceiver(timeCountReceiver);
+        }
+       if(recordingStatus == 1) unregisterReceiver(notificationReceiver);
     }
+
 
     @Override
     protected void onStart() {

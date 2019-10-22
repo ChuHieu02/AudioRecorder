@@ -42,6 +42,7 @@ public class RecordService extends Service {
     private long millis = 0;
     private long countTimeRecord = 0;
     private  Handler handler = new Handler();
+    private NotificationReceiver notificationReceiver = new NotificationReceiver();
 
 
     public RecordService() {
@@ -67,10 +68,10 @@ public class RecordService extends Service {
         createNotificationChannel();
         createNotification();
         startRecording();
-       startCounter();
+        startCounter();
+        setRecordingStatus(1);
         isRunning = true;
         initReceiver();
-
         startForeground(1, mBuilder);
         return START_STICKY;
     }
@@ -79,11 +80,11 @@ public class RecordService extends Service {
     private void initReceiver() {
         try {
             IntentFilter filter = new IntentFilter();
+            filter.addAction(Constants.START_ACTION);
             filter.addAction(Constants.RESUME_ACTION);
             filter.addAction(Constants.PAUSE_ACTION);
             filter.addAction(Constants.STOP_ACTION);
-            filter.addAction(Constants.START_ACTION);
-            registerReceiver(new NotificationReceiver(), filter);
+            registerReceiver(notificationReceiver, filter);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -95,33 +96,35 @@ public class RecordService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (Constants.PAUSE_ACTION.equals(action) && isRunning == true) {
+            Log.e("Test", "onReadyStart: "+action );
+            if (Constants.PAUSE_ACTION.equals(action) ) {
 
                 pauseRecording();
                 setIsRunning(false);
                 setPauseStatus(1);
                 stopCounter();
-                Toast.makeText(getApplicationContext(), action, Toast.LENGTH_SHORT).show();
+
             } else if (Constants.STOP_ACTION.equals(action)) {
 
                 setRecordingStatus(0);
                 stopRecording();
+                stopCounter();
                 stopSelf();
-                setIsRunning(false);
-                Toast.makeText(getApplicationContext(), action, Toast.LENGTH_SHORT).show();
-            } else if(Constants.RESUME_ACTION.equals(action) && isRunning == false ){
+                unregisterReceiver(notificationReceiver);
 
-                setIsRunning(true);
+            } else if(Constants.RESUME_ACTION.equals(action) ){
+
                 resumeRecording();
                 setPauseStatus(0);
                 continueCouter();
-                Toast.makeText(getApplicationContext(), action, Toast.LENGTH_SHORT).show();
+
             } else if(Constants.START_ACTION.equals(action)){
 
-                setRecordingStatus(1);
-               // startCounter();
-                setIsRunning(true);
-                Toast.makeText(getApplicationContext(), action, Toast.LENGTH_SHORT).show();
+                Log.e("Test", "onReadyStart: 1212" );
+//                startRecording();
+//                startCounter();
+//                setRecordingStatus(1);
+
             }
         }
     }
@@ -280,6 +283,7 @@ public class RecordService extends Service {
     @Override
     public void onDestroy() {
         stopRecording();
+//        unregisterReceiver(notificationReceiver);
         super.onDestroy();
     }
 

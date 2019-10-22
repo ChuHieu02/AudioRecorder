@@ -18,7 +18,9 @@
         <service
             android:name=".service.RecordService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true">
+
+        </service>
 
         <activity
             android:name=".activity.EditContentActivity"
@@ -66,11 +68,21 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <receiver android:name=".MainActivity$TimeCountReceiver" >
-            <intent-filter>
-                <action android:name="intent.send.TIME_COUNT"/>
-            </intent-filter>
-        </receiver>
+<!--        <receiver android:name=".MainActivity$TimeCountReceiver" >-->
+<!--            <intent-filter>-->
+
+<!--                <action android:name="SEND_TIMER"/>-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
+
+<!--        <receiver android:name=".service.RecordService$NotificationReceiver">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="PAUSE_ACTION"/>-->
+<!--                <action android:name="STOP_ACTION"/>-->
+<!--                <action android:name="START_ACTION"/>-->
+<!--                <action android:name="RESUME_ACTION"/>-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
     </application>
 
 </manifest>
