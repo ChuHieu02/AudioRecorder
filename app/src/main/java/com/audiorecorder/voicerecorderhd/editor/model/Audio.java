@@ -11,6 +11,7 @@ public class Audio implements Parcelable {
     private String date;
     private String duration;
     private String size;
+    private int count;
 
     public Audio(String name, String path, String size,String date, String duration) {
         this.name = name;
@@ -111,5 +112,13 @@ public class Audio implements Parcelable {
 
     public static Creator<Audio> getCREATOR() {
         return CREATOR;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

@@ -10,8 +10,6 @@
           android:title="@string/menu_reset"
           app:showAsAction="ifRoom" />
 
-    <item android:id="@+id/action_about"
-          android:title="@string/menu_about"
-          app:showAsAction="ifRoom" />
+
 
 </menu>

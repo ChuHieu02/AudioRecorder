@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -19,11 +20,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
@@ -34,6 +38,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 
 public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHolder> {
     private Context context;
@@ -41,16 +46,14 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     private AlertDialog dialog;
     public OnclickItem onclickItem;
     private boolean isMp3;
+    private List<Integer> selectedIds = new ArrayList<>();
 
     public interface OnclickItem {
         void onClick(int i);
-
     }
-
     public void setOnclickItem(OnclickItem onclickItem) {
         this.onclickItem = onclickItem;
     }
-
 
     public LibraryAdapter(Context context, ArrayList<Audio> audioList) {
         this.context = context;
@@ -64,9 +67,21 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         return new ViewHolder(view);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         final Audio audio = audioList.get(position);
+
+
+
+        if (selectedIds.contains(position)){
+            holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_check_circle_black_24dp);
+        }
+        else {
+            holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_music_note_black_24dp);
+
+        }
+
 
         if (audio.getName() != null) {
             holder.tv_name.setText(audio.getName());
@@ -137,6 +152,14 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
     }
 
+    public Audio getItem(int position){
+        return audioList.get(position);
+    }
+
+    public void setSelectedIds(List<Integer> selectedIds) {
+        this.selectedIds = selectedIds;
+        notifyDataSetChanged();
+    }
 
     private void editContentAudio(Audio audio) {
         try {
@@ -308,6 +331,9 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         private TextView tv_time;
         private TextView tv_size;
         private FrameLayout iv_setting;
+        private ImageView imgItemMusicLibrary;
+
+
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -315,6 +341,8 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
             tv_size = itemView.findViewById(R.id.tv_size);
             tv_time = itemView.findViewById(R.id.tv_time);
             iv_setting = itemView.findViewById(R.id.iv_setting);
+            imgItemMusicLibrary = (ImageView) itemView.findViewById(R.id.img_item_music_library);
+
         }
     }
 

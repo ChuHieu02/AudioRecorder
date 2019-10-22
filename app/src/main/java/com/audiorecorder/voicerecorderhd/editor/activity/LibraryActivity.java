@@ -1,13 +1,22 @@
 package com.audiorecorder.voicerecorderhd.editor.activity;
 
+import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -22,16 +31,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.audiorecorder.voicerecorderhd.editor.MainActivity;
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.adapter.LibraryAdapter;
+import com.audiorecorder.voicerecorderhd.editor.adapter.RecyclerItemClickListener;
 import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 import com.audiorecorder.voicerecorderhd.editor.utils.CommonUtils;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
 import java.io.File;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import static java.sql.Types.TIMESTAMP;
 
 
-public class LibraryActivity extends AppCompatActivity implements View.OnClickListener {
+public class LibraryActivity extends AppCompatActivity implements View.OnClickListener, ActionMode.Callback {
 
     private RecyclerView rvLibrary;
     private LibraryAdapter adapter;
@@ -44,34 +61,141 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
     private ImageView ivBottomLibrary;
     private ImageView ivBottomRecoder;
     private ImageView ivBottomSettings;
-    private TextView lbRecoder;
-
-
-
-
+    private ActionMode actionMode;
+    private boolean isMultiSelect = false;
+    private List<Integer> selectedIds = new ArrayList<>();
+    private AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library);
         mapping();
+
+//        ActionBar bar = getActionBar();
+//        bar.setBackgroundDrawable(new ColorDrawable());
         new queryFile().execute();
+
+        rvLibrary.addOnItemTouchListener(new RecyclerItemClickListener(this, rvLibrary, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                if (isMultiSelect) {
+                    multiSelect(position);
+                }
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+                if (!isMultiSelect) {
+                    selectedIds = new ArrayList<>();
+                    isMultiSelect = true;
+
+                    if (actionMode == null) {
+                        actionMode = startActionMode(LibraryActivity.this); //show ActionMode.
+
+                    } else {
+                    }
+                }
+
+                multiSelect(position);
+            }
+        }));
+
     }
+
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.iv_bottom_recoder:
                 startActivity(new Intent(LibraryActivity.this, MainActivity.class));
-                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 
                 break;
             case R.id.iv_bottom_settings:
-              startActivity(new Intent(LibraryActivity.this,SettingsActivity.class));
-                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                startActivity(new Intent(LibraryActivity.this, SettingsActivity.class));
 
                 break;
         }
+    }
+
+    private void multiSelect(int position) {
+        Audio data = adapter.getItem(position);
+        if (data != null) {
+            if (actionMode != null) {
+                if (selectedIds.contains(position))
+                    selectedIds.remove(Integer.valueOf(position));
+                else
+                    selectedIds.add(position);
+//                Log.e("size",selectedIds+""+position);
+
+                if (selectedIds.size() > 0)
+                    actionMode.setTitle(String.valueOf(selectedIds.size())); //show selected item count on action mode.
+                else {
+                    actionMode.setTitle("");
+                    actionMode.finish(); //hide action mode.
+
+                }
+                adapter.setSelectedIds(selectedIds);
+
+            }
+
+        }
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        MenuInflater inflater = mode.getMenuInflater();
+        inflater.inflate(R.menu.menu_select, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.menu_delete_item_library:
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(R.string.question_delete)
+                        .setPositiveButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int j) {
+                                dialog.dismiss();
+                            }
+                        }).setNegativeButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int j) {
+                        for (int i = 0; i < selectedIds.size(); i++) {
+                            String path = audioList.get(selectedIds.get(i)).getPath();
+                            new File(String.valueOf(Uri.parse(path))).delete();
+//                    Log.e("nameTotal", audioList.get(selectedIds.get(i)).getPath() + "  ");
+                        }
+                        Toast.makeText(LibraryActivity.this, getResources().getString(R.string.success_delete), Toast.LENGTH_SHORT).show();
+                    }
+                });
+                builder.create();
+                dialog = builder.show();
+
+//                for (int i = 0; i < selectedIds.size(); i++) {
+//                    String path = audioList.get(selectedIds.get(i)).getPath();
+//                    new File(String.valueOf(Uri.parse(path))).delete();
+////                    Log.e("nameTotal", audioList.get(selectedIds.get(i)).getPath() + "  ");
+//                }
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        actionMode = null;
+        isMultiSelect = false;
+        selectedIds = new ArrayList<>();
+        adapter.setSelectedIds(new ArrayList<Integer>());
     }
 
     private class queryFile extends AsyncTask<String, String, ArrayList<Audio>> {
@@ -109,7 +233,6 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-
     private void setDataAdapter(final ArrayList<Audio> audioList) {
         layoutManager = new LinearLayoutManager(this);
         rvLibrary.setLayoutManager(layoutManager);
@@ -122,7 +245,6 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         }
         adapter = new LibraryAdapter(LibraryActivity.this, audioList);
         rvLibrary.setAdapter(adapter);
-
         adapter.setOnclickItem(new LibraryAdapter.OnclickItem() {
             @Override
             public void onClick(int i) {
@@ -141,9 +263,10 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         ivBottomRecoder.setOnClickListener(this);
         ivBottomSettings.setOnClickListener(this);
 
-        lbRecoder =  findViewById(R.id.lb_recoder);
-        lbRecoder.setText(getResources().getString(R.string.label_library));
-        lbRecoder.setTextColor(getResources().getColor(R.color.all_color_black));
+
+//        tvLabelLibrary =  findViewById(R.id.tv_label_library);
+//        tvLabelLibrary.setText(getResources().getString(R.string.label_library));
+//        tvLabelLibrary.setTextColor(getResources().getColor(R.color.all_color_black));
 
         ivBottomLibrary.setImageDrawable(getResources().getDrawable(R.drawable.ic_library_pr));
         tvEmpty = findViewById(R.id.tv_library_empty);
@@ -171,6 +294,23 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
             }
         }
         return arrayList;
+    }
+
+    private void deleteAudio(final String path) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.question_delete)
+                .setPositiveButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialog.dismiss();
+                    }
+                }).setNegativeButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        builder.create();
+        dialog = builder.show();
     }
 
 }

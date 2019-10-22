@@ -248,11 +248,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.iv_bottom_library:
                 startActivity(new Intent(this, LibraryActivity.class));
-                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 break;
             case R.id.iv_bottom_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
-                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                 break;
         }
 

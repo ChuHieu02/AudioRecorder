@@ -46,21 +46,15 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         sharedPreferences = this.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
         if (sharedPreferences != null) {
-            new getSharePre().execute();
+            getKeyQuality(sharedPreferences);
+            getKeyPath(sharedPreferences);
+            getKeyFileType(sharedPreferences);
             return;
         }
 
     }
 
-    private class getSharePre extends AsyncTask<String , String , String> {
-        @Override
-        protected String doInBackground(String... strings) {
-            getKeyQuality(sharedPreferences);
-            getKeyPath(sharedPreferences);
-            getKeyFileType(sharedPreferences);
-            return null;
-        }
-    }
+
 
     private void getKeyFileType(SharedPreferences s) {
         int checkFormatType = s.getInt(Constants.K_FORMAT_TYPE, 0);
@@ -83,8 +77,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     private void getKeyQuality( SharedPreferences s) {
         int checkQuality = s.getInt(Constants.K_FORMAT_QUALITY, 16);
-        Log.e("quality",checkQuality+"");
-        tvResponQualitySetting.setText(String.valueOf(checkQuality));
+        Log.e("quality",checkQuality+" kHz");
+        tvResponQualitySetting.setText(String.valueOf(checkQuality)+" kHz");
     }
 
     private void mapping() {
@@ -115,113 +109,15 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    //
-//    private void settingAudio() {
-//        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
-//        final SharedPreferences.Editor editor = sharedPreferences.edit();
-//        rbWav.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                editor.putInt(Constants.K_FORMAT_TYPE, 1);
-//                editor.apply();
-//            }
-//        });
-//
-//        rbMp3.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                editor.putInt(Constants.K_FORMAT_TYPE, 0);
-//                editor.apply();
-//            }
-//        });
-//
-//        rb16kHz.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                editor.putInt(Constants.K_FORMAT_QUALITY, 16);
-//                editor.apply();
-//                tvResponQualitySetting.setText(Constants.K_QUALITY_16);
-//
-//            }
-//
-//        });
-//
-//        rb22kHz.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                editor.putInt(Constants.K_FORMAT_QUALITY, 22);
-//                editor.apply();
-//                tvResponQualitySetting.setText(Constants.K_QUALITY_22);
-//
-//
-//            }
-//        });
-//
-//        rb32kHz.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                editor.putInt(Constants.K_FORMAT_QUALITY, 32);
-//                editor.apply();
-//                tvResponQualitySetting.setText(Constants.K_QUALITY_32);
-//
-//            }
-//        });
-//
-//        rb44kHz.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                editor.putInt(Constants.K_FORMAT_QUALITY, 44);
-//                editor.apply();
-//                tvResponQualitySetting.setText(Constants.K_QUALITY_44);
-//
-//            }
-//        });
-//    }
-//
-//    private void loadAudioSetting() {
-//
-//        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
-//        if (sharedPreferences != null) {
-//            int checkFormatType = sharedPreferences.getInt(Constants.K_FORMAT_TYPE, 0);
-//            if (checkFormatType == 0) {
-//                rbMp3.setChecked(true);
-//                rbWav.setChecked(false);
-//            } else if (checkFormatType == 1) {
-//                rbMp3.setChecked(false);
-//                rbWav.setChecked(true);
-//            }
-//
-//            int checkQuality = sharedPreferences.getInt(Constants.K_FORMAT_QUALITY, 16);
-//            if (checkQuality == 16) {
-//                rb16kHz.setChecked(true);
-//
-//            } else if (checkQuality == 22) {
-//                rb22kHz.setChecked(true);
-//
-//            } else if (checkQuality == 32) {
-//                rb32kHz.setChecked(true);
-//
-//            } else if (checkQuality == 44) {
-//                rb44kHz.setChecked(true);
-//
-//            }
-//        }
-//
-//    }
-
-    @Override
+      @Override
     public void onClick(View v) {
 
         switch (v.getId()) {
             case R.id.iv_bottom_recoder:
                 startActivity(new Intent(SettingsActivity.this, MainActivity.class));
-                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-
                 break;
             case R.id.iv_bottom_library:
                 startActivity(new Intent(SettingsActivity.this, LibraryActivity.class));
-                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-
                 break;
             case R.id.tv_Choose_Folder:
                 SharedPreferences sharedPreferences = getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);

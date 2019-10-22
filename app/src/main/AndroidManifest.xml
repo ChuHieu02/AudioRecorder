@@ -24,10 +24,11 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:label="@string/label_library"
             android:launchMode="singleTask"
             android:name=".activity.LibraryActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+           />
         <activity
             android:launchMode="singleTask"
             android:name=".activity.SettingsActivity"

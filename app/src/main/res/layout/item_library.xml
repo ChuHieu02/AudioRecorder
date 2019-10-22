@@ -28,7 +28,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/iv_setting"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
+            app:layout_constraintStart_toEndOf="@+id/img_item_music_library"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -45,7 +45,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tv_time"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView" />
+            app:layout_constraintTop_toBottomOf="@+id/img_item_music_library" />
 
         <TextView
             android:id="@+id/tv_time"
@@ -64,13 +64,13 @@
             app:layout_constraintTop_toTopOf="@+id/tv_size" />
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/img_item_music_library"
             android:layout_width="@dimen/dp50"
             android:layout_height="@dimen/dp50"
             android:layout_marginStart="@dimen/dp16"
             android:layout_marginLeft="@dimen/dp16"
             android:layout_marginTop="@dimen/dp16"
-            android:src="@drawable/ic_library_audio"
+            android:src="@drawable/ic_music_note_black_24dp"
             app:layout_constraintEnd_toStartOf="@+id/tv_name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

@@ -205,6 +205,7 @@
     <string name="default_file_name_setting">Default File Name</string>
     <string name="recoder_quality_setting">Recording Quality</string>
     <string name="location_file_setting">Location of recording</string>
+    <string name="success_delete">Delete success !</string>
 
 
     <!--    Adapter Library-->
