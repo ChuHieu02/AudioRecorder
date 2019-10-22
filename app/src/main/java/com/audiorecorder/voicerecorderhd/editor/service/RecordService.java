@@ -1,6 +1,5 @@
 package com.audiorecorder.voicerecorderhd.editor.service;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -18,11 +17,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.audiorecorder.voicerecorderhd.editor.MainActivity;
 import com.audiorecorder.voicerecorderhd.editor.R;
+import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
 import java.io.File;
@@ -30,23 +31,61 @@ import java.io.IOException;
 
 public class RecordService extends Service {
 
-    private MediaRecorder mAudioRecorder;
-    private String outputFile;
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
     public static int pauseStatus;
     public static int recordingStatus;
     public static boolean isRunning = false;
+    private MediaRecorder mAudioRecorder;
+    private String outputFile;
     private NotificationManager mNotificationManager;
     private Notification mBuilder;
     private long startTime = 0;
     private long millis = 0;
     private long countTimeRecord = 0;
-    private  Handler handler = new Handler();
+    private DBQuerys dbQuerys;
+    private String pathFile;
+    private long dateTime;
+    private long fileSize;
+    private String audioName;
+    private Handler handler = new Handler();
+    Runnable serviceRunnable = new Runnable() {
+        @Override
+        public void run() {
+            millis = System.currentTimeMillis() - startTime;
+            countTimeRecord += 1000;
+            sendTimeToReceiver();
+            handler.postDelayed(this, 1000);
+        }
+    };
     private NotificationReceiver notificationReceiver = new NotificationReceiver();
 
 
     public RecordService() {
 
+    }
+
+    public static boolean isIsRunning() {
+        return isRunning;
+    }
+
+    public static void setIsRunning(boolean isRunning) {
+        RecordService.isRunning = isRunning;
+    }
+
+    public static int getPauseStatus() {
+        return pauseStatus;
+    }
+
+    public static void setPauseStatus(int pauseStatus) {
+        RecordService.pauseStatus = pauseStatus;
+    }
+
+    public static int getRecordingStatus() {
+        return recordingStatus;
+    }
+
+    public static void setRecordingStatus(int recordingStatus) {
+        RecordService.recordingStatus = recordingStatus;
     }
 
     @Override
@@ -76,7 +115,6 @@ public class RecordService extends Service {
         return START_STICKY;
     }
 
-
     private void initReceiver() {
         try {
             IntentFilter filter = new IntentFilter();
@@ -90,98 +128,27 @@ public class RecordService extends Service {
         }
     }
 
-    public  class NotificationReceiver extends BroadcastReceiver {
-
-        @RequiresApi(api = Build.VERSION_CODES.N)
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Log.e("Test", "onReadyStart: "+action );
-            if (Constants.PAUSE_ACTION.equals(action) ) {
-
-                pauseRecording();
-                setIsRunning(false);
-                setPauseStatus(1);
-                stopCounter();
-
-            } else if (Constants.STOP_ACTION.equals(action)) {
-
-                setRecordingStatus(0);
-                stopRecording();
-                stopCounter();
-                stopSelf();
-                unregisterReceiver(notificationReceiver);
-
-            } else if(Constants.RESUME_ACTION.equals(action) ){
-
-                resumeRecording();
-                setPauseStatus(0);
-                continueCouter();
-
-            } else if(Constants.START_ACTION.equals(action)){
-
-                Log.e("Test", "onReadyStart: 1212" );
-//                startRecording();
-//                startCounter();
-//                setRecordingStatus(1);
-
-            }
-        }
-    }
-
-    private void sendTimeToReceiver(){
+    private void sendTimeToReceiver() {
         Intent intentTimer = new Intent();
         intentTimer.setAction(Constants.SEND_TIME);
         intentTimer.putExtra(Constants.TIME_COUNT, millis);
         sendBroadcast(intentTimer);
     }
 
-    public void startCounter(){
+    public void startCounter() {
         startTime = System.currentTimeMillis();
         countTimeRecord = 0;
         handler.postDelayed(serviceRunnable, 0);
 
     }
-    public void continueCouter(){
+
+    public void continueCouter() {
         startTime = System.currentTimeMillis() - countTimeRecord;
         handler.postDelayed(serviceRunnable, 0);
     }
 
-    public void stopCounter(){
+    public void stopCounter() {
         handler.removeCallbacks(serviceRunnable);
-    }
-
-    Runnable serviceRunnable = new Runnable() {
-        @Override
-        public void run() {
-            millis = System.currentTimeMillis() - startTime;
-            countTimeRecord += 1000;
-            sendTimeToReceiver();
-            handler.postDelayed(this, 1000);
-        }
-    };
-    public static boolean isIsRunning() {
-        return isRunning;
-    }
-
-    public static void setIsRunning(boolean isRunning) {
-        RecordService.isRunning = isRunning;
-    }
-
-    public static int getPauseStatus() {
-        return pauseStatus;
-    }
-
-    public static void setPauseStatus(int pauseStatus) {
-        RecordService.pauseStatus = pauseStatus;
-    }
-
-    public static int getRecordingStatus() {
-        return recordingStatus;
-    }
-
-    public static void setRecordingStatus(int recordingStatus) {
-        RecordService.recordingStatus = recordingStatus;
     }
 
     public void createFile() {
@@ -189,11 +156,15 @@ public class RecordService extends Service {
         if (sharedPreferences != null) {
             int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE, 0);
             String pathDirector = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH, Environment.getExternalStorageDirectory() + File.separator + "Recorder");
+            pathFile = pathDirector;
+            dateTime = System.currentTimeMillis();
             File file = new File(pathDirector);
             if (checkStatus == 0) {
                 outputFile = "/" + file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".mp3";
+                audioName = "RecordFile" + System.currentTimeMillis() + ".mp3";
             } else if (checkStatus == 1) {
                 outputFile = "/" + file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".wav";
+                audioName = "RecordFile" + System.currentTimeMillis() + ".wav";
             }
             if (!file.exists()) {
                 file.mkdirs();
@@ -271,11 +242,13 @@ public class RecordService extends Service {
         try {
             if (mAudioRecorder != null) {
                 mAudioRecorder.stop();
+                File file = new File(outputFile);
+                fileSize = file.length();
                 mAudioRecorder.release();
                 mAudioRecorder = null;
             }
         } catch (Exception e) {
-           Toast.makeText(getApplicationContext(), "Null Media File", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Null Media File", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -296,13 +269,13 @@ public class RecordService extends Service {
                     NotificationManager.IMPORTANCE_DEFAULT
             );
 
-            mNotificationManager= getSystemService(NotificationManager.class);
+            mNotificationManager = getSystemService(NotificationManager.class);
             mNotificationManager.createNotificationChannel(serviceChannel);
         }
 
     }
 
-    private void createNotification(){
+    private void createNotification() {
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 2019, notificationIntent, 0);
@@ -326,6 +299,47 @@ public class RecordService extends Service {
                 .setContentIntent(pendingIntent)
                 .build();
 
+    }
+
+    public class NotificationReceiver extends BroadcastReceiver {
+
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.e("Test", "onReadyStart: " + action);
+            if (Constants.PAUSE_ACTION.equals(action)) {
+
+                pauseRecording();
+                setIsRunning(false);
+                setPauseStatus(1);
+                stopCounter();
+
+            } else if (Constants.STOP_ACTION.equals(action)) {
+
+                setRecordingStatus(0);
+                stopRecording();
+                dbQuerys = new DBQuerys(getApplicationContext());
+                dbQuerys.insertAudioString(audioName,outputFile,fileSize,dateTime,countTimeRecord);
+                stopCounter();
+                stopSelf();
+                unregisterReceiver(notificationReceiver);
+
+            } else if (Constants.RESUME_ACTION.equals(action)) {
+
+                resumeRecording();
+                setPauseStatus(0);
+                continueCouter();
+
+            } else if (Constants.START_ACTION.equals(action)) {
+
+                Log.e("Test", "onReadyStart: 1212");
+//                startRecording();
+//                startCounter();
+//                setRecordingStatus(1);
+
+            }
+        }
     }
 
 }

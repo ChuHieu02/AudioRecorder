@@ -47,7 +47,7 @@ import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.io.StringWriter;
 
-public class EditContentActivity extends AppCompatActivity implements MarkerView.MarkerListener, WaveformView.WaveformListener {
+public class EditActivity extends AppCompatActivity implements MarkerView.MarkerListener, WaveformView.WaveformListener {
 
     private long mLoadingLastUpdateTime;
     private boolean mLoadingKeepGoing;
@@ -596,7 +596,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
         mLoadingLastUpdateTime = getCurrentTime();
         mLoadingKeepGoing = true;
         mFinishActivity = false;
-        mProgressDialog = new ProgressDialog(EditContentActivity.this);
+        mProgressDialog = new ProgressDialog(EditActivity.this);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgressDialog.setTitle(R.string.progress_dialog_loading);
         mProgressDialog.setCancelable(true);
@@ -678,7 +678,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
                     };
                     mHandler.post(runnable);
                 } else if (mFinishActivity){
-                    EditContentActivity.this.finish();
+                    EditActivity.this.finish();
                 }
             }
         };
@@ -693,7 +693,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
         mRecordingLastUpdateTime = getCurrentTime();
         mRecordingKeepGoing = true;
         mFinishActivity = false;
-        AlertDialog.Builder adBuilder = new AlertDialog.Builder(EditContentActivity.this);
+        AlertDialog.Builder adBuilder = new AlertDialog.Builder(EditActivity.this);
         adBuilder.setTitle(getResources().getText(R.string.progress_dialog_recording));
         adBuilder.setCancelable(true);
         adBuilder.setNegativeButton(
@@ -777,7 +777,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
                 }
                 mAlertDialog.dismiss();
                 if (mFinishActivity){
-                    EditContentActivity.this.finish();
+                    EditActivity.this.finish();
                 } else {
                     Runnable runnable = new Runnable() {
                         public void run() {
@@ -1109,7 +1109,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
             title = getResources().getText(R.string.alert_title_success);
         }
 
-        new AlertDialog.Builder(EditContentActivity.this)
+        new AlertDialog.Builder(EditActivity.this)
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(
@@ -1415,7 +1415,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
         // If it's a notification, give the user the option of making
         // this their default notification.  If they say no, we're finished.
         if (mNewFileKind == FileSaveDialog.FILE_KIND_NOTIFICATION) {
-            new AlertDialog.Builder(EditContentActivity.this)
+            new AlertDialog.Builder(EditActivity.this)
                     .setTitle(R.string.alert_title_success)
                     .setMessage(R.string.set_default_notification)
                     .setPositiveButton(R.string.alert_yes_button,
@@ -1423,7 +1423,7 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
                                 public void onClick(DialogInterface dialog,
                                                     int whichButton) {
                                     RingtoneManager.setActualDefaultRingtoneUri(
-                                            EditContentActivity.this,
+                                            EditActivity.this,
                                             RingtoneManager.TYPE_NOTIFICATION,
                                             newUri);
                                     finish();
@@ -1451,11 +1451,11 @@ public class EditContentActivity extends AppCompatActivity implements MarkerView
                 switch (actionId) {
                     case R.id.button_make_default:
                         RingtoneManager.setActualDefaultRingtoneUri(
-                                EditContentActivity.this,
+                                EditActivity.this,
                                 RingtoneManager.TYPE_RINGTONE,
                                 newUri);
                         Toast.makeText(
-                                EditContentActivity.this,
+                                EditActivity.this,
                                 R.string.default_ringtone_success_message,
                                 Toast.LENGTH_SHORT)
                                 .show();

@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="all_2dp">2dp</dimen>
-    <dimen name="all_16dp">16dp</dimen>
-    <dimen name="all_50dp">50dp</dimen>
-    <dimen name="all_10dp">10dp</dimen>
-    <dimen name="all_100dp">100dp</dimen>
-    <dimen name="all_24dp">24dp</dimen>
-    <dimen name="all_5dp">5dp</dimen>
-    <dimen name="all_70dp">70dp</dimen>
-    <dimen name="all_35dp">35dp</dimen>
-    <dimen name="all_30dp">30dp</dimen>
-    <dimen name="all_25sp">25sp</dimen>
-    <dimen name="all_20sp">20sp</dimen>
-    <dimen name="all_8dp">8dp</dimen>
-    <dimen name="all_135dp">135dp</dimen>
-    <dimen name="all_34dp">34dp</dimen>
+    <!--    all dp-->
+    <dimen name="db2">2dp</dimen>
+    <dimen name="dp16">16dp</dimen>
+    <dimen name="dp50">50dp</dimen>
+    <dimen name="dp10">10dp</dimen>
+    <dimen name="dp100">100dp</dimen>
+    <dimen name="dp24">24dp</dimen>
+    <dimen name="dp5">5dp</dimen>
+    <dimen name="dp70">70dp</dimen>
+    <dimen name="dp35">35dp</dimen>
+    <dimen name="dp30">30dp</dimen>
+    <dimen name="dp8">8dp</dimen>
+    <dimen name="dp135">135dp</dimen>
+    <dimen name="dp34">34dp</dimen>
+    <!--all sp-->
+    <dimen name="sp25">25sp</dimen>
+    <dimen name="sp20">20sp</dimen>
+    <dimen name="dp40">40dp</dimen>
 </resources>

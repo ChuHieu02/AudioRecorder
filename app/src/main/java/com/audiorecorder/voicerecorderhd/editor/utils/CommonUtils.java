@@ -43,13 +43,13 @@ public class CommonUtils {
             timeSecond = "0" + seconds;
 
         } else {
-            timeSecond = "" + seconds;
+            timeSecond = "" + seconds ;
         }
         finaltimeSting = finaltimeSting + minutes + ":" + timeSecond;
         return finaltimeSting;
     }
 
-    public static String GetDuration(String path) {
+    public static String getDuration(String path) {
         String durationRespon = "";
         String duration;
         try {
@@ -68,20 +68,5 @@ public class CommonUtils {
         return durationRespon;
     }
 
-    public static int getProgressPercentage(long currentDuration, long totalDuration) {
-        Double percentage = 0.0D;
-        long currentSeconds = (long)((int)(currentDuration / 1000L));
-        long totalSeconds = (long)((int)(totalDuration / 1000L));
-        percentage = (double)currentSeconds / (double)totalSeconds * 100.0D;
-        return percentage.intValue();
-    }
 
-    public static  int progressToTimer(int progress, int totalDuration) {
-        int currentDuration = 0;
-        totalDuration = (int) (totalDuration / 1000);
-        currentDuration = (int) ((((double)progress) / 100) * totalDuration);
-
-        // return current duration in milliseconds
-        return currentDuration * 1000;
-    }
 }

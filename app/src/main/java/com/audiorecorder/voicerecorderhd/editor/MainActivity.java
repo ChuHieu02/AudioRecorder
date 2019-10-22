@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat;
 
 import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.activity.SettingsActivity;
+import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.service.RecordService;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
@@ -54,10 +55,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int minutes;
     private int hours;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        dbQuerys = new DBQuerys(this);
+//        dbQuerys.insertAudioString("lac troi","fgholkkl.mp3",124566,564132,5465365);
+
         mappingBottomNavigation();
         recordService = new RecordService();
         updateViewStage();
@@ -69,8 +76,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivBottomLibrary = findViewById(R.id.iv_bottom_library);
         ivBottomRecoder = findViewById(R.id.iv_bottom_recoder);
         ivBottomSettings = findViewById(R.id.iv_bottom_settings);
-        ivPauseResume = findViewById(R.id.imageViewPauseResume);
-        ivRecord = findViewById(R.id.imageViewRecord);
+        ivPauseResume = findViewById(R.id.iv_pauseResume);
+        ivRecord = findViewById(R.id.iv_recoder);
         tvRecordingStatus = findViewById(R.id.textView2);
         tvTimeRecord =(TextView) findViewById(R.id.tv_time_record);
         ivPauseResume.setVisibility(View.INVISIBLE);
@@ -89,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                    if(isMyServiceRunning(recordService.getClass())){
 //                        onReadyStart();
 //                    }
-                   // onReadyStart();
+                    // onReadyStart();
                     updateIconStopRecord();
                 }else if(recordingStatus == 1){
 
@@ -230,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-          //  Log.e("Test", action: 1212" );
+            //  Log.e("Test", action: 1212" );
             if (Constants.PAUSE_ACTION.equals(action) ) {
 
                 updateIconResume();
@@ -253,8 +260,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 updateIconPause();
 
             } else if(Constants.START_ACTION.equals(action)){
-               // Toast.makeText(getApplicationContext(), action, Toast.LENGTH_SHORT).show();
-            //    Log.e("Test", "onReadyStart: 1212" );
+                // Toast.makeText(getApplicationContext(), action, Toast.LENGTH_SHORT).show();
+                //    Log.e("Test", "onReadyStart: 1212" );
                 IntentFilter filter = new IntentFilter();
                 filter.addAction(Constants.SEND_TIME);
                 registerReceiver(timeCountReceiver, filter);
@@ -282,10 +289,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStop() {
         super.onStop();
-        if(pauseStatus == 1){
-            unregisterReceiver(timeCountReceiver);
-        }
-       if(recordingStatus == 1) unregisterReceiver(notificationReceiver);
+//        if(pauseStatus == 1){
+//            unregisterReceiver(timeCountReceiver);
+//        }
+//        if(recordingStatus == 1) unregisterReceiver(notificationReceiver);
     }
 
 

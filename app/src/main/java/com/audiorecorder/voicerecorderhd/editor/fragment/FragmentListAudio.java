@@ -1,10 +1,15 @@
 package com.audiorecorder.voicerecorderhd.editor.fragment;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,68 +18,65 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
-import com.audiorecorder.voicerecorderhd.editor.adapter.FragmentDetaiListAdapter;
+import com.audiorecorder.voicerecorderhd.editor.adapter.FragmenListAdapter;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 import com.audiorecorder.voicerecorderhd.editor.utils.MyDividerItemDecoration;
 
 import java.util.ArrayList;
 
-public class FragmentDetailListAudio extends Fragment {
+public class FragmentListAudio extends Fragment {
     private FragmentDetailListListener listener;
-    private RecyclerView rv_fragment_list_library;
-    private FragmentDetaiListAdapter detaiListAdapter;
+    private RecyclerView rvFragmentListLibrary;
+    private FragmenListAdapter detaiListAdapter;
     private LinearLayoutManager layoutManager;
     private ArrayList audioList = new ArrayList<>();
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    private int i;
 
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_detail__list_audio, container, false);
+        View view = inflater.inflate(R.layout.fragment_detail_list_audio, container, false);
 
-        rv_fragment_list_library = view.findViewById(R.id.rv_fragment_list_library);
+        rvFragmentListLibrary = view.findViewById(R.id.rv_fragment_list_library);
 
         Bundle arguments = getArguments();
         try {
             audioList = arguments.getParcelableArrayList("listAudio");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+            this.i = arguments.getInt("position");
+        } catch (Exception e) { e.printStackTrace(); }
         mapping();
 
-        detaiListAdapter.setOnClickItemFragmentDetaiAdapter(new FragmentDetaiListAdapter.onClickItemFragmentDetaiAdapter() {
+
+        detaiListAdapter.setOnClickItemFragmentDetaiAdapter(new FragmenListAdapter.onClickItemFragmentDetaiAdapter() {
             @Override
             public void onClick(int i) {
                 listener.sendPosition(i);
 
             }
         });
+
         return view;
     }
 
-
     private void mapping() {
         layoutManager = new LinearLayoutManager(getContext());
-        rv_fragment_list_library.setLayoutManager(layoutManager);
-        detaiListAdapter = new FragmentDetaiListAdapter(getContext(), audioList);
-        rv_fragment_list_library.addItemDecoration(new MyDividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL, 8));
-        rv_fragment_list_library.setAdapter(detaiListAdapter);
+        rvFragmentListLibrary.setLayoutManager(layoutManager);
+        detaiListAdapter = new FragmenListAdapter(getContext(), audioList);
+        rvFragmentListLibrary.addItemDecoration(new MyDividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL, 8));
+        rvFragmentListLibrary.setAdapter(detaiListAdapter);
     }
 
-
-    public FragmentDetailListAudio setArguments(ArrayList<Audio> listAudio) {
+    public FragmentListAudio setArguments(ArrayList<Audio> listAudio, int position) {
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("listAudio", listAudio);
+        bundle.putInt("position", position);
         setArguments(bundle);
         return this;
     }
+
+
 
     public interface FragmentDetailListListener {
         void sendPosition(int i);
@@ -97,4 +99,7 @@ public class FragmentDetailListAudio extends Fragment {
         }
     }
 
+    private void showToast(String msg) {
+        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+    }
 }

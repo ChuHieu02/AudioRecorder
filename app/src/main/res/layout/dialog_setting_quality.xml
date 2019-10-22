@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="200dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+
+    <RadioGroup
+        android:id="@+id/rg_SetQuality"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_choose_quality_setting">
+
+        <RadioButton
+            android:id="@+id/rb_16kHz"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp40"
+            android:checked="false"
+            android:gravity="center"
+            android:text="@string/rb_quality_16kHz" />
+
+        <RadioButton
+            android:id="@+id/rb_22kHz"
+
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp40"
+            android:layout_marginTop="8dp"
+            android:checked="false"
+            android:gravity="center"
+            android:text="@string/rb_quality_22kHz" />
+
+        <RadioButton
+            android:id="@+id/rb_32kHz"
+
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp40"
+            android:layout_marginTop="8dp"
+            android:checked="false"
+            android:gravity="center"
+            android:text="@string/rb_quality_32kHz" />
+
+        <RadioButton
+            android:id="@+id/rb_44kHz"
+
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp40"
+            android:layout_marginTop="8dp"
+            android:checked="false"
+            android:gravity="center"
+            android:text="@string/rb_quality_44kHz" />
+
+    </RadioGroup>
+</androidx.constraintlayout.widget.ConstraintLayout>
