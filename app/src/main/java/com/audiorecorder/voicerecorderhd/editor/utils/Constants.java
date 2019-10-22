@@ -24,4 +24,7 @@ public class Constants {
     public static final String K_QUALITY_22 = "22 khz";
     public static final String K_QUALITY_32 = "32 khz";
     public static final String K_QUALITY_44 = "44 khz";
+    public static final String ACTION_CHECK_TIME = "ACTION_CHECK_TIME";
+    public static final String ACTION_UPDATE_TIME = "ACTION_UPDATE_TIME";
+    public static final String EXTRA_CURRENT_TIME = "EXTRA_CURRENT_TIME";
 }

@@ -129,8 +129,7 @@ public class RecordService extends Service {
     }
 
     private void sendTimeToReceiver() {
-        Intent intentTimer = new Intent();
-        intentTimer.setAction(Constants.SEND_TIME);
+        Intent intentTimer = new Intent(Constants.SEND_TIME);
         intentTimer.putExtra(Constants.TIME_COUNT, millis);
         sendBroadcast(intentTimer);
     }
@@ -148,7 +147,7 @@ public class RecordService extends Service {
     }
 
     public void stopCounter() {
-        handler.removeCallbacks(serviceRunnable);
+        handler.removeCallbacksAndMessages(null);
     }
 
     public void createFile() {
@@ -338,6 +337,10 @@ public class RecordService extends Service {
 //                startCounter();
 //                setRecordingStatus(1);
 
+            } else if(Constants.ACTION_CHECK_TIME.equals(action)){
+                Intent intentData = new Intent(Constants.ACTION_UPDATE_TIME);
+                intentData.putExtra(Constants.EXTRA_CURRENT_TIME, countTimeRecord);
+                sendBroadcast(intentData);
             }
         }
     }

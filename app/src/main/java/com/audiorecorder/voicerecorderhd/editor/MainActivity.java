@@ -27,12 +27,9 @@ import androidx.core.content.ContextCompat;
 
 import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.activity.SettingsActivity;
-import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.service.RecordService;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
-
-import javax.security.auth.login.LoginException;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -61,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initReceiver();
 
 //        dbQuerys = new DBQuerys(this);
 //        dbQuerys.insertAudioString("lac troi","fgholkkl.mp3",124566,564132,5465365);
@@ -68,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mappingBottomNavigation();
         recordService = new RecordService();
         updateViewStage();
+
+        sendBroadcast(new Intent(Constants.ACTION_CHECK_TIME));
 
     }
 
@@ -134,7 +134,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        initReceiver();
         updateViewStage();
 
     }
@@ -166,6 +165,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intentService = new Intent(Constants.RESUME_ACTION);
         sendBroadcast(intentService);
         recordService.setPauseStatus(0);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            unregisterReceiver(notificationReceiver);
+            unregisterReceiver(timeCountReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private  void onActionPasuse(){
@@ -217,17 +227,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-
-
     public void initReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.RESUME_ACTION);
-        filter.addAction(Constants.PAUSE_ACTION);
-        filter.addAction(Constants.STOP_ACTION);
-        filter.addAction(Constants.START_ACTION);
-        filter.addAction(Constants.SEND_TIME);
-        registerReceiver(notificationReceiver, filter);
-        registerReceiver(timeCountReceiver,filter);
+        try {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Constants.RESUME_ACTION);
+            filter.addAction(Constants.PAUSE_ACTION);
+            filter.addAction(Constants.STOP_ACTION);
+            filter.addAction(Constants.START_ACTION);
+            filter.addAction(Constants.SEND_TIME);
+            filter.addAction(Constants.ACTION_UPDATE_TIME);
+            registerReceiver(notificationReceiver, filter);
+            registerReceiver(timeCountReceiver,filter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -241,33 +254,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (Constants.PAUSE_ACTION.equals(action) ) {
 
                 updateIconResume();
-                unregisterReceiver(timeCountReceiver);
+                try {
+                    unregisterReceiver(timeCountReceiver);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
             } else if (Constants.STOP_ACTION.equals(action) ) {
 
                 updateIconRecord();
-                unregisterReceiver(notificationReceiver);
-                if(pauseStatus == 1){
-                    unregisterReceiver(timeCountReceiver);
-                }
-//                unregisterReceiver(timeCountReceiver);
+//                unregisterReceiver(notificationReceiver);
+//                if(pauseStatus == 1){
+//                    unregisterReceiver(timeCountReceiver);
+//                }
 
 
             } else if(Constants.RESUME_ACTION.equals(action) ){
-                IntentFilter filter = new IntentFilter();
-                filter.addAction(Constants.SEND_TIME);
-                registerReceiver(timeCountReceiver, filter);
-                updateIconPause();
+                try {
+                    IntentFilter filter = new IntentFilter();
+                    filter.addAction(Constants.SEND_TIME);
+                    registerReceiver(timeCountReceiver, filter);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
             } else if(Constants.START_ACTION.equals(action)){
-                // Toast.makeText(getApplicationContext(), action, Toast.LENGTH_SHORT).show();
-                //    Log.e("Test", "onReadyStart: 1212" );
-                IntentFilter filter = new IntentFilter();
-                filter.addAction(Constants.SEND_TIME);
-                registerReceiver(timeCountReceiver, filter);
+
+//                IntentFilter filter = new IntentFilter();
+//                filter.addAction(Constants.SEND_TIME);
+//                registerReceiver(timeCountReceiver, filter);
                 updateIconPause();
                 updateIconStopRecord();
 
+            } else if(Constants.ACTION_UPDATE_TIME.equals(action)){
+                long currentTime = intent.getLongExtra(Constants.EXTRA_CURRENT_TIME, 0L);
+                Log.i("datfit", "onReceive: " + currentTime);
             }
         }
     }
@@ -290,7 +311,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onStop() {
         super.onStop();
 //        if(pauseStatus == 1){
-//            unregisterReceiver(timeCountReceiver);
+        try {
+            unregisterReceiver(timeCountReceiver);
+            unregisterReceiver(notificationReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 //        }
 //        if(recordingStatus == 1) unregisterReceiver(notificationReceiver);
     }
