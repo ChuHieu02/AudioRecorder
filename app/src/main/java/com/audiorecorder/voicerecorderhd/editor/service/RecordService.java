@@ -47,6 +47,7 @@ public class RecordService extends Service {
     private long dateTime;
     private long fileSize;
     private String audioName;
+    private static long extraCurrentTime;
     private Handler handler = new Handler();
     Runnable serviceRunnable = new Runnable() {
         @Override
@@ -109,7 +110,6 @@ public class RecordService extends Service {
         startRecording();
         startCounter();
         setRecordingStatus(1);
-        isRunning = true;
         initReceiver();
         startForeground(1, mBuilder);
         return START_STICKY;
@@ -255,8 +255,20 @@ public class RecordService extends Service {
     @Override
     public void onDestroy() {
         stopRecording();
-//        unregisterReceiver(notificationReceiver);
+        try {
+            unregisterReceiver(notificationReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         super.onDestroy();
+    }
+
+    public static long getExtraCurrentTime() {
+        return extraCurrentTime;
+    }
+
+    public static void setExtraCurrentTime(long extraCurrentTime) {
+        RecordService.extraCurrentTime = extraCurrentTime;
     }
 
     private void createNotificationChannel() {
@@ -310,9 +322,9 @@ public class RecordService extends Service {
             if (Constants.PAUSE_ACTION.equals(action)) {
 
                 pauseRecording();
-                setIsRunning(false);
                 setPauseStatus(1);
                 stopCounter();
+                setExtraCurrentTime(countTimeRecord - 1000);
 
             } else if (Constants.STOP_ACTION.equals(action)) {
 
@@ -332,15 +344,8 @@ public class RecordService extends Service {
 
             } else if (Constants.START_ACTION.equals(action)) {
 
-                Log.e("Test", "onReadyStart: 1212");
-//                startRecording();
-//                startCounter();
-//                setRecordingStatus(1);
+                //Do something here
 
-            } else if(Constants.ACTION_CHECK_TIME.equals(action)){
-                Intent intentData = new Intent(Constants.ACTION_UPDATE_TIME);
-                intentData.putExtra(Constants.EXTRA_CURRENT_TIME, countTimeRecord);
-                sendBroadcast(intentData);
             }
         }
     }

@@ -19,7 +19,7 @@ public class AudioRecordSetup {
         SharedPreferences sharedPreferences= context.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
         if(sharedPreferences!= null){
             int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE,0);
-            String pathDirector = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Constants.K_DEFALT_PATH);
+            String pathDirector = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Constants.K_DEFAULT_PATH);
             File file = new File(pathDirector);
             if(checkStatus == 0){
                 outputFile ="/"+ file.getAbsolutePath()+"/RecordFile"+System.currentTimeMillis()+".mp3";

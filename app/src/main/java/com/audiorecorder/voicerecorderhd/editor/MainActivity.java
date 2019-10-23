@@ -59,15 +59,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initReceiver();
-
-//        dbQuerys = new DBQuerys(this);
-//        dbQuerys.insertAudioString("lac troi","fgholkkl.mp3",124566,564132,5465365);
-
         mappingBottomNavigation();
         recordService = new RecordService();
         updateViewStage();
 
-        sendBroadcast(new Intent(Constants.ACTION_CHECK_TIME));
 
     }
 
@@ -93,10 +88,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View view) {
                 if(recordingStatus == 0 && checkPermissionsResult()){
                     onStartRecording();
-//                    if(isMyServiceRunning(recordService.getClass())){
-//                        onReadyStart();
-//                    }
-                    // onReadyStart();
                     updateIconStopRecord();
                 }else if(recordingStatus == 1){
 
@@ -124,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if(pauseStatus == 1){
 
                         onActionResume();
+
                         updateIconPause();
                     }
                 }
@@ -142,15 +134,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Intent intentService = new Intent(MainActivity.this, RecordService.class);
         ContextCompat.startForegroundService(MainActivity.this, intentService);
-
         recordService.setPauseStatus(0);
         recordService.setRecordingStatus(1);
+        Intent intentStart = new Intent(Constants.START_ACTION);
+        sendBroadcast(intentStart);
 
-    }
-
-    private void  onReadyStart(){
-        Intent intentService = new Intent(Constants.START_ACTION);
-        sendBroadcast(intentService);
     }
 
     private void onStopRecording(){
@@ -162,10 +150,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void onActionResume(){
-        Intent intentService = new Intent(Constants.RESUME_ACTION);
-        sendBroadcast(intentService);
+        Intent intentResume = new Intent(Constants.RESUME_ACTION);
+        sendBroadcast(intentResume);
         recordService.setPauseStatus(0);
     }
+
+//    private void onSaveCurrenTime(){
+//        Intent intentSaveCurrenTime = new Intent(Constants.ACTION_SAVE_CURRENT_TIME);
+//        sendBroadcast(intentSaveCurrenTime);
+//    }
 
     @Override
     protected void onDestroy() {
@@ -176,13 +169,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (Exception e) {
             e.printStackTrace();
         }
+//        if(pauseStatus == 1 && isMyServiceRunning(recordService.getClass())){
+//              onSaveCurrenTime();
+//        }
     }
 
     private  void onActionPasuse(){
         Intent intentService = new Intent(Constants.PAUSE_ACTION);
         recordService.setPauseStatus(1);
         sendBroadcast(intentService);
-
 
     }
 
@@ -235,7 +230,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             filter.addAction(Constants.STOP_ACTION);
             filter.addAction(Constants.START_ACTION);
             filter.addAction(Constants.SEND_TIME);
-            filter.addAction(Constants.ACTION_UPDATE_TIME);
             registerReceiver(notificationReceiver, filter);
             registerReceiver(timeCountReceiver,filter);
         } catch (Exception e) {
@@ -250,7 +244,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            //  Log.e("Test", action: 1212" );
             if (Constants.PAUSE_ACTION.equals(action) ) {
 
                 updateIconResume();
@@ -267,8 +260,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                if(pauseStatus == 1){
 //                    unregisterReceiver(timeCountReceiver);
 //                }
-
-
             } else if(Constants.RESUME_ACTION.equals(action) ){
                 try {
                     IntentFilter filter = new IntentFilter();
@@ -277,19 +268,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
             } else if(Constants.START_ACTION.equals(action)){
 
-//                IntentFilter filter = new IntentFilter();
-//                filter.addAction(Constants.SEND_TIME);
-//                registerReceiver(timeCountReceiver, filter);
                 updateIconPause();
                 updateIconStopRecord();
 
-            } else if(Constants.ACTION_UPDATE_TIME.equals(action)){
-                long currentTime = intent.getLongExtra(Constants.EXTRA_CURRENT_TIME, 0L);
-                Log.i("datfit", "onReceive: " + currentTime);
             }
+
         }
     }
 
@@ -298,29 +283,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
             long time_count = intent.getLongExtra(Constants.TIME_COUNT, 0);
-            seconds = (int) (time_count / 1000) % 60 ;
-            minutes = (int) ((time_count/ (1000*60)) % 60);
-            hours   = (int) ((time_count / (1000*60*60)) % 24);
-            tvTimeRecord.setText((hours>0 ? String.format("%d:", hours) : "")
-                    + ((minutes<10 && hours > 0)? "0"
-                    + String.format("%d:", minutes) :  String.format("%d:", minutes))
-                    + (seconds<10 ? "0" + seconds: seconds));
+            updateTimeRecord(time_count);
         }
+    }
+    private void updateTimeRecord(long time_count){
+        seconds = (int) (time_count / 1000) % 60 ;
+        minutes = (int) ((time_count/ (1000*60)) % 60);
+        hours   = (int) ((time_count / (1000*60*60)) % 24);
+        tvTimeRecord.setText((hours>0 ? String.format("%d:", hours) : "")
+                + ((minutes<10 && hours > 0)? "0"
+                + String.format("%d:", minutes) :  String.format("%d:", minutes))
+                + (seconds<10 ? "0" + seconds: seconds));
+
     }
     @Override
     protected void onStop() {
         super.onStop();
-//        if(pauseStatus == 1){
         try {
             unregisterReceiver(timeCountReceiver);
             unregisterReceiver(notificationReceiver);
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        }
-//        if(recordingStatus == 1) unregisterReceiver(notificationReceiver);
     }
-
 
     @Override
     protected void onStart() {
@@ -338,7 +323,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
         }
-
     }
 
     @Override
@@ -350,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void creatCompleteDiaglog(){
         SharedPreferences sharedPreferences= getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
         if(sharedPreferences!= null){
-            outputFile = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Constants.K_DEFALT_PATH);
+            outputFile = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Constants.K_DEFAULT_PATH);
         }
         final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
         builderDiaglog.setTitle("File save at :")
@@ -454,8 +438,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(checkRecordingStatus == 0){
 
                     updateIconRecord();
-
-
                 }else if(checkRecordingStatus == 1){
 
                     updateIconStopRecord();
@@ -466,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     updateIconPause();
 
                 }else if(checkPauseStatus == 1){
-
+                    updateTimeRecord(recordService.getExtraCurrentTime());
                     updateIconResume();
                 }
                 onRecordAudio();
@@ -476,5 +458,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
     }
-
 }

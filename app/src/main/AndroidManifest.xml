@@ -23,7 +23,7 @@
         </service>
 
         <activity
-            android:name=".activity.EditContentActivity"
+            android:name=".activity.EditActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
@@ -49,6 +49,7 @@
                 <action android:name="STOP_ACTION"/>
                 <action android:name="START_ACTION"/>
                 <action android:name="RESUME_ACTION"/>
+                <action android:name="ACTION_SAVE_CURRENT_TIME"/>
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
