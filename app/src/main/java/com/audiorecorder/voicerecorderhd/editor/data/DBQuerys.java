@@ -38,17 +38,6 @@ public class DBQuerys {
         db = databasehelper.getWritableDatabase();
     }
 
-    public void insertAudio(Audio audio) {
-        ContentValues values = new ContentValues();
-        values.put(DBQuerys.NAME, audio.getName());
-        values.put(DBQuerys.PATH, audio.getPath());
-        values.put(DBQuerys.SIZE, audio.getSize());
-        values.put(DBQuerys.DATE, audio.getDate());
-        values.put(DBQuerys.DURATION, audio.getDuration());
-
-        db.insert(DBQuerys.TABLE_NAME, null, values);
-        db.close();
-    }
 
     public void insertAudioString(String name, String path, long size, long date, long duration) {
         ContentValues values = new ContentValues();
@@ -59,6 +48,7 @@ public class DBQuerys {
         values.put(DBQuerys.DURATION, duration);
 
         db.insert(DBQuerys.TABLE_NAME, null, values);
+        db.close();
 
     }
 

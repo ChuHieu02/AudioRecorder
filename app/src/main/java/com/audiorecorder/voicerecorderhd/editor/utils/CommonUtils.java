@@ -1,5 +1,6 @@
 package com.audiorecorder.voicerecorderhd.editor.utils;
 
+import android.app.ProgressDialog;
 import android.media.MediaMetadataRetriever;
 
 import java.text.DecimalFormat;
@@ -98,6 +99,7 @@ public class CommonUtils {
                 return diff / DAY_MILLIS + " days ago";
             }
         }
+
     }
 
 }

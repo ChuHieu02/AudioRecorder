@@ -32,6 +32,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.activity.EditActivity;
+import com.audiorecorder.voicerecorderhd.editor.interfaces.LongClickItemLibrary;
+import com.audiorecorder.voicerecorderhd.editor.interfaces.OnclickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 
 import java.io.File;
@@ -44,15 +46,17 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     private Context context;
     private ArrayList<Audio> audioList;
     private AlertDialog dialog;
-    public OnclickItem onclickItem;
+    private OnclickItemLibrary onclickItem;
+    private LongClickItemLibrary longClickItemLibrary;
     private boolean isMp3;
-    private List<Integer> selectedIds = new ArrayList<>();
+    private List<String> selectedIds = new ArrayList<>();
 
-    public interface OnclickItem {
-        void onClick(int i);
-    }
-    public void setOnclickItem(OnclickItem onclickItem) {
+    public void setOnclickItem(OnclickItemLibrary onclickItem) {
         this.onclickItem = onclickItem;
+    }
+
+    public void setLongClickItemLibrary(LongClickItemLibrary longClickItemLibrary) {
+        this.longClickItemLibrary = longClickItemLibrary;
     }
 
     public LibraryAdapter(Context context, ArrayList<Audio> audioList) {
@@ -69,12 +73,12 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Audio audio = audioList.get(position);
 
 
 
-        if (selectedIds.contains(position)){
+        if (selectedIds.contains(audio.getPath())){
             holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_check_circle_black_24dp);
         }
         else {
@@ -97,9 +101,20 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
             @Override
             public void onClick(View v) {
                 onclickItem.onClick(position);
-
             }
         });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                longClickItemLibrary.longClick(position);
+                return false;
+            }
+
+
+        });
+
+
         holder.iv_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -156,7 +171,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         return audioList.get(position);
     }
 
-    public void setSelectedIds(List<Integer> selectedIds) {
+    public void setSelectedIds(List<String> selectedIds) {
         this.selectedIds = selectedIds;
         notifyDataSetChanged();
     }
@@ -348,6 +363,11 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
     private void showToast(String msg) {
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    public void deleteFile(int i){
+        audioList.remove(i);
+        notifyDataSetChanged();
     }
 
 

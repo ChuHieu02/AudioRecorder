@@ -206,6 +206,7 @@
     <string name="recoder_quality_setting">Recording Quality</string>
     <string name="location_file_setting">Location of recording</string>
     <string name="success_delete">Delete success !</string>
+    <string name="menu_share">Share</string>
 
 
     <!--    Adapter Library-->

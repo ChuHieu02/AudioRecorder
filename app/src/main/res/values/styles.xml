@@ -10,10 +10,19 @@
 
     </style>
 
+    <style name="AppTheme.actionBarLibrary">
+        <item name="colorPrimary">@color/color_white</item>
+        <item name="colorPrimaryDark">#367efd</item>
+        <item name="colorAccent">#367efd</item>
+        <item name="actionModeBackground">@color/colorPrimary</item>
+
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
     <style name="AudioFileInfoOverlayText">
         <item name="android:paddingLeft">4px</item>
         <item name="android:paddingBottom">4px</item>
@@ -47,6 +56,7 @@
         <item name="android:layout_marginLeft">4px</item>
         <item name="android:background">#666677</item>
     </style>
+
     <style name="VerticalDividerRight">
         <item name="android:layout_width">1px</item>
         <item name="android:layout_height">fill_parent</item>
@@ -59,6 +69,7 @@
         <item name="android:layout_height">1sp</item>
         <item name="android:background">#666677</item>
     </style>
+
     <style name="HorizontalDividerBottom">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">1sp</item>
