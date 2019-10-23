@@ -21,7 +21,9 @@
             android:exported="true">
 
         </service>
+<activity android:name=".activity.DetailActivity">
 
+</activity>
         <activity
             android:name=".activity.EditActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -41,6 +43,7 @@
             android:name=".MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />

@@ -35,6 +35,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import javax.security.auth.login.LoginException;
+
 public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHolder> {
     private Context context;
     private ArrayList<Audio> audioList;
@@ -88,7 +90,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         holder.iv_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Log.e("Audio", "onClick: "+audio.getPath() );
                 PopupMenu popup = new PopupMenu(context, v);
                 MenuInflater inflater = popup.getMenuInflater();
                 inflater.inflate(R.menu.popup_menu, popup.getMenu());
@@ -183,6 +185,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         intent.setAction("android.intent.action.SEND");
         intent.setType("audio/*");
         intent.putExtra("android.intent.extra.STREAM", Uri.fromFile(new File(audio.getPath())));
+        Log.e("URL", "shareAudio: "+ Uri.fromFile(new File(audio.getPath()))+"\n"+audio.getPath());
         context.startActivity(Intent.createChooser(intent, ""));
     }
 

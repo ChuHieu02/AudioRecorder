@@ -12,8 +12,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recordService = new RecordService();
         updateViewStage();
 
-
     }
 
     private void mappingBottomNavigation() {
@@ -89,11 +88,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(recordingStatus == 0 && checkPermissionsResult()){
                     onStartRecording();
                     updateIconStopRecord();
+                    hanlderSpamClickRecord();
                 }else if(recordingStatus == 1){
 
                     onStopRecording();
                     updateIconRecord();
                     creatCompleteDiaglog();
+                    hanlderSpamClickRecord();
                 }
                 else if(recordingStatus == 2 && !checkPermissionsResult() ){
 
@@ -115,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if(pauseStatus == 1){
 
                         onActionResume();
-
                         updateIconPause();
                     }
                 }
@@ -169,9 +169,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        if(pauseStatus == 1 && isMyServiceRunning(recordService.getClass())){
-//              onSaveCurrenTime();
-//        }
     }
 
     private  void onActionPasuse(){
@@ -225,13 +222,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void initReceiver() {
         try {
             IntentFilter filter = new IntentFilter();
+            IntentFilter timeReceiveFilter = new IntentFilter();
             filter.addAction(Constants.RESUME_ACTION);
             filter.addAction(Constants.PAUSE_ACTION);
             filter.addAction(Constants.STOP_ACTION);
             filter.addAction(Constants.START_ACTION);
-            filter.addAction(Constants.SEND_TIME);
+            timeReceiveFilter.addAction(Constants.SEND_TIME);
             registerReceiver(notificationReceiver, filter);
-            registerReceiver(timeCountReceiver,filter);
+            registerReceiver(timeCountReceiver,timeReceiveFilter);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -246,20 +244,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String action = intent.getAction();
             if (Constants.PAUSE_ACTION.equals(action) ) {
 
-                updateIconResume();
                 try {
                     unregisterReceiver(timeCountReceiver);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                updateIconResume();
 
             } else if (Constants.STOP_ACTION.equals(action) ) {
 
                 updateIconRecord();
-//                unregisterReceiver(notificationReceiver);
-//                if(pauseStatus == 1){
-//                    unregisterReceiver(timeCountReceiver);
-//                }
+
             } else if(Constants.RESUME_ACTION.equals(action) ){
                 try {
                     IntentFilter filter = new IntentFilter();
@@ -268,16 +263,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                updateIconPause();
             } else if(Constants.START_ACTION.equals(action)){
 
                 updateIconPause();
+                try {
+                    IntentFilter filter = new IntentFilter();
+                    filter.addAction(Constants.SEND_TIME);
+                    registerReceiver(timeCountReceiver, filter);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 updateIconStopRecord();
 
             }
 
         }
     }
-
 
     public class TimeCountReceiver extends BroadcastReceiver {
         @Override
@@ -286,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             updateTimeRecord(time_count);
         }
     }
+
     private void updateTimeRecord(long time_count){
         seconds = (int) (time_count / 1000) % 60 ;
         minutes = (int) ((time_count/ (1000*60)) % 60);
@@ -424,6 +427,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
+    private void hanlderSpamClickRecord(){
+
+        ivRecord.setEnabled(false);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ivRecord.setEnabled(true);
+            }
+        } , 1000);
+
+     //   ivRecord.setEnabled(true);
+    }
+
     private void updateViewStage(){
         if(checkPermissionsResult()) {
             if(!isMyServiceRunning(recordService.getClass())){
@@ -446,6 +462,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 int checkPauseStatus =  recordService.getPauseStatus();
                 if(checkPauseStatus == 0){
                     updateIconPause();
+
 
                 }else if(checkPauseStatus == 1){
                     updateTimeRecord(recordService.getExtraCurrentTime());
