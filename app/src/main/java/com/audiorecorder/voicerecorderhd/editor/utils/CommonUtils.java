@@ -1,6 +1,5 @@
 package com.audiorecorder.voicerecorderhd.editor.utils;
 
-import android.app.ProgressDialog;
 import android.media.MediaMetadataRetriever;
 
 import java.text.DecimalFormat;

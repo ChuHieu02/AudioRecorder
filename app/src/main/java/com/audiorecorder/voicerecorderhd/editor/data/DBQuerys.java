@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
+import com.audiorecorder.voicerecorderhd.editor.utils.CommonUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -64,9 +65,9 @@ public class DBQuerys {
                 audio.setId(cursor.getInt(0));
                 audio.setName(cursor.getString(1));
                 audio.setPath(cursor.getString(2));
-                audio.setSize(cursor.getString(3));
-                audio.setDate(cursor.getString(4));
-                audio.setDuration(cursor.getString(5));
+                audio.setSize(CommonUtils.formatToNumber(CommonUtils.fomatSize(cursor.getLong(3)))+" kb");
+                audio.setDate(CommonUtils.fomatDate(cursor.getLong(4)));
+                audio.setDuration(CommonUtils.formatTime(cursor.getLong(5)));
 
                 File file = new File(cursor.getString(2));
                 if (file.exists()) {
@@ -81,6 +82,17 @@ public class DBQuerys {
         }
         cursor.close();
         return audioList;
+    }
+
+    public boolean Update(final String Id, String name, String path) {
+
+        ContentValues values = new ContentValues();
+        values.put(ID, Id);
+        values.put(NAME, name);
+        values.put(PATH, path);
+
+        db.update(DBQuerys.TABLE_NAME, values, DBQuerys.ID +" =? ", new String[]{Id});
+        return true;
     }
 
 }

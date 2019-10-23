@@ -35,13 +35,13 @@
             android:layout_marginBottom="?actionBarSize"
             android:text="@string/home_clickRecoder"
             android:textColor="@android:color/white"
-            app:layout_constraintBottom_toTopOf="@+id/chronoTime"
+            app:layout_constraintBottom_toTopOf="@+id/tv_time_record"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <Chronometer
-            android:id="@+id/chronoTime"
+        <TextView
+            android:id="@+id/tv_time_record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/dp20"
@@ -50,6 +50,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent" />
+
 
 
         <ImageView
@@ -65,7 +66,7 @@
 
 
         <ImageView
-            android:id="@+id/ivPauseResume"
+            android:id="@+id/iv_pauseResume"
             android:layout_width="@dimen/dp50"
             android:layout_height="@dimen/dp50"
             android:layout_marginStart="@dimen/dp16"

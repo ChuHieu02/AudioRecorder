@@ -1,19 +1,20 @@
 package com.audiorecorder.voicerecorderhd.editor;
 
+import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.SystemClock;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
-import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,44 +27,43 @@ import androidx.core.content.ContextCompat;
 
 import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.activity.SettingsActivity;
+import com.audiorecorder.voicerecorderhd.editor.service.RecordService;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
-import java.io.File;
-import java.io.IOException;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private ImageView ivBottomLibrary;
     private ImageView ivBottomRecoder;
     private ImageView ivBottomSettings;
-    private MediaRecorder mAudioRecorder;
-    private ImageView ivRecord, ivPauseResume;
-    private TextView tvRecordingStatus;
+    private ImageView ivRecord , ivPauseResume;
+    private TextView tvRecordingStatus, tvTimeRecord;
     private String outputFile;
     private static int recordingStatus = 2;
     private static int pauseStatus = 0;
-    private long pauseOffsetChorno;
-    private boolean isRunning;
-    private Chronometer chronometerTimer;
-    public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
-    private TextView lbRecoder;
+    private static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+    private ServiceConnection serviceConnection;
+    private RecordService recordService;
+    private TimeCountReceiver timeCountReceiver = new TimeCountReceiver();
+    private NotificationReceiver notificationReceiver = new NotificationReceiver();
+    private int seconds;
+    private int minutes;
+    private int hours;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initReceiver();
         mappingBottomNavigation();
-        if (checkPermissionsResult()) {
-            createFile();
-            onRecordAudio();
-            recordingStatus = 0;
-        } else {
-            requestPermissions();
+        recordService = new RecordService();
+        updateViewStage();
 
-        }
+
     }
 
     private void mappingBottomNavigation() {
@@ -71,176 +71,246 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivBottomLibrary = findViewById(R.id.iv_bottom_library);
         ivBottomRecoder = findViewById(R.id.iv_bottom_recoder);
         ivBottomSettings = findViewById(R.id.iv_bottom_settings);
-
-        lbRecoder =  findViewById(R.id.lb_recoder);
-        lbRecoder.setText(getResources().getString(R.string.label_recoder));
-
-        chronometerTimer = findViewById(R.id.chronoTime);
-        ivPauseResume = findViewById(R.id.ivPauseResume);
+        ivPauseResume = findViewById(R.id.iv_pauseResume);
         ivRecord = findViewById(R.id.iv_recoder);
         tvRecordingStatus = findViewById(R.id.textView2);
+        tvTimeRecord =(TextView) findViewById(R.id.tv_time_record);
         ivPauseResume.setVisibility(View.INVISIBLE);
-        ivPauseResume.setEnabled(false);
-        ivBottomRecoder.setImageDrawable(getResources().getDrawable(R.drawable.ic_record_pr));
         ivBottomSettings.setOnClickListener(this);
         ivBottomLibrary.setOnClickListener(this);
 
     }
 
-    private void createFile() {
-//        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "Recorder");
-        SharedPreferences sharedPreferences = this.getSharedPreferences("audioSetting", Context.MODE_PRIVATE);
-        if (sharedPreferences != null) {
-            int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE, 0);
-            String pathDirector = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH, Environment.getExternalStorageDirectory() + File.separator + "Recorder");
-            File file = new File(pathDirector);
-            if (checkStatus == 0) {
-                outputFile = "/" + file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".mp3";
-            } else if (checkStatus == 1) {
-                outputFile = "/" + file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".wav";
-            }
-            if (!file.exists()) {
-                file.mkdirs();
-            }
-        }
-    }
-
-    private void setupMediaRecorder() {
-        SharedPreferences sharedPreferences = this.getSharedPreferences("audioSetting", Context.MODE_PRIVATE);
-        if (sharedPreferences != null) {
-            int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE, 0);
-            mAudioRecorder = new MediaRecorder();
-            mAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            if (checkStatus == 0) {
-                mAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                mAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.MPEG_4);
-
-            } else if (checkStatus == 1) {
-                mAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                mAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.MPEG_4);
-
-            }
-            int checkQuality = sharedPreferences.getInt(Constants.K_FORMAT_QUALITY, 16);
-            if (checkQuality == 16) {
-                mAudioRecorder.setAudioEncodingBitRate(16);
-                mAudioRecorder.setAudioSamplingRate(16 * Constants.K_SAMPLE_RATE_QUALITY);
-
-            } else if (checkQuality == 22) {
-                mAudioRecorder.setAudioEncodingBitRate(22);
-                mAudioRecorder.setAudioSamplingRate(22 * Constants.K_SAMPLE_RATE_QUALITY);
-
-            } else if (checkQuality == 32) {
-                mAudioRecorder.setAudioEncodingBitRate(32);
-                mAudioRecorder.setAudioSamplingRate(32 * Constants.K_SAMPLE_RATE_QUALITY);
-
-            } else if (checkQuality == 44) {
-                mAudioRecorder.setAudioEncodingBitRate(44);
-                mAudioRecorder.setAudioSamplingRate(44100);
-
-            }
-        }
-        mAudioRecorder.setOutputFile(outputFile);
-    }
-
-    private void startRecording() {
-        createFile();
-        setupMediaRecorder();
-        try {
-            mAudioRecorder.prepare();
-            mAudioRecorder.start();
-        } catch (IllegalStateException ise) {
-            // make something ...
-        } catch (IOException ioe) {
-            // make something
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void pauseRecording() {
-        if (mAudioRecorder != null) {
-            mAudioRecorder.pause();
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void resumeRecording() {
-        if (mAudioRecorder != null) {
-            mAudioRecorder.resume();
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void stopRecording() {
-        try {
-            if (mAudioRecorder != null) {
-                mAudioRecorder.stop();
-                mAudioRecorder.release();
-                mAudioRecorder = null;
-                //Toast.makeText(getApplicationContext(), "Audio Recorder successfully", Toast.LENGTH_SHORT).show();
-            }
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Null Media File", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
-    private void onRecordAudio() {
+    private  void onRecordAudio(){
         ivRecord.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                if (recordingStatus == 0 && checkPermissionsResult()) {
-                    startRecording();
-                    ivRecord.setImageResource(R.drawable.ic_play_record_pr);
-                    pauseStatus = 0;
-                    ivPauseResume.setImageResource(R.drawable.ic_home_pause);
-                    ivPauseResume.setEnabled(true);
-                    resetChoronometer();
-                    startChoronometer();
-                    ivPauseResume.setVisibility(View.VISIBLE);
-                    tvRecordingStatus.setText("Recording...");
-                    recordingStatus = 1;
-                } else if (recordingStatus == 1) {
-                    stopRecording();
-                    ivRecord.setImageResource(R.drawable.ic_home_record);
-                    recordingStatus = 0;
-                    pauseStatus = 0;
-                    ivPauseResume.setImageResource(R.drawable.ic_home_pause);
-                    ivPauseResume.setEnabled(false);
-                    ivPauseResume.setVisibility(View.INVISIBLE);
-                    tvRecordingStatus.setText("Stop recording");
-                    pauseChoronometer();
+                if(recordingStatus == 0 && checkPermissionsResult()){
+                    onStartRecording();
+                    updateIconStopRecord();
+                }else if(recordingStatus == 1){
+
+                    onStopRecording();
+                    updateIconRecord();
                     creatCompleteDiaglog();
-                } else if (recordingStatus == 2 && !checkPermissionsResult()) {
+                }
+                else if(recordingStatus == 2 && !checkPermissionsResult() ){
+
                     tvRecordingStatus.setText("Please go to setting and permisson");
                     creatSettingActivityDialog();
                 }
-
             }
         });
+
         ivPauseResume.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                if (pauseStatus == 0) {
-                    pauseRecording();
-                    pauseStatus = 1;
-                    ivPauseResume.setImageResource(R.drawable.ic_home_play);
-                    pauseChoronometer();
-                    tvRecordingStatus.setText("Pause Recording");
-                    //   Toast.makeText(getApplicationContext(), "Pause Recording", Toast.LENGTH_SHORT).show();
-                } else {
-                    if (pauseStatus == 1) {
-                        resumeRecording();
-                        pauseStatus = 0;
-                        ivPauseResume.setImageResource(R.drawable.ic_home_pause);
-                        startChoronometer();
-                        tvRecordingStatus.setText("Recording...");
-                        //  Toast.makeText(getApplicationContext(), "Resume Recording", Toast.LENGTH_SHORT).show();
+                if(pauseStatus == 0) {
+
+                    onActionPasuse();
+                    updateIconResume();
+                }else{
+                    if(pauseStatus == 1){
+
+                        onActionResume();
+
+                        updateIconPause();
                     }
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateViewStage();
+
+    }
+
+    private void onStartRecording(){
+
+        Intent intentService = new Intent(MainActivity.this, RecordService.class);
+        ContextCompat.startForegroundService(MainActivity.this, intentService);
+        recordService.setPauseStatus(0);
+        recordService.setRecordingStatus(1);
+        Intent intentStart = new Intent(Constants.START_ACTION);
+        sendBroadcast(intentStart);
+
+    }
+
+    private void onStopRecording(){
+        Intent intentStop = new Intent(Constants.STOP_ACTION);
+        sendBroadcast(intentStop);
+        Intent intentService = new Intent(MainActivity.this, RecordService.class);
+        stopService(intentService);
+
+    }
+
+    private void onActionResume(){
+        Intent intentResume = new Intent(Constants.RESUME_ACTION);
+        sendBroadcast(intentResume);
+        recordService.setPauseStatus(0);
+    }
+
+//    private void onSaveCurrenTime(){
+//        Intent intentSaveCurrenTime = new Intent(Constants.ACTION_SAVE_CURRENT_TIME);
+//        sendBroadcast(intentSaveCurrenTime);
+//    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            unregisterReceiver(notificationReceiver);
+            unregisterReceiver(timeCountReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        if(pauseStatus == 1 && isMyServiceRunning(recordService.getClass())){
+//              onSaveCurrenTime();
+//        }
+    }
+
+    private  void onActionPasuse(){
+        Intent intentService = new Intent(Constants.PAUSE_ACTION);
+        recordService.setPauseStatus(1);
+        sendBroadcast(intentService);
+
+    }
+
+    private void updateIconPause(){
+
+        pauseStatus = 0;
+        ivPauseResume.setVisibility(View.VISIBLE);
+        ivPauseResume.setImageResource(R.drawable.ic_home_pause);
+        tvRecordingStatus.setText("Recording...");
+
+    }
+
+    private void updateIconResume(){
+
+        pauseStatus = 1;
+        ivPauseResume.setVisibility(View.VISIBLE);
+        ivPauseResume.setImageResource(R.drawable.ic_home_play);
+        tvRecordingStatus.setText("Pause Recording");
+
+    }
+
+    private void updateIconRecord(){
+
+        ivPauseResume.setEnabled(false);
+        recordingStatus = 0;
+        pauseStatus = 0;
+        ivPauseResume.setVisibility(View.INVISIBLE);
+        ivRecord.setImageResource(R.drawable.ic_home_record);
+        tvRecordingStatus.setText("Tab to recording");
+
+    }
+
+    private void updateIconStopRecord(){
+
+        recordingStatus =1;
+        ivRecord.setImageResource(R.drawable.ic_play_record_pr);
+        pauseStatus = 0;
+        ivPauseResume.setImageResource(R.drawable.ic_home_pause);
+        ivPauseResume.setEnabled(true);
+        ivPauseResume.setVisibility(View.VISIBLE);
+        tvRecordingStatus.setText("Recording...");
+
+    }
+
+    public void initReceiver() {
+        try {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Constants.RESUME_ACTION);
+            filter.addAction(Constants.PAUSE_ACTION);
+            filter.addAction(Constants.STOP_ACTION);
+            filter.addAction(Constants.START_ACTION);
+            filter.addAction(Constants.SEND_TIME);
+            registerReceiver(notificationReceiver, filter);
+            registerReceiver(timeCountReceiver,filter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public  class NotificationReceiver extends BroadcastReceiver {
+
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (Constants.PAUSE_ACTION.equals(action) ) {
+
+                updateIconResume();
+                try {
+                    unregisterReceiver(timeCountReceiver);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            } else if (Constants.STOP_ACTION.equals(action) ) {
+
+                updateIconRecord();
+//                unregisterReceiver(notificationReceiver);
+//                if(pauseStatus == 1){
+//                    unregisterReceiver(timeCountReceiver);
+//                }
+            } else if(Constants.RESUME_ACTION.equals(action) ){
+                try {
+                    IntentFilter filter = new IntentFilter();
+                    filter.addAction(Constants.SEND_TIME);
+                    registerReceiver(timeCountReceiver, filter);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if(Constants.START_ACTION.equals(action)){
+
+                updateIconPause();
+                updateIconStopRecord();
+
+            }
+
+        }
+    }
+
+
+    public class TimeCountReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            long time_count = intent.getLongExtra(Constants.TIME_COUNT, 0);
+            updateTimeRecord(time_count);
+        }
+    }
+    private void updateTimeRecord(long time_count){
+        seconds = (int) (time_count / 1000) % 60 ;
+        minutes = (int) ((time_count/ (1000*60)) % 60);
+        hours   = (int) ((time_count / (1000*60*60)) % 24);
+        tvTimeRecord.setText((hours>0 ? String.format("%d:", hours) : "")
+                + ((minutes<10 && hours > 0)? "0"
+                + String.format("%d:", minutes) :  String.format("%d:", minutes))
+                + (seconds<10 ? "0" + seconds: seconds));
+
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            unregisterReceiver(timeCountReceiver);
+            unregisterReceiver(notificationReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        updateViewStage();
     }
 
     @Override
@@ -253,52 +323,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
         }
-
-    }
-
-    private void startChoronometer() {
-        if (!isRunning) {
-            chronometerTimer.setBase(SystemClock.elapsedRealtime() - pauseOffsetChorno);
-            chronometerTimer.start();
-            isRunning = true;
-        }
-    }
-
-    private void pauseChoronometer() {
-        if (isRunning) {
-            chronometerTimer.stop();
-            pauseOffsetChorno = SystemClock.elapsedRealtime() - chronometerTimer.getBase();
-            isRunning = false;
-        }
-    }
-
-    private void resetChoronometer() {
-        chronometerTimer.setBase(SystemClock.elapsedRealtime());
-        pauseOffsetChorno = 0;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stopRecording();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        if (checkPermissionsResult()) {
-            tvRecordingStatus.setText("Tab to recording");
-            recordingStatus = 0;
-        } else {
-            requestPermissions();
-
-        }
+        updateViewStage();
     }
 
-    private void creatCompleteDiaglog() {
-        final AlertDialog.Builder builderDiaglog = new AlertDialog.Builder(MainActivity.this);
-        builderDiaglog.setTitle("File save at ")
+    private void creatCompleteDiaglog(){
+        SharedPreferences sharedPreferences= getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+        if(sharedPreferences!= null){
+            outputFile = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Constants.K_DEFAULT_PATH);
+        }
+        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
+        builderDiaglog.setTitle("File save at :")
                 .setMessage(outputFile)
                 .setPositiveButton("Open", new DialogInterface.OnClickListener() {
                     @Override
@@ -316,9 +355,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         builderDiaglog.create().show();
     }
 
-
-    private void creatSettingActivityDialog() {
-        final AlertDialog.Builder builderDiaglog = new AlertDialog.Builder(MainActivity.this);
+    private void creatSettingActivityDialog(){
+        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
         builderDiaglog.setTitle("You need go to setting and perrmission for recording")
                 .setMessage(outputFile)
                 .setPositiveButton("Open", new DialogInterface.OnClickListener() {
@@ -348,15 +386,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case REQUEST_AUDIO_PERMISSION_CODE:
-                if (grantResults.length > 0) {
+                if (grantResults.length> 0) {
                     boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean permissionToStore = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    boolean permissionToStore = grantResults[1] ==  PackageManager.PERMISSION_GRANTED;
                     if (permissionToRecord && permissionToStore) {
                         recordingStatus = 0;
                         onRecordAudio();
                         Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(getApplicationContext(), "Permission Denied :" + recordingStatus, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(),"Permission Denied :"+recordingStatus,Toast.LENGTH_LONG).show();
                         tvRecordingStatus.setText("You need go to setting and perrmisson to record");
                         recordingStatus = 2;
                         onRecordAudio();
@@ -367,14 +405,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public boolean checkPermissionsResult() {
-        int result = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
+        int result = ContextCompat.checkSelfPermission(getApplicationContext(),WRITE_EXTERNAL_STORAGE);
         int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
         return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermissions() {
         ActivityCompat.requestPermissions(MainActivity.this, new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
-        //    recordingStatus =1;
     }
 
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void updateViewStage(){
+        if(checkPermissionsResult()) {
+            if(!isMyServiceRunning(recordService.getClass())){
+                ivRecord.setImageResource(R.drawable.ic_home_record);
+                recordingStatus = 0;
+                onRecordAudio();
+            }
+            else {
+                ivRecord.setImageResource(R.drawable.ic_play_record_pr);
+
+                int checkRecordingStatus = recordService.getRecordingStatus();
+                if(checkRecordingStatus == 0){
+
+                    updateIconRecord();
+                }else if(checkRecordingStatus == 1){
+
+                    updateIconStopRecord();
+                }
+
+                int checkPauseStatus =  recordService.getPauseStatus();
+                if(checkPauseStatus == 0){
+                    updateIconPause();
+
+                }else if(checkPauseStatus == 1){
+                    updateTimeRecord(recordService.getExtraCurrentTime());
+                    updateIconResume();
+                }
+                onRecordAudio();
+            }
+        }else {
+            requestPermissions();
+
+        }
+    }
 }

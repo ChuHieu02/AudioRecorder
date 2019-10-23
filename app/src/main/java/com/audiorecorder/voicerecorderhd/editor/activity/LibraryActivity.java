@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.audiorecorder.voicerecorderhd.editor.MainActivity;
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.adapter.LibraryAdapter;
+import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.LongClickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.OnclickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
@@ -58,6 +59,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
     private boolean isMultiSelect = false;
     private List<String> selectedIds = new ArrayList<>();
     private AlertDialog dialog;
+    private DBQuerys dbQuerys;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,25 +160,8 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
 
         @Override
         protected ArrayList<Audio> doInBackground(String... strings) {
-
-            SharedPreferences sharedPreferences = getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
-            if (sharedPreferences != null) {
-                String checkFormatType = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,
-                        Environment.getExternalStorageDirectory() + File.separator + "Recorder");
-                final ArrayList<File> audioSong = readAudio(new File(checkFormatType));
-                for (int i = audioSong.size() - 1; i >= 0; i--) {
-                    File file = audioSong.get(i);
-                    String path = file.getAbsolutePath();
-                    String name = file.getName();
-                    long date = file.lastModified();
-                    long size = file.length();
-                    formatDuration = CommonUtils.getDuration(file.getPath());
-                    String fomatSize = CommonUtils.formatToNumber(CommonUtils.fomatSize(size)) + " kb";
-
-                    Audio audio = new Audio(name, path, fomatSize, CommonUtils.fomatDate(date), formatDuration);
-                    audioList.add(audio);
-                }
-            }
+            dbQuerys = new DBQuerys(LibraryActivity.this);
+            audioList = dbQuerys.getallNguoiDung();
             return audioList;
         }
 
@@ -249,26 +234,6 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         rvLibrary.setHasFixedSize(true);
     }
 
-    public ArrayList<File> readAudio(File file) {
-        ArrayList<File> arrayList = new ArrayList<>();
-
-        File[] files = file.listFiles();
-
-        if (files == null) {
-            return arrayList;
-        }
-        for (File invidualFile : files) {
-            if (invidualFile.isDirectory() && !invidualFile.isHidden()) {
-                arrayList.addAll(readAudio(invidualFile));
-
-            } else {
-                if (invidualFile.getName().endsWith(".mp3") || invidualFile.getName().endsWith(".wav")) {
-                    arrayList.add(invidualFile);
-                }
-            }
-        }
-        return arrayList;
-    }
 
     private void deleteAudio() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -287,6 +252,9 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
                     Log.e("path", selectedIds.get(i));
                 }
                 actionMode.finish();
+                audioList.clear();
+                adapter.updateList(dbQuerys.getallNguoiDung());
+
                 showToast(getResources().getString(R.string.success_delete));
             }
         });
@@ -308,7 +276,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
 
         for (String path : selectedIds) {
             File file = new File(path);
-            files.add(Uri.fromFile(file));
+            files.add(Uri.fromFile((file)));
         }
 
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files);

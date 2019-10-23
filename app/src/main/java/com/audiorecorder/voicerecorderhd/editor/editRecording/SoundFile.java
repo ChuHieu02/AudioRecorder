@@ -84,7 +84,7 @@ public class SoundFile {
     public static SoundFile create(String fileName,
                                    ProgressListener progressListener)
             throws java.io.FileNotFoundException,
-            java.io.IOException, InvalidInputException {
+            IOException, InvalidInputException {
         // First check that the file exists and that its extension is supported.
         File f = new File(fileName);
         if (!f.exists()) {
@@ -180,7 +180,7 @@ public class SoundFile {
 
     private void ReadFile(File inputFile)
             throws java.io.FileNotFoundException,
-            java.io.IOException, InvalidInputException {
+            IOException, InvalidInputException {
         MediaExtractor extractor = new MediaExtractor();
         MediaFormat format = null;
         int i;
@@ -365,7 +365,7 @@ public class SoundFile {
                 value = 0;
                 for (int k=0; k<mChannels; k++) {
                     if (mDecodedSamples.remaining() > 0) {
-                        value += java.lang.Math.abs(mDecodedSamples.get());
+                        value += Math.abs(mDecodedSamples.get());
                     }
                 }
                 value /= mChannels;
@@ -463,7 +463,7 @@ public class SoundFile {
             gain = -1;
             for(j=0; j<getSamplesPerFrame(); j++) {
                 if (mDecodedSamples.remaining() > 0) {
-                    value = java.lang.Math.abs(mDecodedSamples.get());
+                    value = Math.abs(mDecodedSamples.get());
                 } else {
                     value = 0;
                 }
@@ -479,14 +479,14 @@ public class SoundFile {
 
     // should be removed in the near future...
     public void WriteFile(File outputFile, int startFrame, int numFrames)
-            throws java.io.IOException {
+            throws IOException {
         float startTime = (float)startFrame * getSamplesPerFrame() / mSampleRate;
         float endTime = (float)(startFrame + numFrames) * getSamplesPerFrame() / mSampleRate;
         WriteFile(outputFile, startTime, endTime);
     }
 
     public void WriteFile(File outputFile, float startTime, float endTime)
-            throws java.io.IOException {
+            throws IOException {
         int startOffset = (int)(startTime * mSampleRate) * 2 * mChannels;
         int numSamples = (int)((endTime - startTime) * mSampleRate);
         // Some devices have problems reading mono AAC files (e.g. Samsung S3). Making it stereo.
@@ -652,14 +652,14 @@ public class SoundFile {
 
     // should be removed in the near future...
     public void WriteWAVFile(File outputFile, int startFrame, int numFrames)
-            throws java.io.IOException {
+            throws IOException {
         float startTime = (float)startFrame * getSamplesPerFrame() / mSampleRate;
         float endTime = (float)(startFrame + numFrames) * getSamplesPerFrame() / mSampleRate;
         WriteWAVFile(outputFile, startTime, endTime);
     }
 
     public void WriteWAVFile(File outputFile, float startTime, float endTime)
-            throws java.io.IOException {
+            throws IOException {
         int startOffset = (int)(startTime * mSampleRate) * 2 * mChannels;
         int numSamples = (int)((endTime - startTime) * mSampleRate);
 
