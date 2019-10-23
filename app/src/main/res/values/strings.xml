@@ -2,7 +2,7 @@
     <string name="app_name">AudioRecoder</string>
     <!--    home-->
     <string name="home_recoder">Voice recoder</string>
-    <string name="home_duration">00</string>
+    <string name="home_duration">00:00</string>
     <string name="label_recoder">Voice Recorder</string>
     <string name="label_setting">Settings</string>
     <string name="label_library">Library</string>
@@ -205,6 +205,8 @@
     <string name="default_file_name_setting">Default File Name</string>
     <string name="recoder_quality_setting">Recording Quality</string>
     <string name="location_file_setting">Location of recording</string>
+    <string name="success_delete">Delete success !</string>
+    <string name="menu_share">Share</string>
 
 
     <!--    Adapter Library-->

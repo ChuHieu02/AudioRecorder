@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.audiorecorder.voicerecorderhd.editor">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
@@ -21,9 +23,7 @@
             android:exported="true">
 
         </service>
-<activity android:name=".activity.DetailActivity">
 
-</activity>
         <activity
             android:name=".activity.EditActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -32,15 +32,22 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activity.LibraryActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.actionBarLibrary" />
         <activity
             android:name=".activity.SettingsActivity"
             android:configChanges="orientation|screenSize"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.actionBarLibrary" />
+        <activity
+            android:name=".activity.DetailActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MainActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
 
@@ -58,31 +65,20 @@
             </intent-filter>
         </activity>
 
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}"
             android:exported="false"
             android:grantUriPermissions="true">
+
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
+
         </provider>
 
-<!--        <receiver android:name=".MainActivity$TimeCountReceiver" >-->
-<!--            <intent-filter>-->
-
-<!--                <action android:name="SEND_TIMER"/>-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
-
-<!--        <receiver android:name=".service.RecordService$NotificationReceiver">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="PAUSE_ACTION"/>-->
-<!--                <action android:name="STOP_ACTION"/>-->
-<!--                <action android:name="START_ACTION"/>-->
-<!--                <action android:name="RESUME_ACTION"/>-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
     </application>
+
 
 </manifest>

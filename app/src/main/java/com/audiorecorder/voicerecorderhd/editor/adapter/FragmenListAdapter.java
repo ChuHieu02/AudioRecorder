@@ -93,12 +93,6 @@ public class FragmenListAdapter extends RecyclerView.Adapter<FragmenListAdapter.
             });
         }
     }
-
-    public Audio getSelected() {
-        if (  checkedPosition != -1) {
-            return audioList.get(checkedPosition);
-        }
-        return null;
-    }
+    
 
 }

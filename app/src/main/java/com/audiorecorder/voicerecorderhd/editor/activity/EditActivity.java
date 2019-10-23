@@ -261,7 +261,6 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
         super.onPrepareOptionsMenu(menu);
         menu.findItem(R.id.action_save).setVisible(true);
         menu.findItem(R.id.action_reset).setVisible(true);
-        menu.findItem(R.id.action_about).setVisible(true);
         return true;
     }
 
@@ -276,9 +275,7 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
                 mOffsetGoal = 0;
                 updateDisplay();
                 return true;
-            case R.id.action_about:
-                onAbout(this);
-                return true;
+
             default:
                 return false;
         }

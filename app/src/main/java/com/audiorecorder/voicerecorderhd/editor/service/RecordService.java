@@ -165,10 +165,10 @@ public class RecordService extends Service {
             dateTime = System.currentTimeMillis();
             File file = new File(pathDirector);
             if (checkStatus == 0) {
-                outputFile = "/" + file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".mp3";
+                outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".mp3";
                 audioName = "RecordFile" + System.currentTimeMillis() + ".mp3";
             } else if (checkStatus == 1) {
-                outputFile = "/" + file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".wav";
+                outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".wav";
                 audioName = "RecordFile" + System.currentTimeMillis() + ".wav";
             }
             if (!file.exists()) {

@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -19,40 +20,46 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.activity.EditActivity;
+import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
+import com.audiorecorder.voicerecorderhd.editor.interfaces.LongClickItemLibrary;
+import com.audiorecorder.voicerecorderhd.editor.interfaces.OnclickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-
-import javax.security.auth.login.LoginException;
+import java.util.List;
 
 public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHolder> {
     private Context context;
     private ArrayList<Audio> audioList;
     private AlertDialog dialog;
-    public OnclickItem onclickItem;
+    private OnclickItemLibrary onclickItem;
+    private LongClickItemLibrary longClickItemLibrary;
     private boolean isMp3;
+    private List<String> selectedIds = new ArrayList<>();
+    private DBQuerys dbQuerys;
 
-    public interface OnclickItem {
-        void onClick(int i);
-
-    }
-
-    public void setOnclickItem(OnclickItem onclickItem) {
+    public void setOnclickItem(OnclickItemLibrary onclickItem) {
         this.onclickItem = onclickItem;
     }
 
+    public void setLongClickItemLibrary(LongClickItemLibrary longClickItemLibrary) {
+        this.longClickItemLibrary = longClickItemLibrary;
+    }
 
     public LibraryAdapter(Context context, ArrayList<Audio> audioList) {
         this.context = context;
@@ -66,9 +73,21 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         return new ViewHolder(view);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Audio audio = audioList.get(position);
+
+
+
+        if (selectedIds.contains(audio.getPath())){
+            holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_check_circle_black_24dp);
+        }
+        else {
+            holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_music_note_black_24dp);
+
+        }
+
 
         if (audio.getName() != null) {
             holder.tv_name.setText(audio.getName());
@@ -84,13 +103,24 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
             @Override
             public void onClick(View v) {
                 onclickItem.onClick(position);
-
             }
         });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                longClickItemLibrary.longClick(position);
+                return false;
+            }
+
+
+        });
+
+
         holder.iv_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("Audio", "onClick: "+audio.getPath() );
+
                 PopupMenu popup = new PopupMenu(context, v);
                 MenuInflater inflater = popup.getMenuInflater();
                 inflater.inflate(R.menu.popup_menu, popup.getMenu());
@@ -139,6 +169,14 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
     }
 
+    public Audio getItem(int position){
+        return audioList.get(position);
+    }
+
+    public void setSelectedIds(List<String> selectedIds) {
+        this.selectedIds = selectedIds;
+        notifyDataSetChanged();
+    }
 
     private void editContentAudio(Audio audio) {
         try {
@@ -184,8 +222,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         Intent intent = new Intent();
         intent.setAction("android.intent.action.SEND");
         intent.setType("audio/*");
-        intent.putExtra("android.intent.extra.STREAM", Uri.fromFile(new File(audio.getPath())));
-        Log.e("URL", "shareAudio: "+ Uri.fromFile(new File(audio.getPath()))+"\n"+audio.getPath());
+        intent.putExtra("android.intent.extra.STREAM", Uri.fromFile(new File("storage/emulated/0/Recorder/RecordFile1571822726311.mp3")));
         context.startActivity(Intent.createChooser(intent, ""));
     }
 
@@ -223,9 +260,12 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
                             boolean success = file.renameTo(file2);
                             if (success) {
+                                dbQuerys =new DBQuerys(context);
                                 audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
                                 audio.setName(ed_name_item_library.getText().toString() + ".mp3");
+                                dbQuerys.Update(String.valueOf(audio.getId()),ed_name_item_library.getText().toString() + ".mp3",file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
                                 notifyItemChanged(position);
+
                                 dialog.dismiss();
                                 showToast("Success");
                             } else {
@@ -248,8 +288,11 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
                             boolean success = file.renameTo(file2);
                             if (success) {
+                                dbQuerys =new DBQuerys(context);
                                 audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
                                 audio.setName(ed_name_item_library.getText().toString() + ".wav");
+                                dbQuerys.Update(String.valueOf(audio.getId()),ed_name_item_library.getText().toString() + ".wav",file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
+
                                 notifyItemChanged(position);
                                 dialog.dismiss();
                                 showToast("Success");
@@ -311,6 +354,9 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         private TextView tv_time;
         private TextView tv_size;
         private FrameLayout iv_setting;
+        private ImageView imgItemMusicLibrary;
+
+
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -318,11 +364,18 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
             tv_size = itemView.findViewById(R.id.tv_size);
             tv_time = itemView.findViewById(R.id.tv_time);
             iv_setting = itemView.findViewById(R.id.iv_setting);
+            imgItemMusicLibrary = (ImageView) itemView.findViewById(R.id.img_item_music_library);
+
         }
     }
 
     private void showToast(String msg) {
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    public void updateList(ArrayList<Audio> list){
+        audioList.addAll(list);
+        notifyDataSetChanged();
     }
 
 

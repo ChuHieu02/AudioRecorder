@@ -7,12 +7,6 @@
     tools:context=".activity.SettingsActivity">
 
     <include
-        layout="@layout/all_label_recoder"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></include>
-
-    <include
         layout="@layout/view_bottom_navigation"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,7 +14,6 @@
 
     <ScrollView
         android:layout_marginBottom="?actionBarSize"
-        android:layout_marginTop="?actionBarSize"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -64,7 +57,6 @@
                 android:id="@+id/tv_choose_file_type_setting"
                 android:layout_width="0dp"
                 android:layout_height="?actionBarSize"
-                android:layout_marginTop="8dp"
                 android:adjustViewBounds="true"
                 android:background="?selectableItemBackground"
                 android:drawableEnd="@drawable/ic_settings_go"
@@ -131,6 +123,7 @@
                 android:id="@+id/textView11"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp8"
                 android:fontFamily="@font/arial"
                 android:gravity="center|start"
                 android:paddingLeft="16dp"

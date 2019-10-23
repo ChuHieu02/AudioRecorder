@@ -5,6 +5,7 @@
     android:gravity="center"
     android:textColor="@android:color/white"
     android:id="@+id/lb_recoder"
+    android:fontFamily="@font/arial"
     android:textSize="@dimen/sp25">
 
 

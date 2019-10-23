@@ -11,19 +11,10 @@
         android:id="@+id/iv_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/dp100"
         android:scaleType="fitXY"
+        android:layout_marginBottom="@dimen/dp120"
         android:src="@drawable/bg_home">
-
     </ImageView>
-
-    <!--    <TextView-->
-    <!--        android:textSize="@dimen/dp30"-->
-    <!--        android:gravity="center"-->
-    <!--        android:text="@string/home_label"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="?actionBarSize"-->
-    <!--        android:textColor="@android:color/white"></TextView>-->
 
     <include layout="@layout/all_label_recoder"></include>
 
@@ -53,9 +44,8 @@
             android:id="@+id/tv_time_record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorAccent"
-            android:layout_marginBottom="@dimen/dp10"
-            android:text="00:00"
+            android:layout_marginBottom="@dimen/dp20"
+            android:text="@string/home_duration"
             app:layout_constraintBottom_toTopOf="@+id/include"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
