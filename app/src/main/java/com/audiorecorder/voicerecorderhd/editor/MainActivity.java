@@ -95,12 +95,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }else if(recordingStatus == 1){
                     onStopRecording();
                     updateIconRecord();
-                    //creatCompleteDiaglog();
                     creatSetNameRecordFileDialog();
                     hanlderSpamClickRecord();
                 }
                 else if(recordingStatus == 2 && !checkPermissionsResult() ){
-                    tvRecordingStatus.setText("Please go to setting and permisson");
+                    tvRecordingStatus.setText(R.string.tv_recording_status_on_denied_permission);
                     creatSettingActivityDialog();
                 }
             }
@@ -314,31 +313,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         updateViewStage();
     }
 
-    private void creatCompleteDiaglog(){
-       SharedPreferences sharedPreferences= getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
-        if(sharedPreferences!= null){
-            outputFile = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Constants.K_DEFAULT_PATH);
-        }
-        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
-        builderDiaglog.setTitle("File save at :")
-            //    .setMessage(outputFile)
-                .setMessage(recordService.getAudioName())
-                .setPositiveButton("Open", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent openLibrary = new Intent(getApplicationContext(), LibraryActivity.class);
-                        startActivity(openLibrary);
-                    }
-                })
-                .setNegativeButton("Back", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-        builderDiaglog.create().show();
-    }
-
     private void creatSetNameRecordFileDialog(){
 
        final Dialog setNameDialog = new Dialog(this);
@@ -366,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                if(newName == null || checkFile == true ){
                    Log.e("CheckDb", "onReadyStart: " + checkFile +"  "+ newName);
-                   Toast.makeText(getApplicationContext(), "File name null or exits please input again", Toast.LENGTH_SHORT).show();
+                   Toast.makeText(getApplicationContext(), R.string.set_name_dialog, Toast.LENGTH_SHORT).show();
 
                } else if(newName != null && checkFile == false){
 
@@ -388,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                    if(newName == null || checkFile == true ){
                        Log.e("CheckDb", "onReadyStart: " + checkFile +"  "+ newName);
-                       Toast.makeText(getApplicationContext(), "File name null or exits please input again", Toast.LENGTH_SHORT).show();
+                       Toast.makeText(getApplicationContext(), R.string.set_name_dialog, Toast.LENGTH_SHORT).show();
 
                    } else if(newName != null && checkFile == false){
 
@@ -396,7 +370,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                        dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
                        setNameDialog.dismiss();
                    }
-
                    return  true;
                }
                return false;
@@ -410,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void creatSettingActivityDialog(){
         final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
-        builderDiaglog.setTitle("You need go to setting and perrmission for recording")
+        builderDiaglog.setTitle(R.string.setting_activity_dialog)
                 .setMessage(outputFile)
                 .setPositiveButton("Open", new DialogInterface.OnClickListener() {
                     @Override

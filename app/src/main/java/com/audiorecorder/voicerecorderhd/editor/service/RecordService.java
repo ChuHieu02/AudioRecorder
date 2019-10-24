@@ -29,9 +29,13 @@ import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class RecordService extends Service {
 
+
+    public static final String DATE_TIME_FORMAT = "HH:mm:ss_d/MM/yyyy";
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
     public static int pauseStatus;
     public static int recordingStatus;
@@ -169,14 +173,18 @@ public class RecordService extends Service {
             pathFile = pathDirector;
             dateTime = System.currentTimeMillis();
             File file = new File(pathDirector);
+            Date date_Formater = new Date(System.currentTimeMillis());
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_TIME_FORMAT);
+            String formatDatetime = simpleDateFormat.format(date_Formater);
+
             if (checkStatus == 0) {
-                outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".mp3";
-                audioName = "RecordFile" + System.currentTimeMillis() + ".mp3";
-                setAudioName("RecordFile" + System.currentTimeMillis()+".mp3");
+                outputFile =  file.getAbsolutePath() + "/Audio_" + System.currentTimeMillis() + ".mp3";
+                audioName = "Audio_" +formatDatetime + ".mp3";
+                setAudioName("Audio_" +formatDatetime+".mp3");
             } else if (checkStatus == 1) {
                 outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".wav";
-                audioName = "RecordFile" + System.currentTimeMillis() + ".wav";
-                setAudioName("RecordFile" + System.currentTimeMillis()+".wav");
+                audioName = "Audio_" + formatDatetime + ".wav";
+                setAudioName("Audio_" + formatDatetime+".wav");
             }
             if (!file.exists()) {
                 file.mkdirs();
