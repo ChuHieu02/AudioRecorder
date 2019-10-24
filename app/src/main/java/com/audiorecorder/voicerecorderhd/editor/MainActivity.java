@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView ivBottomRecoder;
     private ImageView ivBottomSettings;
     private ImageView ivRecord , ivPauseResume;
-    private TextView tvRecordingStatus, tvTimeRecord;
+    private TextView tvRecordingStatus, tvTimeRecord, lbRecoder;
     private String outputFile;
     private static int recordingStatus = 2;
     private static int pauseStatus = 0;
@@ -53,12 +53,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int hours;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initReceiver();
+
         mappingBottomNavigation();
         recordService = new RecordService();
         updateViewStage();
@@ -66,7 +65,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void mappingBottomNavigation() {
-
+        lbRecoder = findViewById(R.id.lb_recoder);
+        lbRecoder.setText(getResources().getString(R.string.label_recoder));
         ivBottomLibrary = findViewById(R.id.iv_bottom_library);
         ivBottomRecoder = findViewById(R.id.iv_bottom_recoder);
         ivBottomSettings = findViewById(R.id.iv_bottom_settings);
@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
+        initReceiver();
         updateViewStage();
 
     }
@@ -429,15 +430,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void hanlderSpamClickRecord(){
 
-        ivRecord.setEnabled(false);
+
+        ivRecord.setClickable(false);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                ivRecord.setEnabled(true);
+                ivRecord.setClickable(true);
             }
         } , 1000);
 
-     //   ivRecord.setEnabled(true);
     }
 
     private void updateViewStage(){

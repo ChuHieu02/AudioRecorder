@@ -50,6 +50,7 @@ public class RecordService extends Service {
     private String audioName;
     private static long extraCurrentTime;
     private NotificationManager notificationManager;
+
     private NotificationReceiver notificationReceiver = new NotificationReceiver();
     private Handler handler = new Handler();
     Runnable serviceRunnable = new Runnable() {
@@ -61,7 +62,6 @@ public class RecordService extends Service {
             handler.postDelayed(this, 1000);
         }
     };
-
 
     public RecordService() {
 
@@ -93,7 +93,7 @@ public class RecordService extends Service {
 
     private void insertSQL(){
         dbQuerys = new DBQuerys(getApplicationContext());
-        dbQuerys.insertAudioString(audioName,outputFile,fileSize,dateTime,countTimeRecord);
+        dbQuerys.insertAudioString(audioName,outputFile,fileSize,dateTime,countTimeRecord - 200);
     }
 
     @Override
@@ -341,7 +341,6 @@ public class RecordService extends Service {
                 setRecordingStatus(0);
                 stopRecording();
                 insertSQL();
-
                 setExtraCurrentTime(0);
                 stopCounter();
                 try {
