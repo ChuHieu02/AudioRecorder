@@ -49,10 +49,9 @@ public class RecordService extends Service {
     private long fileSize;
     private String audioName;
     private static long extraCurrentTime;
-    private NotificationManager notificationManager;
-
     private NotificationReceiver notificationReceiver = new NotificationReceiver();
     private Handler handler = new Handler();
+
     Runnable serviceRunnable = new Runnable() {
         @Override
         public void run() {
@@ -63,9 +62,7 @@ public class RecordService extends Service {
         }
     };
 
-    public RecordService() {
-
-    }
+    public RecordService() { }
 
     public static int getPauseStatus() {
         return pauseStatus;
@@ -286,6 +283,9 @@ public class RecordService extends Service {
 
     private void createNotification() {
 
+        RemoteViews remoteViews = new RemoteViews(getPackageName()
+                , isRunning ?  R.layout.custom_notification_action_pause : R.layout.custom_notification_aciton_resume);
+
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 2019, notificationIntent, 0);
 
@@ -298,23 +298,24 @@ public class RecordService extends Service {
         Intent stopReceive = new Intent(Constants.STOP_ACTION);
         PendingIntent pendingIntentStop = PendingIntent.getBroadcast(this, 2019, stopReceive, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        remoteViews.setOnClickPendingIntent(R.id.iv_notifi_pause_resume, isRunning ? pendingIntentPause : pendingIntentResume);
+        remoteViews.setOnClickPendingIntent(R.id.iv_notifi_stop,pendingIntentStop);
+
+       // remoteViews.setTextViewText(R.id);
+
         mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Recording")
                 .setLocalOnly(true)
-                .addAction(
-
-                        isRunning ? R.drawable.ic_play_pause : R.drawable.ic_play_play,
-                        isRunning ? "Pause" : "Resume",
-                        isRunning ? pendingIntentPause : pendingIntentResume
-                )
-                .addAction(R.drawable.ic_play_record_pr, "stop", pendingIntentStop)
-                .setSmallIcon(R.drawable.ic_record, 4)
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.ic_record, 1)
+                .setCustomContentView(remoteViews)
                 .setContentIntent(pendingIntent)
                 .build();
 
         startForeground(1, mBuilder);
 
     }
+
 
     public class NotificationReceiver extends BroadcastReceiver {
 
@@ -324,19 +325,20 @@ public class RecordService extends Service {
             String action = intent.getAction();
             Log.e("Test", "onReadyStart: " + action);
             if (Constants.PAUSE_ACTION.equals(action)) {
+
                 isRunning = false;
                 pauseRecording();
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
 
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
                     stopForeground(true);
+                }
                 createNotification();
-
                 setPauseStatus(1);
                 stopCounter();
                 setExtraCurrentTime(countTimeRecord - 1000);
 
-
             } else if (Constants.STOP_ACTION.equals(action)) {
+
                 isRunning = false;
                 setRecordingStatus(0);
                 stopRecording();
@@ -351,12 +353,13 @@ public class RecordService extends Service {
                 stopSelf();
 
             } else if (Constants.RESUME_ACTION.equals(action)) {
+
                 isRunning = true;
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
 
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
                     stopForeground(true);
+                }
                 createNotification();
-
                 resumeRecording();
                 setPauseStatus(0);
                 continueCouter();
@@ -364,7 +367,6 @@ public class RecordService extends Service {
             } else if (Constants.START_ACTION.equals(action)) {
 
                 //Do something here
-
             }
         }
     }

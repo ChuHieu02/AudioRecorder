@@ -430,7 +430,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void hanlderSpamClickRecord(){
 
-
         ivRecord.setClickable(false);
         new Handler().postDelayed(new Runnable() {
             @Override
