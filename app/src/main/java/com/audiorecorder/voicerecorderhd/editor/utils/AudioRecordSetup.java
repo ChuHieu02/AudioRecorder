@@ -4,32 +4,105 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaRecorder;
 import android.os.Build;
+import android.os.Environment;
+import android.widget.Toast;
+
 import androidx.annotation.RequiresApi;
 
 import java.io.File;
 import java.io.IOException;
 
-public class AudioRecordSetup {
+public class AudioRecordSetup implements BaseAudioRecord {
 
     public  MediaRecorder mAudioRecorder;
-    public static String outputFile;
+    public  String outputFile;
+    public  String pathFile;
+    public  long dateTime;
+    public  long fileSize;
+    public  String audioName;
 
-    public  void  setupMediaRecorder(Context context){
+    public MediaRecorder getmAudioRecorder() {
+        return mAudioRecorder;
+    }
 
-        SharedPreferences sharedPreferences= context.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
-        if(sharedPreferences!= null){
-            int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE,0);
-            String pathDirector = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Constants.K_DEFAULT_PATH);
+    public void setmAudioRecorder(MediaRecorder mAudioRecorder) {
+        this.mAudioRecorder = mAudioRecorder;
+    }
+
+    public String getOutputFile() {
+        return outputFile;
+    }
+
+    public void setOutputFile(String outputFile) {
+        this.outputFile = outputFile;
+    }
+
+    public String getPathFile() {
+        return pathFile;
+    }
+
+    public void setPathFile(String pathFile) {
+        this.pathFile = pathFile;
+    }
+
+    public long getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(long dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public String getAudioName() {
+        return audioName;
+    }
+
+    public void setAudioName(String audioName) {
+        this.audioName = audioName;
+    }
+
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    @Override
+    public void creatFile(Context context) {
+
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE, 0);
+            String pathDirector = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH, Environment.getExternalStorageDirectory() + File.separator + "Recorder");
+            //pathFile = pathDirector;
+            setPathFile(pathDirector);
+         //   dateTime = System.currentTimeMillis();
+            setDateTime(System.currentTimeMillis());
             File file = new File(pathDirector);
-            if(checkStatus == 0){
-                outputFile ="/"+ file.getAbsolutePath()+"/RecordFile"+System.currentTimeMillis()+".mp3";
-            }else if(checkStatus == 1){
-                outputFile ="/"+ file.getAbsolutePath()+"/RecordFile"+System.currentTimeMillis()+".wav";
+            if (checkStatus == 0) {
+               // outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".mp3";
+                setOutputFile(file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".mp3");
+               // audioName = "RecordFile" + System.currentTimeMillis() + ".mp3";
+                setAudioName("RecordFile" + System.currentTimeMillis() + ".mp3");
+            } else if (checkStatus == 1) {
+                //outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".wav";
+                setOutputFile(file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".wav");
+                //audioName = "RecordFile" + System.currentTimeMillis() + ".wav";
+                setAudioName("RecordFile" + System.currentTimeMillis() + ".wav");
             }
             if (!file.exists()) {
                 file.mkdirs();
             }
         }
+
+    }
+
+    @Override
+    public void setupMediaRecorder(Context context) {
+
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
         mAudioRecorder = new MediaRecorder();
         if(sharedPreferences!= null){
             int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE,0);
@@ -62,7 +135,12 @@ public class AudioRecordSetup {
 
             }
         }
-        mAudioRecorder.setOutputFile(outputFile);
+        mAudioRecorder.setOutputFile(getOutputFile());
+
+    }
+
+    @Override
+    public void startRecord() {
         try {
             mAudioRecorder.prepare();
             mAudioRecorder.start();
@@ -71,32 +149,38 @@ public class AudioRecordSetup {
         } catch (IOException ioe) {
             // make something
         }
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void pauseRecording(){
+    @Override
+    public void pasueRecord() {
         if (mAudioRecorder!=null){
             mAudioRecorder.pause();
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public  void resumeRecording(){
+    @Override
+    public void resumeRecord() {
         if (mAudioRecorder != null) {
             mAudioRecorder.resume();
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public  void stopRecording(){
+    @Override
+    public void stopRecord(Context context) {
         try {
             if (mAudioRecorder != null) {
                 mAudioRecorder.stop();
+                File file = new File(outputFile);
+              //  fileSize = file.length();
+                setFileSize(file.length());
                 mAudioRecorder.release();
                 mAudioRecorder = null;
             }
-        }catch (NullPointerException e){
-
+        } catch (Exception e) {
+            Toast.makeText(context, "Null Media File", Toast.LENGTH_SHORT).show();
         }
     }
 }

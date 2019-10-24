@@ -47,7 +47,7 @@ public class RecordService extends Service {
     private String pathFile;
     private long dateTime;
     private long fileSize;
-    private String audioName;
+    private static String audioName;
     private static long extraCurrentTime;
     private NotificationReceiver notificationReceiver = new NotificationReceiver();
     private Handler handler = new Handler();
@@ -61,6 +61,14 @@ public class RecordService extends Service {
             handler.postDelayed(this, 1000);
         }
     };
+
+    public String getAudioName() {
+        return audioName;
+    }
+
+    public void setAudioName(String audioName) {
+        this.audioName = audioName;
+    }
 
     public RecordService() { }
 
@@ -164,9 +172,11 @@ public class RecordService extends Service {
             if (checkStatus == 0) {
                 outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".mp3";
                 audioName = "RecordFile" + System.currentTimeMillis() + ".mp3";
+                setAudioName("RecordFile" + System.currentTimeMillis()+".mp3");
             } else if (checkStatus == 1) {
                 outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".wav";
                 audioName = "RecordFile" + System.currentTimeMillis() + ".wav";
+                setAudioName("RecordFile" + System.currentTimeMillis()+".wav");
             }
             if (!file.exists()) {
                 file.mkdirs();
@@ -301,7 +311,7 @@ public class RecordService extends Service {
         remoteViews.setOnClickPendingIntent(R.id.iv_notifi_pause_resume, isRunning ? pendingIntentPause : pendingIntentResume);
         remoteViews.setOnClickPendingIntent(R.id.iv_notifi_stop,pendingIntentStop);
 
-       // remoteViews.setTextViewText(R.id);
+        // remoteViews.setTextViewText(R.id);
 
         mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Recording")
@@ -315,7 +325,6 @@ public class RecordService extends Service {
         startForeground(1, mBuilder);
 
     }
-
 
     public class NotificationReceiver extends BroadcastReceiver {
 
