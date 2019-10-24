@@ -7,13 +7,16 @@
     tools:context=".activity.LibraryActivity">
 
 
-    <include layout="@layout/view_bottom_navigation"></include>
+    <include
+        android:id="@+id/include2"
+        layout="@layout/view_bottom_navigation"
+        tools:layout_editor_absoluteY="675dp"></include>
+
 
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="?actionBarSize"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/include2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -34,13 +37,13 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_library"
+            alayout_constraintTop_toTopOf="parent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            alayout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <LinearLayout
 

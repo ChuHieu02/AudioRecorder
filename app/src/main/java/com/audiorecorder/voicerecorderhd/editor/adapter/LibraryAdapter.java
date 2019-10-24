@@ -12,13 +12,19 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
@@ -32,10 +38,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.activity.EditActivity;
+import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.LongClickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.OnclickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
+import com.google.android.material.snackbar.Snackbar;
+
+import net.yslibrary.android.keyboardvisibilityevent.util.UIUtil;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -43,15 +53,17 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHolder> {
+public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHolder> implements Filterable {
     private Context context;
     private ArrayList<Audio> audioList;
+    private ArrayList<Audio> audioListFillter;
     private AlertDialog dialog;
     private OnclickItemLibrary onclickItem;
     private LongClickItemLibrary longClickItemLibrary;
     private boolean isMp3;
     private List<String> selectedIds = new ArrayList<>();
     private DBQuerys dbQuerys;
+
 
     public void setOnclickItem(OnclickItemLibrary onclickItem) {
         this.onclickItem = onclickItem;
@@ -64,6 +76,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     public LibraryAdapter(Context context, ArrayList<Audio> audioList) {
         this.context = context;
         this.audioList = audioList;
+        this.audioListFillter = audioList;
     }
 
     @NonNull
@@ -76,15 +89,15 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        final Audio audio = audioList.get(position);
+        final Audio audio = audioListFillter.get(position);
 
-
-
-        if (selectedIds.contains(audio.getPath())){
+        if (selectedIds.contains(audio.getPath())) {
             holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_check_circle_black_24dp);
-        }
-        else {
+            holder.iv_setting.setVisibility(View.GONE);
+
+        } else {
             holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_music_note_black_24dp);
+            holder.iv_setting.setVisibility(View.VISIBLE);
 
         }
 
@@ -110,6 +123,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
             @Override
             public boolean onLongClick(View v) {
                 longClickItemLibrary.longClick(position);
+
                 return false;
             }
 
@@ -169,8 +183,8 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
     }
 
-    public Audio getItem(int position){
-        return audioList.get(position);
+    public Audio getItem(int position) {
+        return audioListFillter.get(position);
     }
 
     public void setSelectedIds(List<String> selectedIds) {
@@ -194,24 +208,24 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     private void deleteAudio(final Audio audio, final int position) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(R.string.question_delete)
-                .setPositiveButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        dialog.dismiss();
+                        boolean checkDel = new File(audio.getPath()).delete();
+                        if (checkDel) {
+                            audioList.remove(position);
+                            notifyDataSetChanged();
+                            showToast("Delete success");
+                        } else {
+                            showToast("Delete fail");
+
+                        }
+                        notifyDataSetChanged();
                     }
-                }).setNegativeButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
+                }).setNegativeButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                boolean checkDel = new File(audio.getPath()).delete();
-                if (checkDel) {
-                    audioList.remove(position);
-                    notifyDataSetChanged();
-                    showToast("Delete success");
-                } else {
-                    showToast("Delete fail");
 
-                }
-                notifyDataSetChanged();
             }
         });
         builder.create();
@@ -222,24 +236,35 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         Intent intent = new Intent();
         intent.setAction("android.intent.action.SEND");
         intent.setType("audio/*");
-        intent.putExtra("android.intent.extra.STREAM", Uri.fromFile(new File("storage/emulated/0/Recorder/RecordFile1571822726311.mp3")));
+        intent.putExtra("android.intent.extra.STREAM", Uri.fromFile(new File(audio.getPath())));
         context.startActivity(Intent.createChooser(intent, ""));
     }
 
     private void renameAudio(final Audio audio, final int position) {
         final AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
+
+
         final View viewDialog = LayoutInflater.from(context).inflate(R.layout.dialog_rename_library, null);
         builder2.setView(viewDialog);
 
         final EditText ed_name_item_library;
-        Button bt_yes, bt_no;
+        TextView bt_yes, bt_no;
 
         ed_name_item_library = viewDialog.findViewById(R.id.ed_name_item_library);
         bt_no = viewDialog.findViewById(R.id.bt_no);
         bt_yes = viewDialog.findViewById(R.id.bt_yes);
 
         ed_name_item_library.setText(audio.getName().substring(0, audio.getName().lastIndexOf(".")));
-
+        ed_name_item_library.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if (i == EditorInfo.IME_ACTION_DONE) {
+                    checkRename(ed_name_item_library, audio, position);
+                    return true;
+                }
+                return false;
+            }
+        });
         bt_no.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -249,67 +274,13 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         bt_yes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isMp3 = audio.getName().endsWith(".mp3");
-                if (isMp3) {
-                    File file = new File(audio.getPath());
-                    File file2 = new File(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
-                    if (file2.exists()) {
-                        showToast("Audio name exist");
-                    } else {
-                        if (ed_name_item_library.getText().toString().length() != 0) {
-
-                            boolean success = file.renameTo(file2);
-                            if (success) {
-                                dbQuerys =new DBQuerys(context);
-                                audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
-                                audio.setName(ed_name_item_library.getText().toString() + ".mp3");
-                                dbQuerys.Update(String.valueOf(audio.getId()),ed_name_item_library.getText().toString() + ".mp3",file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
-                                notifyItemChanged(position);
-
-                                dialog.dismiss();
-                                showToast("Success");
-                            } else {
-                                dialog.dismiss();
-                                showToast("Fail");
-                            }
-                        } else {
-                            showToast("Enter name");
-                        }
-                    }
-
-                } else {
-
-                    File file = new File(audio.getPath());
-                    File file2 = new File(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
-                    if (file2.exists()) {
-                        showToast("The name exist");
-                    } else {
-                        if (ed_name_item_library.getText().toString().length() != 0) {
-
-                            boolean success = file.renameTo(file2);
-                            if (success) {
-                                dbQuerys =new DBQuerys(context);
-                                audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
-                                audio.setName(ed_name_item_library.getText().toString() + ".wav");
-                                dbQuerys.Update(String.valueOf(audio.getId()),ed_name_item_library.getText().toString() + ".wav",file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
-
-                                notifyItemChanged(position);
-                                dialog.dismiss();
-                                showToast("Success");
-                            } else {
-                                dialog.dismiss();
-                                showToast("Fail");
-                            }
-                        } else {
-                            showToast("Enter name");
-
-                        }
-                    }
-                }
+                checkRename(ed_name_item_library, audio, position);
             }
         });
-        builder2.create();
-        dialog = builder2.show();
+        ed_name_item_library.requestFocus();
+        dialog = builder2.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        dialog.show();
 
     }
 
@@ -346,7 +317,40 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return audioList.size();
+        return audioListFillter.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                String charString = charSequence.toString();
+                if (charString.isEmpty()) {
+                    audioListFillter = audioList;
+                } else {
+                    ArrayList<Audio> filteredList = new ArrayList<>();
+                    for (Audio row : audioList) {
+
+                        if (row.getName().toLowerCase().contains(charString.toLowerCase())) {
+                            filteredList.add(row);
+                        }
+                    }
+
+                    audioListFillter = filteredList;
+                }
+
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = audioListFillter;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                audioListFillter = (ArrayList<Audio>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -355,7 +359,6 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         private TextView tv_size;
         private FrameLayout iv_setting;
         private ImageView imgItemMusicLibrary;
-
 
 
         public ViewHolder(@NonNull View itemView) {
@@ -373,9 +376,76 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
     }
 
-    public void updateList(ArrayList<Audio> list){
+    public void updateList(ArrayList<Audio> list) {
         audioList.addAll(list);
         notifyDataSetChanged();
+    }
+
+
+    private void checkRename(final EditText ed_name_item_library, final Audio audio, final int position) {
+        isMp3 = audio.getName().endsWith(".mp3");
+        if (isMp3) {
+            File file = new File(audio.getPath());
+            File file2 = new File(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
+            if (file2.exists()) {
+                showToast("Audio name exist");
+            } else {
+                if (ed_name_item_library.getText().toString().length() != 0) {
+
+                    boolean success = file.renameTo(file2);
+                    if (success) {
+                        dbQuerys = new DBQuerys(context);
+                        audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
+                        audio.setName(ed_name_item_library.getText().toString() + ".mp3");
+                        dbQuerys.Update(String.valueOf(audio.getId()), ed_name_item_library.getText().toString() + ".mp3", file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".mp3");
+                        notifyItemChanged(position);
+
+                        dialog.dismiss();
+                        showToast("Success");
+                    } else {
+                        dialog.dismiss();
+                        showToast("Fail");
+                    }
+                } else {
+                    showToast("Enter name");
+                }
+            }
+
+        } else {
+
+            File file = new File(audio.getPath());
+            File file2 = new File(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
+            if (file2.exists()) {
+                showToast("The name exist");
+            } else {
+                if (ed_name_item_library.getText().toString().length() != 0) {
+
+                    boolean success = file.renameTo(file2);
+                    if (success) {
+                        dbQuerys = new DBQuerys(context);
+                        audio.setPath(file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
+                        audio.setName(ed_name_item_library.getText().toString() + ".wav");
+                        dbQuerys.Update(String.valueOf(audio.getId()), ed_name_item_library.getText().toString() + ".wav", file.getParent() + File.separator + ed_name_item_library.getText().toString() + ".wav");
+
+                        notifyItemChanged(position);
+                        dialog.dismiss();
+                        showToast("Success");
+                    } else {
+                        dialog.dismiss();
+                        showToast("Fail");
+                    }
+                } else {
+                    showToast("Enter name");
+
+                }
+            }
+        }
+        InputMethodManager inputMethodManager = (InputMethodManager)
+                context.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        inputMethodManager.hideSoftInputFromWindow(ed_name_item_library.getWindowToken(), 0);
+
+
     }
 
 

@@ -1,6 +1,9 @@
 package com.audiorecorder.voicerecorderhd.editor.utils;
 
+import android.content.Context;
 import android.media.MediaMetadataRetriever;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -100,5 +103,6 @@ public class CommonUtils {
         }
 
     }
+
 
 }

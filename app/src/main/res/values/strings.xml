@@ -36,12 +36,12 @@
     <string name="bt_choose_director_path">Choose Folder</string>
     <string name="tv_setting_format_type">Format Type</string>
     <string name="tv_setting_quality">Quality</string>
-    <string name="rb_fomat_type_mp3">MP3</string>
-    <string name="rb_fomat_type_wav">WAV</string>
-    <string name="rb_quality_16kHz">16kHz</string>
-    <string name="rb_quality_22kHz">22kHz</string>
-    <string name="rb_quality_32kHz">32kHz</string>
-    <string name="rb_quality_44kHz">44kHz</string>
+    <string name="rb_fomat_type_mp3">Mp3</string>
+    <string name="rb_fomat_type_wav">Wav </string>
+    <string name="rb_quality_16kHz">16 kHz (default)</string>
+    <string name="rb_quality_22kHz">22 kHz (AM radio)</string>
+    <string name="rb_quality_32kHz">32 kHz (FM radio)</string>
+    <string name="rb_quality_44kHz">44 kHz (CD highest)</string>
 
     <string name="search_edit_box">Search</string>
 
@@ -207,6 +207,10 @@
     <string name="location_file_setting">Location of recording</string>
     <string name="success_delete">Delete success !</string>
     <string name="menu_share">Share</string>
+    <string name="menu_search">Search</string>
+    <string name="search_hint">Search</string>
+    <string name="label_quality">Choose quality</string>
+    <string name="label_file_type">Choose file type</string>
 
 
     <!--    Adapter Library-->

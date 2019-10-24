@@ -1,38 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:layout_gravity="center"
+    android:layout_marginTop="@dimen/dp16"
     android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/tv_label_dialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp16"
+        android:layout_marginTop="@dimen/dp16"
+        android:gravity="center"
+        android:text="@string/label_file_type"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/sp20"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></TextView>
 
     <RadioGroup
         android:id="@+id/rg_FormatType"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="@dimen/dp16"
         android:orientation="vertical"
+        android:paddingBottom="@dimen/dp16"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_choose_file_type_setting">
+        app:layout_constraintTop_toBottomOf="@+id/tv_label_dialog">
 
         <RadioButton
             android:id="@+id/rb_Mp3"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/dp40"
+            android:layout_marginLeft="@dimen/dp16"
             android:checked="false"
-            android:text="@string/rb_fomat_type_mp3" />
+            android:paddingLeft="@dimen/dp16"
+            android:text="@string/rb_fomat_type_mp3"
+            android:textSize="@dimen/sp17" />
+
 
         <RadioButton
             android:id="@+id/rb_Wav"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/dp40"
+            android:layout_marginLeft="@dimen/dp16"
             android:layout_marginTop="@dimen/dp8"
             android:checked="false"
-            android:text="@string/rb_fomat_type_wav" />
+            android:paddingLeft="@dimen/dp16"
+            android:text="@string/rb_fomat_type_wav"
+            android:textSize="@dimen/sp17" />
 
     </RadioGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>

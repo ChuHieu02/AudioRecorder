@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/dp10"
     android:orientation="vertical">
 
     <EditText
+        android:focusable="true"
         android:id="@+id/ed_name_item_library"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
@@ -20,39 +22,42 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-    <Button
-        android:id="@+id/bt_yes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ed_name_item_library"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="@dimen/dp16"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/color_circleindicator"
-        android:text="@string/dialog_yes"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/bt_no"
-        app:layout_constraintTop_toBottomOf="@+id/ed_name_item_library"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <Button
+    <TextView
         android:id="@+id/bt_no"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/dp50"
+        android:layout_height="@dimen/dp40"
         android:layout_below="@+id/ed_name_item_library"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="@dimen/dp16"
-        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
         android:layout_toStartOf="@+id/bt_yes"
         android:layout_toLeftOf="@+id/bt_yes"
-        android:background="@drawable/color_circleindicator"
+        android:adjustViewBounds="true"
+        android:background="?selectableItemBackgroundBorderless"
+        android:fontFamily="@font/arial"
+        android:gravity="center"
         android:text="@string/dialog_no"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/sp17"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/bt_yes"
+        app:layout_constraintTop_toBottomOf="@+id/ed_name_item_library" />
+
+    <TextView
+        android:id="@+id/bt_yes"
+        android:layout_width="@dimen/dp50"
+        android:layout_height="@dimen/dp40"
+        android:layout_below="@+id/ed_name_item_library"
+        android:layout_marginTop="8dp"
+        android:adjustViewBounds="true"
+        android:background="?selectableItemBackgroundBorderless"
+        android:fontFamily="@font/arial"
+        android:gravity="center"
+        android:text="@string/dialog_yes"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/sp17"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/ed_name_item_library"
         app:layout_constraintTop_toBottomOf="@+id/ed_name_item_library" />
 
     <TextView
@@ -64,10 +69,11 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="@dimen/dp16"
         android:layout_marginRight="@dimen/dp16"
+        android:fontFamily="@font/arial"
         android:gravity="center"
         android:text="@string/dialog_rename"
+        android:textColor="@color/colorPrimary"
         android:textSize="@dimen/sp20"
-        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

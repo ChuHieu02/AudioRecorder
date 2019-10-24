@@ -1,62 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="200dp"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:orientation="vertical">
+    android:layout_margin="@dimen/dp16"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/dp16">
 
+    <TextView
+        android:id="@+id/tv_label_dialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp16"
+        android:layout_marginTop="@dimen/dp16"
+        android:gravity="center"
+        android:text="@string/label_quality"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/sp20"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></TextView>
 
     <RadioGroup
         android:id="@+id/rg_SetQuality"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
+        android:layout_marginLeft="@dimen/dp16"
         android:layout_marginTop="8dp"
-        android:gravity="center"
+        android:gravity="center_vertical"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_choose_quality_setting">
+        app:layout_constraintTop_toBottomOf="@+id/tv_label_dialog">
+
 
         <RadioButton
             android:id="@+id/rb_16kHz"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/dp40"
             android:checked="false"
-            android:gravity="center"
-            android:text="@string/rb_quality_16kHz" />
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/dp16"
+            android:text="@string/rb_quality_16kHz"
+            android:textSize="@dimen/sp17" />
+
 
         <RadioButton
             android:id="@+id/rb_22kHz"
-
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/dp40"
             android:layout_marginTop="8dp"
             android:checked="false"
-            android:gravity="center"
-            android:text="@string/rb_quality_22kHz" />
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/dp16"
+            android:text="@string/rb_quality_22kHz"
+            android:textSize="@dimen/sp17" />
 
         <RadioButton
             android:id="@+id/rb_32kHz"
-
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/dp40"
             android:layout_marginTop="8dp"
+
             android:checked="false"
-            android:gravity="center"
-            android:text="@string/rb_quality_32kHz" />
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/dp16"
+            android:text="@string/rb_quality_32kHz"
+            android:textSize="@dimen/sp17" />
 
         <RadioButton
             android:id="@+id/rb_44kHz"
-
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/dp40"
             android:layout_marginTop="8dp"
+
             android:checked="false"
-            android:gravity="center"
-            android:text="@string/rb_quality_44kHz" />
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/dp16"
+            android:text="@string/rb_quality_44kHz"
+            android:textSize="@dimen/sp17" />
 
     </RadioGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>

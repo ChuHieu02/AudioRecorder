@@ -34,7 +34,16 @@
             android:name=".activity.LibraryActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.actionBarLibrary" />
+            android:theme="@style/AppTheme.actionBarLibrary" >
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+
+        </activity>
         <activity
             android:name=".activity.SettingsActivity"
             android:configChanges="orientation|screenSize"
@@ -42,6 +51,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.actionBarLibrary" />
         <activity
+
             android:name=".activity.DetailActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />

@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
     <ImageView
         android:id="@+id/iv_bg"
         android:layout_width="match_parent"
@@ -16,7 +15,8 @@
         android:src="@drawable/bg_home">
     </ImageView>
 
-    <include layout="@layout/all_label_recoder"></include>
+    <include
+        layout="@layout/all_label_recoder"></include>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

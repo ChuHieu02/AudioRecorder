@@ -10,8 +10,9 @@
 
     </style>
 
+
     <style name="AppTheme.actionBarLibrary">
-        <item name="colorPrimary">@color/color_white</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">#367efd</item>
         <item name="colorAccent">#367efd</item>
         <item name="actionModeBackground">@color/colorPrimary</item>
@@ -21,6 +22,8 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="actionModeBackground">@color/colorPrimary</item>
+
     </style>
 
     <style name="AudioFileInfoOverlayText">

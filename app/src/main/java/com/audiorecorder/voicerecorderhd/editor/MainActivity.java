@@ -34,11 +34,11 @@ import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private ImageView ivBottomLibrary;
     private ImageView ivBottomRecoder;
     private ImageView ivBottomSettings;
-    private ImageView ivRecord , ivPauseResume;
+    private ImageView ivRecord, ivPauseResume;
     private TextView tvRecordingStatus, tvTimeRecord;
     private String outputFile;
     private static int recordingStatus = 2;
@@ -51,8 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int seconds;
     private int minutes;
     private int hours;
-
-
+    private TextView lbRecoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +62,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recordService = new RecordService();
         updateViewStage();
 
-
     }
 
     private void mappingBottomNavigation() {
+
+        lbRecoder = findViewById(R.id.lb_recoder);
+        lbRecoder.setText(getResources().getString(R.string.label_recoder));
 
         ivBottomLibrary = findViewById(R.id.iv_bottom_library);
         ivBottomRecoder = findViewById(R.id.iv_bottom_recoder);
@@ -74,28 +75,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivPauseResume = findViewById(R.id.iv_pauseResume);
         ivRecord = findViewById(R.id.iv_recoder);
         tvRecordingStatus = findViewById(R.id.textView2);
-        tvTimeRecord =(TextView) findViewById(R.id.tv_time_record);
+        tvTimeRecord = findViewById(R.id.tv_time_record);
         ivPauseResume.setVisibility(View.INVISIBLE);
         ivBottomSettings.setOnClickListener(this);
         ivBottomLibrary.setOnClickListener(this);
+        ivBottomRecoder.setImageDrawable(getResources().getDrawable(R.drawable.ic_record_pr));
 
     }
 
-    private  void onRecordAudio(){
+    private void onRecordAudio() {
         ivRecord.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                if(recordingStatus == 0 && checkPermissionsResult()){
+                if (recordingStatus == 0 && checkPermissionsResult()) {
                     onStartRecording();
                     updateIconStopRecord();
-                }else if(recordingStatus == 1){
+                } else if (recordingStatus == 1) {
 
                     onStopRecording();
                     updateIconRecord();
                     creatCompleteDiaglog();
-                }
-                else if(recordingStatus == 2 && !checkPermissionsResult() ){
+                } else if (recordingStatus == 2 && !checkPermissionsResult()) {
 
                     tvRecordingStatus.setText("Please go to setting and permisson");
                     creatSettingActivityDialog();
@@ -107,12 +108,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                if(pauseStatus == 0) {
+                if (pauseStatus == 0) {
 
                     onActionPasuse();
                     updateIconResume();
-                }else{
-                    if(pauseStatus == 1){
+                } else {
+                    if (pauseStatus == 1) {
 
                         onActionResume();
 
@@ -130,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void onStartRecording(){
+    private void onStartRecording() {
 
         Intent intentService = new Intent(MainActivity.this, RecordService.class);
         ContextCompat.startForegroundService(MainActivity.this, intentService);
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void onStopRecording(){
+    private void onStopRecording() {
         Intent intentStop = new Intent(Constants.STOP_ACTION);
         sendBroadcast(intentStop);
         Intent intentService = new Intent(MainActivity.this, RecordService.class);
@@ -149,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void onActionResume(){
+    private void onActionResume() {
         Intent intentResume = new Intent(Constants.RESUME_ACTION);
         sendBroadcast(intentResume);
         recordService.setPauseStatus(0);
@@ -174,14 +175,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        }
     }
 
-    private  void onActionPasuse(){
+    private void onActionPasuse() {
         Intent intentService = new Intent(Constants.PAUSE_ACTION);
         recordService.setPauseStatus(1);
         sendBroadcast(intentService);
 
     }
 
-    private void updateIconPause(){
+    private void updateIconPause() {
 
         pauseStatus = 0;
         ivPauseResume.setVisibility(View.VISIBLE);
@@ -190,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void updateIconResume(){
+    private void updateIconResume() {
 
         pauseStatus = 1;
         ivPauseResume.setVisibility(View.VISIBLE);
@@ -199,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void updateIconRecord(){
+    private void updateIconRecord() {
 
         ivPauseResume.setEnabled(false);
         recordingStatus = 0;
@@ -210,9 +211,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void updateIconStopRecord(){
+    private void updateIconStopRecord() {
 
-        recordingStatus =1;
+        recordingStatus = 1;
         ivRecord.setImageResource(R.drawable.ic_play_record_pr);
         pauseStatus = 0;
         ivPauseResume.setImageResource(R.drawable.ic_home_pause);
@@ -231,20 +232,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             filter.addAction(Constants.START_ACTION);
             filter.addAction(Constants.SEND_TIME);
             registerReceiver(notificationReceiver, filter);
-            registerReceiver(timeCountReceiver,filter);
+            registerReceiver(timeCountReceiver, filter);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    public  class NotificationReceiver extends BroadcastReceiver {
+    public class NotificationReceiver extends BroadcastReceiver {
 
         @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (Constants.PAUSE_ACTION.equals(action) ) {
+            if (Constants.PAUSE_ACTION.equals(action)) {
 
                 updateIconResume();
                 try {
@@ -253,14 +254,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
 
-            } else if (Constants.STOP_ACTION.equals(action) ) {
+            } else if (Constants.STOP_ACTION.equals(action)) {
 
                 updateIconRecord();
 //                unregisterReceiver(notificationReceiver);
 //                if(pauseStatus == 1){
 //                    unregisterReceiver(timeCountReceiver);
 //                }
-            } else if(Constants.RESUME_ACTION.equals(action) ){
+            } else if (Constants.RESUME_ACTION.equals(action)) {
                 try {
                     IntentFilter filter = new IntentFilter();
                     filter.addAction(Constants.SEND_TIME);
@@ -268,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            } else if(Constants.START_ACTION.equals(action)){
+            } else if (Constants.START_ACTION.equals(action)) {
 
                 updateIconPause();
                 updateIconStopRecord();
@@ -286,16 +287,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             updateTimeRecord(time_count);
         }
     }
-    private void updateTimeRecord(long time_count){
-        seconds = (int) (time_count / 1000) % 60 ;
-        minutes = (int) ((time_count/ (1000*60)) % 60);
-        hours   = (int) ((time_count / (1000*60*60)) % 24);
-        tvTimeRecord.setText((hours>0 ? String.format("%d:", hours) : "")
-                + ((minutes<10 && hours > 0)? "0"
-                + String.format("%d:", minutes) :  String.format("%d:", minutes))
-                + (seconds<10 ? "0" + seconds: seconds));
+
+    private void updateTimeRecord(long time_count) {
+        seconds = (int) (time_count / 1000) % 60;
+        minutes = (int) ((time_count / (1000 * 60)) % 60);
+        hours = (int) ((time_count / (1000 * 60 * 60)) % 24);
+        tvTimeRecord.setText((hours > 0 ? String.format("%d:", hours) : "")
+                + ((minutes < 10 && hours > 0) ? "0"
+                + String.format("%d:", minutes) : String.format("%d:", minutes))
+                + (seconds < 10 ? "0" + seconds : seconds));
 
     }
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -331,12 +334,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         updateViewStage();
     }
 
-    private void creatCompleteDiaglog(){
-        SharedPreferences sharedPreferences= getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
-        if(sharedPreferences!= null){
-            outputFile = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Constants.K_DEFAULT_PATH);
+    private void creatCompleteDiaglog() {
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            outputFile = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH, Constants.K_DEFAULT_PATH);
         }
-        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
+        final AlertDialog.Builder builderDiaglog = new AlertDialog.Builder(MainActivity.this);
         builderDiaglog.setTitle("File save at :")
                 .setMessage(outputFile)
                 .setPositiveButton("Open", new DialogInterface.OnClickListener() {
@@ -355,8 +358,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         builderDiaglog.create().show();
     }
 
-    private void creatSettingActivityDialog(){
-        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
+    private void creatSettingActivityDialog() {
+        final AlertDialog.Builder builderDiaglog = new AlertDialog.Builder(MainActivity.this);
         builderDiaglog.setTitle("You need go to setting and perrmission for recording")
                 .setMessage(outputFile)
                 .setPositiveButton("Open", new DialogInterface.OnClickListener() {
@@ -386,15 +389,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case REQUEST_AUDIO_PERMISSION_CODE:
-                if (grantResults.length> 0) {
+                if (grantResults.length > 0) {
                     boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean permissionToStore = grantResults[1] ==  PackageManager.PERMISSION_GRANTED;
+                    boolean permissionToStore = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                     if (permissionToRecord && permissionToStore) {
                         recordingStatus = 0;
                         onRecordAudio();
                         Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(getApplicationContext(),"Permission Denied :"+recordingStatus,Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Permission Denied :" + recordingStatus, Toast.LENGTH_LONG).show();
                         tvRecordingStatus.setText("You need go to setting and perrmisson to record");
                         recordingStatus = 2;
                         onRecordAudio();
@@ -405,7 +408,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public boolean checkPermissionsResult() {
-        int result = ContextCompat.checkSelfPermission(getApplicationContext(),WRITE_EXTERNAL_STORAGE);
+        int result = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
         int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
         return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
     }
@@ -424,36 +427,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
-    private void updateViewStage(){
-        if(checkPermissionsResult()) {
-            if(!isMyServiceRunning(recordService.getClass())){
+    private void updateViewStage() {
+        if (checkPermissionsResult()) {
+            if (!isMyServiceRunning(recordService.getClass())) {
                 ivRecord.setImageResource(R.drawable.ic_home_record);
                 recordingStatus = 0;
                 onRecordAudio();
-            }
-            else {
+            } else {
                 ivRecord.setImageResource(R.drawable.ic_play_record_pr);
 
                 int checkRecordingStatus = recordService.getRecordingStatus();
-                if(checkRecordingStatus == 0){
+                if (checkRecordingStatus == 0) {
 
                     updateIconRecord();
-                }else if(checkRecordingStatus == 1){
+                } else if (checkRecordingStatus == 1) {
 
                     updateIconStopRecord();
                 }
 
-                int checkPauseStatus =  recordService.getPauseStatus();
-                if(checkPauseStatus == 0){
+                int checkPauseStatus = recordService.getPauseStatus();
+                if (checkPauseStatus == 0) {
                     updateIconPause();
 
-                }else if(checkPauseStatus == 1){
+                } else if (checkPauseStatus == 1) {
                     updateTimeRecord(recordService.getExtraCurrentTime());
                     updateIconResume();
                 }
                 onRecordAudio();
             }
-        }else {
+        } else {
             requestPermissions();
 
         }
