@@ -295,7 +295,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         textView.setTextSize(25);
         textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         textView.setGravity(Gravity.CENTER);
-        textView.setTextColor(getResources().getColor(R.color.all_color_black));
+        textView.setTextColor(getResources().getColor(R.color.color_white));
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(textView);
     }

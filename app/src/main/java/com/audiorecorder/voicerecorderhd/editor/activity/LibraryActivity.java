@@ -3,27 +3,31 @@ package com.audiorecorder.voicerecorderhd.editor.activity;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,8 +38,7 @@ import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.LongClickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.OnclickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
-import com.audiorecorder.voicerecorderhd.editor.utils.CommonUtils;
-import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
+import com.google.android.material.appbar.AppBarLayout;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -48,10 +51,8 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
     private LibraryAdapter adapter;
     private LinearLayoutManager layoutManager;
     private ArrayList<Audio> audioList = new ArrayList<>();
-    private String formatDuration = "";
     private TextView tvEmpty;
     private LinearLayout viewProgres;
-    private static final String TAG = "library";
     private ImageView ivBottomLibrary;
     private ImageView ivBottomRecoder;
     private ImageView ivBottomSettings;
@@ -60,16 +61,19 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
     private List<String> selectedIds = new ArrayList<>();
     private AlertDialog dialog;
     private DBQuerys dbQuerys;
+    private SearchView searchView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library);
-        setTitle("Library");
+        setTitle(getResources().getString(R.string.label_library));
         mapping();
         new queryFile().execute();
-    }
 
+
+    }
     @SuppressLint("WrongConstant")
     public void setTitle(String title) {
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -79,9 +83,40 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         textView.setTextSize(25);
         textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         textView.setGravity(Gravity.CENTER);
-        textView.setTextColor(getResources().getColor(R.color.all_color_black));
+        textView.setTextColor(getResources().getColor(R.color.color_white));
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(textView);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search_library, menu);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView = (SearchView) menu.findItem(R.id.action_search)
+                .getActionView();
+        searchView.setSearchableInfo(searchManager
+                .getSearchableInfo(getComponentName()));
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchView.setIconifiedByDefault(true);
+
+
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // filter recycler view when query submitted
+                adapter.getFilter().filter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                // filter recycler view when text is changed
+                adapter.getFilter().filter(query);
+                return false;
+            }
+        });
+        return true;
     }
 
     @Override
@@ -114,6 +149,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
                     actionMode.setTitle("");
                     actionMode.finish(); //hide action mode.
 
+
                 }
                 adapter.setSelectedIds(selectedIds);
 
@@ -125,7 +161,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.menu_select, menu);
+        inflater.inflate(R.menu.menu_actionmode_select, menu);
         return true;
     }
 
@@ -154,6 +190,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         isMultiSelect = false;
         selectedIds = new ArrayList<>();
         adapter.setSelectedIds(new ArrayList<String>());
+
     }
 
     private class queryFile extends AsyncTask<String, String, ArrayList<Audio>> {
@@ -208,16 +245,16 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
                     isMultiSelect = true;
 
                     if (actionMode == null) {
-                        actionMode = startActionMode(LibraryActivity.this); //show ActionMode.
-
-                    } else {
+                        actionMode = startActionMode(LibraryActivity.this);
+                        //show ActionMode.
                     }
-                }
 
+                }
                 multiSelect(position);
             }
         });
     }
+
 
     private void mapping() {
         ivBottomLibrary = findViewById(R.id.iv_bottom_library);
@@ -238,24 +275,22 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
     private void deleteAudio() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.question_delete)
-                .setPositiveButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int j) {
-                        dialog.dismiss();
+                        for (int i = 0; i < selectedIds.size(); i++) {
+                            new File(selectedIds.get(i)).delete();
+                            Log.e("path", selectedIds.get(i));
+                        }
+                        actionMode.finish();
+                        audioList.clear();
+                        adapter.updateList(dbQuerys.getallNguoiDung());
+
+                        showToast(getResources().getString(R.string.success_delete));
                     }
-                }).setNegativeButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
+                }).setNegativeButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int j) {
-
-                for (int i = 0; i < selectedIds.size(); i++) {
-                    new File(selectedIds.get(i)).delete();
-                    Log.e("path", selectedIds.get(i));
-                }
-                actionMode.finish();
-                audioList.clear();
-                adapter.updateList(dbQuerys.getallNguoiDung());
-
-                showToast(getResources().getString(R.string.success_delete));
             }
         });
         builder.create();

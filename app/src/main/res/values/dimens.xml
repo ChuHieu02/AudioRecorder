@@ -20,4 +20,5 @@
     <!--all sp-->
     <dimen name="sp25">25sp</dimen>
     <dimen name="sp20">20sp</dimen>
+    <dimen name="sp17">17sp</dimen>
 </resources>

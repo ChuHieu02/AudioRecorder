@@ -319,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
        setNameDialog.setContentView(R.layout.dialog_named_record_file);
        final EditText  edSetNameRecordFile = (EditText) setNameDialog.findViewById(R.id.ed_set_name_record_file);
        edSetNameRecordFile.setText(recordService.getAudioName());
-       
+
        Button btDefault = (Button) setNameDialog.findViewById(R.id.bt_default);
        Button btConfirm = (Button) setNameDialog.findViewById(R.id.bt_confirm);
 
@@ -376,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
            }
        });
        setNameDialog.show();
-       
+
     }
 
 
