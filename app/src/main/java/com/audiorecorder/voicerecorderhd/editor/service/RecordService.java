@@ -16,6 +16,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -34,7 +35,7 @@ public class RecordService extends Service {
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
     public static int pauseStatus;
     public static int recordingStatus;
-    public static boolean isRunning = false;
+    public static boolean isRunning ;
     private MediaRecorder mAudioRecorder;
     private String outputFile;
     private NotificationManager mNotificationManager;
@@ -46,9 +47,11 @@ public class RecordService extends Service {
     private String pathFile;
     private long dateTime;
     private long fileSize;
-    private String audioName;
+    private static String audioName;
     private static long extraCurrentTime;
+    private NotificationReceiver notificationReceiver = new NotificationReceiver();
     private Handler handler = new Handler();
+
     Runnable serviceRunnable = new Runnable() {
         @Override
         public void run() {
@@ -58,20 +61,16 @@ public class RecordService extends Service {
             handler.postDelayed(this, 1000);
         }
     };
-    private NotificationReceiver notificationReceiver = new NotificationReceiver();
 
-
-    public RecordService() {
-
+    public String getAudioName() {
+        return audioName;
     }
 
-    public static boolean isIsRunning() {
-        return isRunning;
+    public void setAudioName(String audioName) {
+        this.audioName = audioName;
     }
 
-    public static void setIsRunning(boolean isRunning) {
-        RecordService.isRunning = isRunning;
-    }
+    public RecordService() { }
 
     public static int getPauseStatus() {
         return pauseStatus;
@@ -89,6 +88,19 @@ public class RecordService extends Service {
         RecordService.recordingStatus = recordingStatus;
     }
 
+    public static long getExtraCurrentTime() {
+        return extraCurrentTime;
+    }
+
+    public static void setExtraCurrentTime(long extraCurrentTime) {
+        RecordService.extraCurrentTime = extraCurrentTime;
+    }
+
+    private void insertSQL(){
+        dbQuerys = new DBQuerys(getApplicationContext());
+        dbQuerys.insertAudioString(audioName,outputFile,fileSize,dateTime,countTimeRecord - 200);
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
@@ -104,14 +116,13 @@ public class RecordService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        isRunning = true;
         createNotificationChannel();
         createNotification();
         startRecording();
         startCounter();
         setRecordingStatus(1);
         initReceiver();
-        startForeground(1, mBuilder);
         return START_STICKY;
     }
 
@@ -161,9 +172,11 @@ public class RecordService extends Service {
             if (checkStatus == 0) {
                 outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".mp3";
                 audioName = "RecordFile" + System.currentTimeMillis() + ".mp3";
+                setAudioName("RecordFile" + System.currentTimeMillis()+".mp3");
             } else if (checkStatus == 1) {
                 outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".wav";
                 audioName = "RecordFile" + System.currentTimeMillis() + ".wav";
+                setAudioName("RecordFile" + System.currentTimeMillis()+".wav");
             }
             if (!file.exists()) {
                 file.mkdirs();
@@ -263,14 +276,6 @@ public class RecordService extends Service {
         super.onDestroy();
     }
 
-    public static long getExtraCurrentTime() {
-        return extraCurrentTime;
-    }
-
-    public static void setExtraCurrentTime(long extraCurrentTime) {
-        RecordService.extraCurrentTime = extraCurrentTime;
-    }
-
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -288,6 +293,9 @@ public class RecordService extends Service {
 
     private void createNotification() {
 
+        RemoteViews remoteViews = new RemoteViews(getPackageName()
+                , isRunning ?  R.layout.custom_notification_action_pause : R.layout.custom_notification_aciton_resume);
+
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 2019, notificationIntent, 0);
 
@@ -300,15 +308,21 @@ public class RecordService extends Service {
         Intent stopReceive = new Intent(Constants.STOP_ACTION);
         PendingIntent pendingIntentStop = PendingIntent.getBroadcast(this, 2019, stopReceive, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        remoteViews.setOnClickPendingIntent(R.id.iv_notifi_pause_resume, isRunning ? pendingIntentPause : pendingIntentResume);
+        remoteViews.setOnClickPendingIntent(R.id.iv_notifi_stop,pendingIntentStop);
+
+        // remoteViews.setTextViewText(R.id);
+
         mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Recording")
                 .setLocalOnly(true)
-                .addAction(R.drawable.ic_play_pause, "pause", pendingIntentPause)
-                .addAction(R.drawable.ic_play_play, "resume", pendingIntentResume)
-                .addAction(R.drawable.ic_play_record_pr, "stop", pendingIntentStop)
-                .setSmallIcon(R.drawable.ic_record, 4)
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.ic_record, 1)
+                .setCustomContentView(remoteViews)
                 .setContentIntent(pendingIntent)
                 .build();
+
+        startForeground(1, mBuilder);
 
     }
 
@@ -321,23 +335,40 @@ public class RecordService extends Service {
             Log.e("Test", "onReadyStart: " + action);
             if (Constants.PAUSE_ACTION.equals(action)) {
 
+                isRunning = false;
                 pauseRecording();
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+
+                    stopForeground(true);
+                }
+                createNotification();
                 setPauseStatus(1);
                 stopCounter();
                 setExtraCurrentTime(countTimeRecord - 1000);
 
             } else if (Constants.STOP_ACTION.equals(action)) {
 
+                isRunning = false;
                 setRecordingStatus(0);
                 stopRecording();
-                dbQuerys = new DBQuerys(getApplicationContext());
-                dbQuerys.insertAudioString(audioName,outputFile,fileSize,dateTime,countTimeRecord);
+                insertSQL();
+                setExtraCurrentTime(0);
                 stopCounter();
+                try {
+                    unregisterReceiver(notificationReceiver);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 stopSelf();
-                unregisterReceiver(notificationReceiver);
 
             } else if (Constants.RESUME_ACTION.equals(action)) {
 
+                isRunning = true;
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+
+                    stopForeground(true);
+                }
+                createNotification();
                 resumeRecording();
                 setPauseStatus(0);
                 continueCouter();
@@ -345,9 +376,9 @@ public class RecordService extends Service {
             } else if (Constants.START_ACTION.equals(action)) {
 
                 //Do something here
-
             }
         }
     }
+
 
 }

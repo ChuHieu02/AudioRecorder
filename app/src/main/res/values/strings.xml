@@ -215,4 +215,9 @@
 
     <!--    Adapter Library-->
 
+
+    <!-- Notification -->
+    <string name="notifi_title">Audio Record</string>
+    <string name="notifi_time">00:00</string>
+
 </resources>

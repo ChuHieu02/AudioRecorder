@@ -95,4 +95,43 @@ public class DBQuerys {
         return true;
     }
 
+
+    public  void updateNameRecordFile(String newName,String oldName){
+
+        String selectByName = "SELECT * FROM "+DBQuerys.TABLE_NAME+" WHERE "+DBQuerys.NAME+" = '"+oldName+"'" ;
+
+        Cursor cursor = db.rawQuery(selectByName, null);
+        int id = 0;
+
+        if (db != null && cursor.moveToFirst()) {
+             id = cursor.getInt(0);
+
+        }
+          cursor.close();
+        ContentValues values = new ContentValues();
+        values.put(ID, id);
+        values.put(NAME, newName);
+
+
+        db.update(DBQuerys.TABLE_NAME, values, DBQuerys.ID +" =? ", new String[]{String.valueOf(id)});
+
+    }
+
+    public static boolean isExitsInDB(String newName){
+
+        String selectByName = "SELECT * FROM "+DBQuerys.TABLE_NAME+" WHERE "+DBQuerys.NAME+" = '"+newName+"'" ;
+
+        Cursor cursor = db.rawQuery(selectByName, null);
+        if( cursor != null && cursor.moveToFirst()){
+            cursor.close();
+            return  true;
+        } else {
+            cursor.close();
+            return false;
+        }
+
+
+    }
+
+
 }
