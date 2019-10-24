@@ -33,19 +33,19 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
+
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.activity.EditActivity;
-import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
+
 import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.LongClickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.OnclickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
-import com.google.android.material.snackbar.Snackbar;
 
-import net.yslibrary.android.keyboardvisibilityevent.util.UIUtil;
+
+
 
 import java.io.File;
 import java.lang.reflect.Field;

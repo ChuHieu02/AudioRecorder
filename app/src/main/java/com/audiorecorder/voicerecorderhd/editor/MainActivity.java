@@ -18,6 +18,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         lbRecoder.setText(getResources().getString(R.string.label_recoder));
         ivBottomLibrary = findViewById(R.id.iv_bottom_library);
         ivBottomRecoder = findViewById(R.id.iv_bottom_recoder);
+        ivBottomRecoder.setImageDrawable(getResources().getDrawable(R.drawable.ic_record_pr));
         ivBottomSettings = findViewById(R.id.iv_bottom_settings);
         ivPauseResume = findViewById(R.id.iv_pauseResume);
         ivRecord = findViewById(R.id.iv_recoder);
@@ -375,6 +377,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                return false;
            }
        });
+       edSetNameRecordFile.requestFocus();
+       setNameDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
        setNameDialog.show();
 
     }
