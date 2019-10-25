@@ -5,12 +5,13 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorPrimary</item>
         <item name="actionModeBackground">@color/colorPrimary</item>
-        <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
+        <item name="actionBarTheme">@style/AppTheme.ActionBarTheme</item>
     </style>
-    <style name="cursorColor" parent="Widget.AppCompat.AutoCompleteTextView">
-        <item name="android:textCursorDrawable">@drawable/cursor</item>
+
+    <style name="AppTheme.ActionBarTheme" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="colorControlActivated">#FFffffff</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

@@ -74,6 +74,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
 
 
     }
+
     @SuppressLint("WrongConstant")
     public void setTitle(String title) {
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -210,7 +211,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
     private void setDataAdapter(final ArrayList<Audio> audioList) {
         layoutManager = new LinearLayoutManager(this);
         rvLibrary.setLayoutManager(layoutManager);
-       checkList();
+        checkList(audioList);
         adapter = new LibraryAdapter(LibraryActivity.this, audioList);
         rvLibrary.setAdapter(adapter);
 
@@ -245,7 +246,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         });
     }
 
-    private void checkList() {
+    private void checkList(final ArrayList<Audio> audioList) {
         if (audioList.size() == 0) {
             tvEmpty.setVisibility(View.VISIBLE);
             rvLibrary.setVisibility(View.GONE);
@@ -285,6 +286,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
                         actionMode.finish();
                         audioList.clear();
                         adapter.updateList(dbQuerys.getallNguoiDung());
+                        checkList(dbQuerys.getallNguoiDung());
 
                         showToast(getResources().getString(R.string.success_delete));
                     }
