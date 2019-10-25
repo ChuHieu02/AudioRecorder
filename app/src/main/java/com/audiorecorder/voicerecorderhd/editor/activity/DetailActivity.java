@@ -1,5 +1,7 @@
 package com.audiorecorder.voicerecorderhd.editor.activity;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,6 +24,7 @@ import com.audiorecorder.voicerecorderhd.editor.fragment.FragmentInforDetail;
 import com.audiorecorder.voicerecorderhd.editor.fragment.FragmentListAudio;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 import com.audiorecorder.voicerecorderhd.editor.utils.CommonUtils;
+import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -43,12 +46,20 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     private TextView tvStartDuration, tvStopDuration;
     private FragmentInforDetail fragmentDetailInformation;
     private FragmentListAudio fragmentDetailListAudio;
+    private ImageView ivRepeatDetail;
+    SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_library);
 
+        sharedPreferences = getSharedPreferences(Constants.K_REPEAT, Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
         getBundle();
         addFragment();
         mappingTv();
@@ -60,19 +71,14 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         ivNext2.setOnClickListener(this);
         ivPrev1.setOnClickListener(this);
         ivPrev2.setOnClickListener(this);
+        ivRepeatDetail.setOnClickListener(this);
     }
 
     private void mediaManager() {
         if (mediaPlayer == null) {
             showToast("Play audio fail !");
         } else {
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_play));
-                }
-            });
-
+            mediaComplete();
 
             seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
@@ -139,6 +145,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void mappingTv() {
+        ivRepeatDetail = findViewById(R.id.iv_repeat_detail);
         seekBar = findViewById(R.id.seekbar);
         ivPlay = findViewById(R.id.iv_play);
         ivNext1 = findViewById(R.id.iv_next1);
@@ -148,6 +155,15 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
         tvStartDuration = findViewById(R.id.tv_start_duration);
         tvStopDuration = findViewById(R.id.tv_stop_duration);
+
+        if (sharedPreferences != null) {
+            if (!sharedPreferences.getBoolean(Constants.K_BOLEAN_REPEAT, false)){
+                ivRepeatDetail.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_repeat));
+            }else {
+                ivRepeatDetail.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_repeat_pr));
+
+            }
+        }
     }
 
     @Override
@@ -190,16 +206,11 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
-
-    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_play:
-             playPauseMedia();
+                playPauseMedia();
+                mediaComplete();
                 break;
             case R.id.iv_next2:
                 this.position++;
@@ -208,6 +219,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 }
                 this.audio = listAudio.get(position);
                 pLayAudio();
+                mediaComplete();
                 break;
 
             case R.id.iv_prev2:
@@ -217,12 +229,12 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 }
                 this.audio = listAudio.get(position);
                 pLayAudio();
+                mediaComplete();
                 break;
 
             case R.id.iv_next1:
                 try {
                     this.mediaPlayer.seekTo(mediaPlayer.getCurrentPosition() + 5000);
-                    Log.e("zxcvbn", mediaPlayer.getCurrentPosition() + "");
                 } catch (Exception e) {
                 }
                 break;
@@ -232,7 +244,43 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 } catch (Exception e) {
                 }
                 break;
+            case R.id.iv_repeat_detail:
+                if (sharedPreferences != null) {
+                    if (!sharedPreferences.getBoolean(Constants.K_BOLEAN_REPEAT, false)) {
+                        ivRepeatDetail.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_repeat_pr));
+                        editor.putBoolean(Constants.K_BOLEAN_REPEAT, true);
+                        editor.apply();
+
+
+                    }else {
+                        ivRepeatDetail.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_repeat));
+                        editor.putBoolean(Constants.K_BOLEAN_REPEAT, false);
+                        editor.apply();
+
+                    }
+
+
+                    Log.e("zxcv", sharedPreferences.getBoolean(Constants.K_BOLEAN_REPEAT, false) + "");
+                }
+
+                break;
         }
+    }
+
+    private void mediaComplete() {
+
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                if (!sharedPreferences.getBoolean(Constants.K_BOLEAN_REPEAT, false)){
+                    mediaPlayer.setLooping(false);
+                    ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_play));
+                }else {
+                    mediaPlayer.setLooping(true);
+                    mediaPlayer.start();
+                }
+            }
+        });
     }
 
     private void playPauseMedia() {
@@ -264,9 +312,9 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         this.audio = listAudio.get(position);
         pLayAudio();
         if (mediaPlayer != null) {
-
             tvStopDuration.setText(fomatTime.format(this.mediaPlayer.getDuration()));
         }
+        mediaComplete();
     }
 
     private void showToast(String s) {

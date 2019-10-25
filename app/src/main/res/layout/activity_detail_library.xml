@@ -30,6 +30,18 @@
         <ImageView
             android:adjustViewBounds="true"
             android:background="?selectableItemBackgroundBorderless"
+            android:id="@+id/iv_repeat_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp40"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_next1"
+            app:layout_constraintStart_toEndOf="@+id/iv_play"
+            app:srcCompat="@drawable/ic_play_repeat" />
+
+        <ImageView
+            android:adjustViewBounds="true"
+            android:background="?selectableItemBackgroundBorderless"
             android:id="@+id/iv_next2"
             android:layout_width="@dimen/dp35"
             android:layout_height="@dimen/dp35"
@@ -39,21 +51,21 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/iv_next1"
-            app:layout_constraintTop_toTopOf="@+id/iv_next1"></ImageView>
+            app:layout_constraintTop_toTopOf="@+id/iv_next1" />
 
         <ImageView
-            android:adjustViewBounds="true"
-            android:background="?selectableItemBackgroundBorderless"
             android:id="@+id/iv_prev2"
             android:layout_width="@dimen/dp35"
             android:layout_height="@dimen/dp35"
-            android:layout_marginBottom="?actionBarSize"
+            android:layout_marginBottom="16dp"
+            android:adjustViewBounds="true"
+            android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="all_title_image"
             android:src="@drawable/ic_play_prev2"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/iv_repeat_detail"
             app:layout_constraintEnd_toStartOf="@+id/iv_prev1"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"></ImageView>
+            app:layout_constraintStart_toStartOf="parent" />
 
         <ImageView
             android:adjustViewBounds="true"
@@ -67,7 +79,7 @@
             app:layout_constraintEnd_toStartOf="@+id/iv_play"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/iv_prev2"
-            app:layout_constraintTop_toTopOf="@+id/iv_prev2"></ImageView>
+            app:layout_constraintTop_toTopOf="@+id/iv_prev2" />
 
         <ImageView
             android:adjustViewBounds="true"
@@ -81,7 +93,7 @@
             app:layout_constraintEnd_toStartOf="@+id/iv_next1"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/iv_prev1"
-            app:layout_constraintTop_toTopOf="@+id/iv_prev1"></ImageView>
+            app:layout_constraintTop_toTopOf="@+id/iv_prev1" />
 
         <ImageView
             android:adjustViewBounds="true"
@@ -95,7 +107,7 @@
             app:layout_constraintEnd_toStartOf="@+id/iv_next2"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/iv_play"
-            app:layout_constraintTop_toTopOf="@+id/iv_play"></ImageView>
+            app:layout_constraintTop_toTopOf="@+id/iv_play" />
 
         <SeekBar
             android:id="@+id/seekbar"
@@ -140,5 +152,5 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/indicator"
-        app:layout_constraintVertical_weight="2"></androidx.viewpager.widget.ViewPager>
+        app:layout_constraintVertical_weight="2" />
 </androidx.constraintlayout.widget.ConstraintLayout>

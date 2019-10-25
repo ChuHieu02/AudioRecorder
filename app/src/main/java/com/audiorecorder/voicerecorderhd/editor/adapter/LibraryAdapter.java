@@ -39,6 +39,7 @@ import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.activity.EditActivity;
 import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.LongClickItemLibrary;
+import com.audiorecorder.voicerecorderhd.editor.interfaces.OnClickDeleteAudio;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.OnclickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 
@@ -58,7 +59,11 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     private boolean isMp3;
     private List<String> selectedIds = new ArrayList<>();
     private DBQuerys dbQuerys;
+    private OnClickDeleteAudio onClickDeleteAudio;
 
+    public void setOnClickDeleteAudio(OnClickDeleteAudio onClickDeleteAudio) {
+        this.onClickDeleteAudio = onClickDeleteAudio;
+    }
 
     public void setOnclickItem(OnclickItemLibrary onclickItem) {
         this.onclickItem = onclickItem;
@@ -157,7 +162,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         switch (menuItem.getItemId()) {
                             case R.id.pp_delete_item_library:
-                                deleteAudio(audio, position);
+                                onClickDeleteAudio.onclickDelete(audio.getPath(),position);
                                 break;
                             case R.id.pp_share_item_library:
                                 shareAudio(audio);
@@ -201,34 +206,6 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
             Log.e("Ringdroid", "Couldn't start editor");
             e.printStackTrace();
         }
-    }
-
-    private void deleteAudio(final Audio audio, final int position) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(R.string.question_delete)
-                .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        boolean checkDel = new File(audio.getPath()).delete();
-                        if (checkDel) {
-                            audioList.remove(position);
-                            audioListFillter = audioList;
-                            notifyDataSetChanged();
-                            showToast("Delete success");
-                        } else {
-                            showToast("Delete fail");
-
-                        }
-                        notifyDataSetChanged();
-                    }
-                }).setNegativeButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-        builder.create();
-        dialog = builder.show();
     }
 
     private void shareAudio(Audio audio) {
