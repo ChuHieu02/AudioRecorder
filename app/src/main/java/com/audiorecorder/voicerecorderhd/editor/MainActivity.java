@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -82,9 +83,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivPauseResume.setVisibility(View.INVISIBLE);
         ivBottomSettings.setOnClickListener(this);
         ivBottomLibrary.setOnClickListener(this);
-
-        ivBottomRecoder.setImageDrawable(getResources().getDrawable(R.drawable.ic_record_pr));
-
     }
 
     private  void onRecordAudio(){
@@ -99,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }else if(recordingStatus == 1){
                     onStopRecording();
                     updateIconRecord();
-                    creatSetNameRecordFileDialog();
+                 //   creatSetNameRecordFileDialog();
                     handlerSpamClickRecord();
                 }
                 else if(recordingStatus == 2 && !checkPermissionsResult() ){
@@ -339,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dbQuerys = new DBQuerys(getApplicationContext());
                 boolean checkFile = dbQuerys.isExitsInDB(newName);
 
-                if(newName == null || checkFile == true ){
+                if(newName == null || checkFile == true && !newName.equals(recordService.getAudioName())){
                     Log.e("CheckDb", "onReadyStart: " + checkFile +"  "+ newName);
                     Toast.makeText(getApplicationContext(), R.string.set_name_dialog, Toast.LENGTH_SHORT).show();
 
@@ -347,6 +345,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
                     dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
+                    setNameDialog.dismiss();
+                } else if(newName.equals(recordService.getAudioName())){
                     setNameDialog.dismiss();
                 }
             }
@@ -361,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     dbQuerys = new DBQuerys(getApplicationContext());
                     boolean checkFile = dbQuerys.isExitsInDB(newName);
 
-                    if(newName == null || checkFile == true ){
+                    if(newName == null || checkFile == true && !newName.equals(recordService.getAudioName())){
                         Log.e("CheckDb", "onReadyStart: " + checkFile +"  "+ newName);
                         Toast.makeText(getApplicationContext(), R.string.set_name_dialog, Toast.LENGTH_SHORT).show();
 
@@ -369,6 +369,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
                         dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
+                        setNameDialog.dismiss();
+                    } else if(newName.equals(recordService.getAudioName())){
                         setNameDialog.dismiss();
                     }
                     return  true;
@@ -403,6 +405,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
         builderDiaglog.create().show();
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -490,7 +493,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(checkPauseStatus == 0){
                     updateIconPause();
                 }else if(checkPauseStatus == 1){
-                    updateTimeRecord(recordService.getExtraCurrentTime() );
+                    updateTimeRecord(recordService.getExtraCurrentTime() -1000);
                     updateIconResume();
                 }
                 onRecordAudio();

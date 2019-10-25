@@ -126,7 +126,7 @@ public class DBQuerys {
             cursor.close();
             return  true;
         } else {
-            cursor.close();
+           cursor.close();
             return false;
         }
 

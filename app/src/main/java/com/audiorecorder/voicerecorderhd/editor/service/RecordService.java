@@ -61,9 +61,9 @@ public class RecordService extends Service {
         @Override
         public void run() {
             millis = System.currentTimeMillis() - startTime;
+            handler.postDelayed(this, 1000);
             countTimeRecord += 1000;
             sendTimeToReceiver();
-            handler.postDelayed(this, 1000);
         }
     };
 
@@ -103,7 +103,7 @@ public class RecordService extends Service {
 
     private void insertSQL(){
         dbQuerys = new DBQuerys(getApplicationContext());
-        dbQuerys.insertAudioString(audioName,outputFile,fileSize,dateTime,countTimeRecord - 250 );
+        dbQuerys.insertAudioString(audioName,outputFile,fileSize,dateTime,countTimeRecord -200);
     }
 
     @Override
@@ -363,7 +363,7 @@ public class RecordService extends Service {
                 createNotification();
                 setPauseStatus(1);
                 stopCounter();
-                setExtraCurrentTime(countTimeRecord - 1000);
+                setExtraCurrentTime(countTimeRecord );
 
             } else if (Constants.STOP_ACTION.equals(action)) {
 

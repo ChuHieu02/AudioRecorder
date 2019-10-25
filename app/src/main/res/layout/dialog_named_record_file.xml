@@ -47,7 +47,8 @@
         android:fontFamily="@font/arial"
         android:text="@string/dialog_set_name_tv_default"
         android:textAllCaps="false"
-        android:textColor="@color/colorPrimary" />
+        android:textColor="@color/colorPrimary"
+        android:layout_marginEnd="@dimen/dp20" />
 
     <TextView
         android:gravity="center"
@@ -61,7 +62,7 @@
         android:text="@string/dialog_set_name_tv_save"
         android:textAllCaps="false"
         android:textColor="@color/colorPrimary"
-  />
+        android:layout_marginEnd="@dimen/dp10" />
 </LinearLayout>
 
 </LinearLayout>
