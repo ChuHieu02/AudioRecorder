@@ -2,19 +2,20 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="350dp"
+    android:layout_width="@dimen/dp305"
     android:layout_height="wrap_content"
     android:layout_gravity="center|top"
     android:orientation="vertical">
     <TextView
         android:id="@+id/tv_set_record_file_name_title"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dp5"
+        android:layout_marginTop="@dimen/dp5"
+        android:layout_marginLeft="@dimen/dp16"
+        android:fontFamily="@font/arial"
         android:textColor="@color/colorPrimary"
-        android:layout_marginRight="@dimen/dp16"
-        android:gravity="center"
-        android:text="Set Name For File"
+        android:gravity="center|left"
+        android:text="@string/dialog_set_name_title"
         android:textSize="@dimen/sp20"
        />
 
@@ -23,36 +24,43 @@
         android:id="@+id/ed_set_name_record_file"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dp5"
+        android:layout_margin="@dimen/dp10"
         android:ems="10"
-        android:gravity="center"
+        android:fontFamily="@font/arial"
+        android:gravity="center|left"
         android:inputType="textPersonName"
        />
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginRight="@dimen/dp20"
     android:orientation="horizontal"
-    android:gravity="center|fill_vertical"
+    android:gravity="center|right"
     >
-    <Button
-        android:id="@+id/bt_default"
-        android:layout_marginRight="@dimen/dp35"
+    <TextView
+        android:gravity="center"
+        android:id="@+id/tv_default"
+        android:textSize="@dimen/sp17"
+        android:layout_marginRight="@dimen/dp20"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/dp35"
-        android:background="@color/colorPrimary"
-        android:text="Default"
+        android:fontFamily="@font/arial"
+        android:text="@string/dialog_set_name_tv_default"
         android:textAllCaps="false"
-        android:textColor="@android:color/white" />
+        android:textColor="@color/colorPrimary" />
 
-    <Button
-        android:id="@+id/bt_confirm"
+    <TextView
+        android:gravity="center"
+        android:id="@+id/tv_confirm"
+        android:textSize="@dimen/sp17"
+        android:layout_marginRight="@dimen/dp10"
         android:layout_margin="@dimen/dp5"
+        android:fontFamily="@font/arial"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/dp35"
-        android:background="@color/colorPrimary"
-        android:text="Confirm"
+        android:text="@string/dialog_set_name_tv_save"
         android:textAllCaps="false"
-        android:textColor="@android:color/white"
+        android:textColor="@color/colorPrimary"
   />
 </LinearLayout>
 

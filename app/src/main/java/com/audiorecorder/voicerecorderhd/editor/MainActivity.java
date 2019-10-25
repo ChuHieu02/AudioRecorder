@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -20,7 +19,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -60,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int minutes;
     private int hours;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,12 +92,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(recordingStatus == 0 && checkPermissionsResult()){
                     onStartRecording();
                     updateIconStopRecord();
-                    hanlderSpamClickRecord();
+                    handlerSpamClickRecord();
                 }else if(recordingStatus == 1){
                     onStopRecording();
                     updateIconRecord();
                     creatSetNameRecordFileDialog();
-                    hanlderSpamClickRecord();
+                    handlerSpamClickRecord();
                 }
                 else if(recordingStatus == 2 && !checkPermissionsResult() ){
                     tvRecordingStatus.setText(R.string.tv_recording_status_on_denied_permission);
@@ -112,10 +111,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View view) {
                 if(pauseStatus == 0) {
                     onActionPasuse();
+                    handlerSpamClickPauseResume();
                     updateIconResume();
                 }else{
                     if(pauseStatus == 1){
                         onActionResume();
+                        handlerSpamClickPauseResume();
                         updateIconPause();
                     }
                 }
@@ -152,11 +153,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sendBroadcast(intentResume);
         recordService.setPauseStatus(0);
     }
-
-//    private void onSaveCurrenTime(){
-//        Intent intentSaveCurrenTime = new Intent(Constants.ACTION_SAVE_CURRENT_TIME);
-//        sendBroadcast(intentSaveCurrenTime);
-//    }
 
     @Override
     protected void onDestroy() {
@@ -239,6 +235,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 updateIconResume();
             } else if (Constants.STOP_ACTION.equals(action) ) {
                 updateIconRecord();
+                updateTimeRecord(0L);
+                creatSetNameRecordFileDialog();
             } else if(Constants.RESUME_ACTION.equals(action) ){
                 try {
                     IntentFilter filter = new IntentFilter();
@@ -280,6 +278,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 + (seconds<10 ? "0" + seconds: seconds));
 
     }
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -317,73 +316,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void creatSetNameRecordFileDialog(){
 
-       final Dialog setNameDialog = new Dialog(this);
-       setNameDialog.setContentView(R.layout.dialog_named_record_file);
-       final EditText  edSetNameRecordFile = (EditText) setNameDialog.findViewById(R.id.ed_set_name_record_file);
-       edSetNameRecordFile.setText(recordService.getAudioName());
+        final Dialog setNameDialog = new Dialog(this);
+        setNameDialog.setContentView(R.layout.dialog_named_record_file);
+        final EditText  edSetNameRecordFile = (EditText) setNameDialog.findViewById(R.id.ed_set_name_record_file);
+        edSetNameRecordFile.setText(recordService.getAudioName());
+        TextView tvDefault = (TextView) setNameDialog.findViewById(R.id.tv_default);
+        TextView tvConfirm = (TextView) setNameDialog.findViewById(R.id.tv_confirm);
+        tvDefault.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setNameDialog.dismiss();
+            }
+        });
+        tvConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-       Button btDefault = (Button) setNameDialog.findViewById(R.id.bt_default);
-       Button btConfirm = (Button) setNameDialog.findViewById(R.id.bt_confirm);
+                String newName = edSetNameRecordFile.getText().toString();
+                dbQuerys = new DBQuerys(getApplicationContext());
+                boolean checkFile = dbQuerys.isExitsInDB(newName);
 
-       btDefault.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-               setNameDialog.dismiss();
-           }
-       });
+                if(newName == null || checkFile == true ){
+                    Log.e("CheckDb", "onReadyStart: " + checkFile +"  "+ newName);
+                    Toast.makeText(getApplicationContext(), R.string.set_name_dialog, Toast.LENGTH_SHORT).show();
 
-       btConfirm.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
+                } else if(newName != null && checkFile == false){
 
-               String newName = edSetNameRecordFile.getText().toString();
-               dbQuerys = new DBQuerys(getApplicationContext());
-               boolean checkFile = dbQuerys.isExitsInDB(newName);
+                    Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
+                    dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
+                    setNameDialog.dismiss();
+                }
+            }
+        });
 
-               if(newName == null || checkFile == true ){
-                   Log.e("CheckDb", "onReadyStart: " + checkFile +"  "+ newName);
-                   Toast.makeText(getApplicationContext(), R.string.set_name_dialog, Toast.LENGTH_SHORT).show();
+        edSetNameRecordFile.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_DONE){
 
-               } else if(newName != null && checkFile == false){
+                    String newName = edSetNameRecordFile.getText().toString();
+                    dbQuerys = new DBQuerys(getApplicationContext());
+                    boolean checkFile = dbQuerys.isExitsInDB(newName);
 
-                   Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
-                   dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
-                   setNameDialog.dismiss();
-               }
-           }
-       });
+                    if(newName == null || checkFile == true ){
+                        Log.e("CheckDb", "onReadyStart: " + checkFile +"  "+ newName);
+                        Toast.makeText(getApplicationContext(), R.string.set_name_dialog, Toast.LENGTH_SHORT).show();
 
-       edSetNameRecordFile.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-           @Override
-           public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-               if(actionId == EditorInfo.IME_ACTION_DONE){
+                    } else if(newName != null && checkFile == false){
 
-                   String newName = edSetNameRecordFile.getText().toString();
-                   dbQuerys = new DBQuerys(getApplicationContext());
-                   boolean checkFile = dbQuerys.isExitsInDB(newName);
-
-                   if(newName == null || checkFile == true ){
-                       Log.e("CheckDb", "onReadyStart: " + checkFile +"  "+ newName);
-                       Toast.makeText(getApplicationContext(), R.string.set_name_dialog, Toast.LENGTH_SHORT).show();
-
-                   } else if(newName != null && checkFile == false){
-
-                       Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
-                       dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
-                       setNameDialog.dismiss();
-                   }
-                   return  true;
-               }
-               return false;
-           }
-       });
-       edSetNameRecordFile.requestFocus();
-       setNameDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-       setNameDialog.show();
-
+                        Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
+                        dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
+                        setNameDialog.dismiss();
+                    }
+                    return  true;
+                }
+                return false;
+            }
+        });
+        edSetNameRecordFile.requestFocus();
+        setNameDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        setNameDialog.show();
     }
-
-
 
     private void creatSettingActivityDialog(){
         final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
@@ -421,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(getApplicationContext(),"Permission Denied :"+recordingStatus,Toast.LENGTH_LONG).show();
-                        tvRecordingStatus.setText("You need go to setting and perrmisson to record");
+                        tvRecordingStatus.setText(R.string.setting_activity_dialog);
                         recordingStatus = 2;
                         onRecordAudio();
                     }
@@ -451,7 +444,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
-    private void hanlderSpamClickRecord(){
+    private void handlerSpamClickRecord(){
 
         ivRecord.setClickable(false);
         new Handler().postDelayed(new Runnable() {
@@ -460,6 +453,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ivRecord.setClickable(true);
             }
         } , 1000);
+
+    }
+
+    private void handlerSpamClickPauseResume(){
+
+        ivPauseResume.setClickable(false);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ivPauseResume.setClickable(true);
+            }
+        } , 450);
 
     }
 
@@ -482,7 +487,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(checkPauseStatus == 0){
                     updateIconPause();
                 }else if(checkPauseStatus == 1){
-                    updateTimeRecord(recordService.getExtraCurrentTime());
+                    updateTimeRecord(recordService.getExtraCurrentTime() -1000);
                     updateIconResume();
                 }
                 onRecordAudio();

@@ -220,9 +220,14 @@
 
     <!--    Adapter Library-->
 
-
     <!-- Notification -->
     <string name="notifi_title">Audio Record</string>
-    <string name="notifi_time">00:00</string>
+
+
+    <!-- Set Name Record File Dialog -->
+    <string name="dialog_set_name_title">New Name</string>
+    <string name="dialog_set_name_tv_default">Default</string>
+    <string name="dialog_set_name_tv_save">Confirm</string>
+
 
 </resources>
