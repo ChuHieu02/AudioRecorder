@@ -199,21 +199,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_play:
-                try {
-                    if (this.mediaPlayer != null) {
-                        if (this.mediaPlayer.isPlaying()) {
-                            ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_play));
-                            this.mediaPlayer.pause();
-                        } else {
-                            this.mediaPlayer.start();
-                            ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
-                        }
-                    } else {
-                        createMedia();
-                        ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
-                    }
-                } catch (Exception e) {
-                }
+             playPauseMedia();
                 break;
             case R.id.iv_next2:
                 this.position++;
@@ -230,7 +216,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                     this.position = listAudio.size() - 1;
                 }
                 this.audio = listAudio.get(position);
-                //TODO: review va optimize lai doan nay
                 pLayAudio();
                 break;
 
@@ -247,6 +232,24 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 } catch (Exception e) {
                 }
                 break;
+        }
+    }
+
+    private void playPauseMedia() {
+        try {
+            if (this.mediaPlayer != null) {
+                if (this.mediaPlayer.isPlaying()) {
+                    ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_play));
+                    this.mediaPlayer.pause();
+                } else {
+                    this.mediaPlayer.start();
+                    ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
+                }
+            } else {
+                createMedia();
+                ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_pause));
+            }
+        } catch (Exception e) {
         }
     }
 

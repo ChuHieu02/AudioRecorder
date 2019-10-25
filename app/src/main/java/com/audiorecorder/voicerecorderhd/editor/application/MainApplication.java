@@ -10,7 +10,5 @@ public class MainApplication extends Application {
         super.onCreate();
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
-
-
     }
 }

@@ -41,9 +41,6 @@ public class FragmentInforDetail extends Fragment {
     }
 
 
-
-
-
     public FragmentInforDetail setArguments(Audio audio) {
         Bundle bundle = new Bundle();
         bundle.putParcelable("audio", audio);

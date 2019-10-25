@@ -103,7 +103,7 @@ public class RecordService extends Service {
 
     private void insertSQL(){
         dbQuerys = new DBQuerys(getApplicationContext());
-        dbQuerys.insertAudioString(audioName,outputFile,fileSize,dateTime,countTimeRecord - 200 );
+        dbQuerys.insertAudioString(audioName,outputFile,fileSize,dateTime,countTimeRecord - 250 );
     }
 
     @Override

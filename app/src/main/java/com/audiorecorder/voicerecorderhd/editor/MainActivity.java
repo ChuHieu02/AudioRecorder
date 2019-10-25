@@ -82,6 +82,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivPauseResume.setVisibility(View.INVISIBLE);
         ivBottomSettings.setOnClickListener(this);
         ivBottomLibrary.setOnClickListener(this);
+
+        ivBottomRecoder.setImageDrawable(getResources().getDrawable(R.drawable.ic_record_pr));
+
     }
 
     private  void onRecordAudio(){
@@ -487,7 +490,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(checkPauseStatus == 0){
                     updateIconPause();
                 }else if(checkPauseStatus == 1){
-                    updateTimeRecord(recordService.getExtraCurrentTime() -1000);
+                    updateTimeRecord(recordService.getExtraCurrentTime() );
                     updateIconResume();
                 }
                 onRecordAudio();

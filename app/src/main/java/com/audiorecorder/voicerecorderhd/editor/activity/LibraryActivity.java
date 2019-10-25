@@ -99,19 +99,15 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         searchView.setMaxWidth(Integer.MAX_VALUE);
         searchView.setIconifiedByDefault(true);
 
-
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // filter recycler view when query submitted
                 adapter.getFilter().filter(query);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String query) {
-                // filter recycler view when text is changed
                 adapter.getFilter().filter(query);
                 return false;
             }
@@ -214,13 +210,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
     private void setDataAdapter(final ArrayList<Audio> audioList) {
         layoutManager = new LinearLayoutManager(this);
         rvLibrary.setLayoutManager(layoutManager);
-        if (audioList.size() == 0) {
-            tvEmpty.setVisibility(View.VISIBLE);
-            rvLibrary.setVisibility(View.GONE);
-        } else {
-            tvEmpty.setVisibility(View.GONE);
-            rvLibrary.setVisibility(View.VISIBLE);
-        }
+       checkList();
         adapter = new LibraryAdapter(LibraryActivity.this, audioList);
         rvLibrary.setAdapter(adapter);
 
@@ -253,6 +243,16 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
                 multiSelect(position);
             }
         });
+    }
+
+    private void checkList() {
+        if (audioList.size() == 0) {
+            tvEmpty.setVisibility(View.VISIBLE);
+            rvLibrary.setVisibility(View.GONE);
+        } else {
+            tvEmpty.setVisibility(View.GONE);
+            rvLibrary.setVisibility(View.VISIBLE);
+        }
     }
 
 

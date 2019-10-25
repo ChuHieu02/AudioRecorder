@@ -65,6 +65,7 @@
             app:layout_constraintTop_toTopOf="@+id/tv_size" />
 
         <ImageView
+            android:scaleType="center"
             android:id="@+id/img_item_music_library"
             android:layout_width="@dimen/dp50"
             android:layout_height="@dimen/dp50"

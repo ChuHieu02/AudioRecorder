@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -33,19 +32,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.activity.EditActivity;
-
 import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.LongClickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.OnclickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
-
-
-
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -91,13 +86,16 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Audio audio = audioListFillter.get(position);
 
+
         if (selectedIds.contains(audio.getPath())) {
             holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_check_circle_black_24dp);
+            holder.itemView.setForeground(new ColorDrawable(ContextCompat.getColor(context, R.color.type_bkgnd_unsupported)));
             holder.iv_setting.setVisibility(View.GONE);
 
         } else {
             holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_music_note_black_24dp);
             holder.iv_setting.setVisibility(View.VISIBLE);
+            holder.itemView.setForeground(new ColorDrawable(ContextCompat.getColor(context, android.R.color.transparent)));
 
         }
 
@@ -214,6 +212,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                         boolean checkDel = new File(audio.getPath()).delete();
                         if (checkDel) {
                             audioList.remove(position);
+                            audioListFillter = audioList;
                             notifyDataSetChanged();
                             showToast("Delete success");
                         } else {

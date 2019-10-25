@@ -19,6 +19,7 @@ public class Constants {
     public static final String K_FORMAT_TYPE_WAV = "Wav";
     public static final String K_FORMAT_TYPE_MP3 = "Mp3";
     public static final String K_DEFAULT_PATH = Environment.getExternalStorageDirectory() + File.separator + "Recorder";
+    public static final String STATIC_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
     public static final String K_QUALITY_16 = "16 khz";
     public static final String K_QUALITY_22 = "22 khz";
     public static final String K_QUALITY_32 = "32 khz";
