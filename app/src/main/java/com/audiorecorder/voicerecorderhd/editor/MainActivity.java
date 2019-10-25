@@ -81,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivPauseResume.setVisibility(View.INVISIBLE);
         ivBottomSettings.setOnClickListener(this);
         ivBottomLibrary.setOnClickListener(this);
+
+        ivBottomRecoder.setImageDrawable(getResources().getDrawable(R.drawable.ic_record_pr));
+
     }
 
     private  void onRecordAudio(){

@@ -5,9 +5,10 @@
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:name=".application.MainApplication"
@@ -33,8 +34,7 @@
         <activity
             android:name=".activity.LibraryActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.actionBarLibrary" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -48,8 +48,7 @@
             android:name=".activity.SettingsActivity"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.actionBarLibrary" />
+            android:screenOrientation="portrait" />
         <activity
 
             android:name=".activity.DetailActivity"
@@ -65,11 +64,11 @@
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
 
-                <action android:name="PAUSE_ACTION"/>
-                <action android:name="STOP_ACTION"/>
-                <action android:name="START_ACTION"/>
-                <action android:name="RESUME_ACTION"/>
-                <action android:name="ACTION_SAVE_CURRENT_TIME"/>
+                <action android:name="PAUSE_ACTION" />
+                <action android:name="STOP_ACTION" />
+                <action android:name="START_ACTION" />
+                <action android:name="RESUME_ACTION" />
+                <action android:name="ACTION_SAVE_CURRENT_TIME" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

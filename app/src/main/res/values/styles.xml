@@ -1,22 +1,16 @@
 <resources>
 
-    <!-- Base application theme. -->
+
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#367efd</item>
-        <item name="colorPrimaryDark">#367efd</item>
-        <item name="colorAccent">#367efd</item>
-        <item name="actionModeBackground">@color/colorPrimary</item>
-
-    </style>
-
-
-    <style name="AppTheme.actionBarLibrary">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">#367efd</item>
-        <item name="colorAccent">#367efd</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorAccent</item>
         <item name="actionModeBackground">@color/colorPrimary</item>
-
+        <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
+    </style>
+    <style name="cursorColor" parent="Widget.AppCompat.AutoCompleteTextView">
+        <item name="android:textCursorDrawable">@drawable/cursor</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

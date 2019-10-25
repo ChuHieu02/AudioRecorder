@@ -99,7 +99,5 @@ public class FragmentListAudio extends Fragment {
         }
     }
 
-    private void showToast(String msg) {
-        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
-    }
+
 }
