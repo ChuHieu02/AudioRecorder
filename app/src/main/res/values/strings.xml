@@ -7,6 +7,11 @@
     <string name="label_setting">Settings</string>
     <string name="label_library">Library</string>
     <string name="home_clickRecoder">Tap to start recording</string>
+    <string name="set_name_dialog">File name null or exits please input again</string>
+    <string name="setting_activity_dialog">You need go to setting and perrmission for recording</string>
+    <string name="tv_recording_status_on_denied_permission">Please go to setting and permisson</string>
+
+
 
     <!-- Library -->
     <string name="library_name">File name</string>
@@ -215,9 +220,14 @@
 
     <!--    Adapter Library-->
 
-
     <!-- Notification -->
     <string name="notifi_title">Audio Record</string>
-    <string name="notifi_time">00:00</string>
+
+
+    <!-- Set Name Record File Dialog -->
+    <string name="dialog_set_name_title">New Name</string>
+    <string name="dialog_set_name_tv_default">Default</string>
+    <string name="dialog_set_name_tv_save">Confirm</string>
+
 
 </resources>

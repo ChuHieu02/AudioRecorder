@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -29,9 +30,13 @@ import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class RecordService extends Service {
 
+
+    public static final String DATE_TIME_FORMAT = "HH:mm:ss_d_MM_yyyy";
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
     public static int pauseStatus;
     public static int recordingStatus;
@@ -56,9 +61,9 @@ public class RecordService extends Service {
         @Override
         public void run() {
             millis = System.currentTimeMillis() - startTime;
+            handler.postDelayed(this, 1000);
             countTimeRecord += 1000;
             sendTimeToReceiver();
-            handler.postDelayed(this, 1000);
         }
     };
 
@@ -98,7 +103,7 @@ public class RecordService extends Service {
 
     private void insertSQL(){
         dbQuerys = new DBQuerys(getApplicationContext());
-        dbQuerys.insertAudioString(audioName,outputFile,fileSize,dateTime,countTimeRecord - 200);
+        dbQuerys.insertAudioString(audioName,outputFile,fileSize,dateTime,countTimeRecord -200);
     }
 
     @Override
@@ -117,7 +122,7 @@ public class RecordService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         isRunning = true;
-        createNotificationChannel();
+    //    createNotificationChannel();
         createNotification();
         startRecording();
         startCounter();
@@ -153,8 +158,8 @@ public class RecordService extends Service {
     }
 
     public void continueCouter() {
-        startTime = System.currentTimeMillis() - countTimeRecord;
-        handler.postDelayed(serviceRunnable, 0);
+        startTime = System.currentTimeMillis() -countTimeRecord ;
+        handler.postDelayed(serviceRunnable, 350);
     }
 
     public void stopCounter() {
@@ -169,14 +174,18 @@ public class RecordService extends Service {
             pathFile = pathDirector;
             dateTime = System.currentTimeMillis();
             File file = new File(pathDirector);
+            Date date_Formater = new Date(System.currentTimeMillis());
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_TIME_FORMAT);
+            String formatDatetime = simpleDateFormat.format(date_Formater);
+
             if (checkStatus == 0) {
-                outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".mp3";
-                audioName = "RecordFile" + System.currentTimeMillis() + ".mp3";
-                setAudioName("RecordFile" + System.currentTimeMillis()+".mp3");
+                outputFile =  file.getAbsolutePath() + "/Audio-" + System.currentTimeMillis() + ".mp3";
+                audioName = "Audio-" +formatDatetime + ".mp3";
+                setAudioName("Audio-" +formatDatetime+".mp3");
             } else if (checkStatus == 1) {
                 outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".wav";
-                audioName = "RecordFile" + System.currentTimeMillis() + ".wav";
-                setAudioName("RecordFile" + System.currentTimeMillis()+".wav");
+                audioName = "Audio-" + formatDatetime + ".wav";
+                setAudioName("Audio-" + formatDatetime+".wav");
             }
             if (!file.exists()) {
                 file.mkdirs();
@@ -191,31 +200,30 @@ public class RecordService extends Service {
             mAudioRecorder = new MediaRecorder();
             mAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             if (checkStatus == 0) {
-                mAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                mAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.MPEG_4);
+                mAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+                mAudioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 
             } else if (checkStatus == 1) {
-                mAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                mAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.MPEG_4);
+                mAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+                mAudioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB);
 
             }
             int checkQuality = sharedPreferences.getInt(Constants.K_FORMAT_QUALITY, 16);
             if (checkQuality == 16) {
-                mAudioRecorder.setAudioEncodingBitRate(16);
+                mAudioRecorder.setAudioEncodingBitRate(16000);
                 mAudioRecorder.setAudioSamplingRate(16 * Constants.K_SAMPLE_RATE_QUALITY);
 
             } else if (checkQuality == 22) {
-                mAudioRecorder.setAudioEncodingBitRate(22);
-                mAudioRecorder.setAudioSamplingRate(22 * Constants.K_SAMPLE_RATE_QUALITY);
+                mAudioRecorder.setAudioEncodingBitRate(24000);
+                mAudioRecorder.setAudioSamplingRate(24 * Constants.K_SAMPLE_RATE_QUALITY);
 
             } else if (checkQuality == 32) {
-                mAudioRecorder.setAudioEncodingBitRate(32);
+                mAudioRecorder.setAudioEncodingBitRate(32000);
                 mAudioRecorder.setAudioSamplingRate(32 * Constants.K_SAMPLE_RATE_QUALITY);
 
             } else if (checkQuality == 44) {
-                mAudioRecorder.setAudioEncodingBitRate(44);
+                mAudioRecorder.setAudioEncodingBitRate(48000);
                 mAudioRecorder.setAudioSamplingRate(44100);
-
             }
         }
         mAudioRecorder.setOutputFile(outputFile);
@@ -276,22 +284,34 @@ public class RecordService extends Service {
         super.onDestroy();
     }
 
-    private void createNotificationChannel() {
+//    private void createNotificationChannel() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//
+//            NotificationChannel serviceChannel = new NotificationChannel(
+//                    CHANNEL_ID,
+//                    "Foreground Service Channel",
+//                    NotificationManager.IMPORTANCE_MIN
+//            );
+//
+//            mNotificationManager = getSystemService(NotificationManager.class);
+//            mNotificationManager.createNotificationChannel(serviceChannel);
+//        }
+//
+//    }
+
+    private void createNotification() {
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
                     "Foreground Service Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    NotificationManager.IMPORTANCE_LOW
             );
 
             mNotificationManager = getSystemService(NotificationManager.class);
             mNotificationManager.createNotificationChannel(serviceChannel);
         }
-
-    }
-
-    private void createNotification() {
 
         RemoteViews remoteViews = new RemoteViews(getPackageName()
                 , isRunning ?  R.layout.custom_notification_action_pause : R.layout.custom_notification_aciton_resume);
@@ -311,9 +331,8 @@ public class RecordService extends Service {
         remoteViews.setOnClickPendingIntent(R.id.iv_notifi_pause_resume, isRunning ? pendingIntentPause : pendingIntentResume);
         remoteViews.setOnClickPendingIntent(R.id.iv_notifi_stop,pendingIntentStop);
 
-        // remoteViews.setTextViewText(R.id);
-
         mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setContentTitle("Recording")
                 .setLocalOnly(true)
                 .setAutoCancel(true)
@@ -344,16 +363,16 @@ public class RecordService extends Service {
                 createNotification();
                 setPauseStatus(1);
                 stopCounter();
-                setExtraCurrentTime(countTimeRecord - 1000);
+                setExtraCurrentTime(countTimeRecord );
 
             } else if (Constants.STOP_ACTION.equals(action)) {
 
                 isRunning = false;
                 setRecordingStatus(0);
                 stopRecording();
+                stopCounter();
                 insertSQL();
                 setExtraCurrentTime(0);
-                stopCounter();
                 try {
                     unregisterReceiver(notificationReceiver);
                 } catch (Exception e) {

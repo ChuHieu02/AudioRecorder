@@ -16,6 +16,7 @@
     <dimen name="dp34">34dp</dimen>
     <dimen name="dp40">40dp</dimen>
     <dimen name="dp120">120dp</dimen>
+    <dimen name="dp305">305dp</dimen>
     <dimen name="dp20">20dp</dimen>
     <!--all sp-->
     <dimen name="sp25">25sp</dimen>
