@@ -104,7 +104,6 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
         }
 
-
         if (audio.getName() != null) {
             holder.tv_name.setText(audio.getName());
         }
@@ -231,6 +230,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         bt_yes = viewDialog.findViewById(R.id.bt_yes);
 
         ed_name_item_library.setText(audio.getName().substring(0, audio.getName().lastIndexOf(".")));
+//        ed_name_item_library.setText(audio.getName());
         ed_name_item_library.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
@@ -357,6 +357,10 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         notifyDataSetChanged();
     }
 
+    public void clearList(){
+        audioList.clear();
+        notifyDataSetChanged();
+    }
 
     private void checkRename(final EditText ed_name_item_library, final Audio audio, final int position) {
         isMp3 = audio.getName().endsWith(".mp3");

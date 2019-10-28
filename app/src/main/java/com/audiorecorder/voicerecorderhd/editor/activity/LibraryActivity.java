@@ -355,5 +355,13 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         startActivity(Intent.createChooser(intent, "share"));
     }
 
-
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        dbQuerys = new DBQuerys(LibraryActivity.this);
+        if (audioList!=null){
+            audioList.clear();
+        }
+            adapter.updateList(dbQuerys.getallNguoiDung());
+    }
 }

@@ -28,11 +28,7 @@ public class FileSaveDialog extends Dialog {
     private ArrayList<String> mTypeArray;
     private int mPreviousSelection;
 
-    /**
-     * Return a human-readable name for a kind (music, alarm, ringtone, ...).
-     * These won't be displayed on-screen (just in logs) so they shouldn't
-     * be translated.
-     */
+
     public static String KindToName(int kind) {
         switch(kind) {
             default:
@@ -65,16 +61,16 @@ public class FileSaveDialog extends Dialog {
         mTypeArray.add(resources.getString(R.string.type_notification));
         mTypeArray.add(resources.getString(R.string.type_ringtone));
 
-        mFilename = (EditText)findViewById(R.id.filename);
+        mFilename = findViewById(R.id.filename);
         mOriginalName = originalName;
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 context, android.R.layout.simple_spinner_item, mTypeArray);
         adapter.setDropDownViewResource(
                 android.R.layout.simple_spinner_dropdown_item);
-        mTypeSpinner = (Spinner) findViewById(R.id.ringtone_type);
+        mTypeSpinner = findViewById(R.id.ringtone_type);
         mTypeSpinner.setAdapter(adapter);
-        mTypeSpinner.setSelection(FILE_KIND_RINGTONE);
+        mTypeSpinner.setSelection(FILE_KIND_DEFAULT);
         mPreviousSelection = FILE_KIND_RINGTONE;
 
         setFilenameEditBoxFromName(false);

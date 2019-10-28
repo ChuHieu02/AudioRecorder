@@ -252,9 +252,9 @@ public class RecordService extends Service {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void resumeRecording() {
-        if (mAudioRecorder != null) {
-            mAudioRecorder.resume();
-        }
+            if (mAudioRecorder != null) {
+                mAudioRecorder.resume();
+            }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

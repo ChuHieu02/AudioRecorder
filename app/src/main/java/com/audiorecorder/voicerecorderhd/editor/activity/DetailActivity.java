@@ -51,8 +51,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     private SharedPreferences.Editor editor;
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

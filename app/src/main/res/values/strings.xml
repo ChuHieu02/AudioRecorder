@@ -12,7 +12,6 @@
     <string name="tv_recording_status_on_denied_permission">Please go to setting and permisson</string>
 
 
-
     <!-- Library -->
     <string name="library_name">File name</string>
     <string name="library_location">File location</string>
@@ -134,7 +133,7 @@
 
     <string name="ringtone_name_label">Name:</string>
 
-    <string name="artist_name">Ringdroid</string>
+
 
     <!--
      Delete confirmation dialog
