@@ -337,11 +337,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dbQuerys = new DBQuerys(getApplicationContext());
                 boolean checkFile = dbQuerys.isExitsInDB(newName);
 
-                if(newName == null || checkFile == true && !newName.equals(recordService.getAudioName())){
+                if(newName == null || checkFile && !newName.equals(recordService.getAudioName())){
                     Log.e("CheckDb", "onReadyStart: " + checkFile +"  "+ newName);
                     Toast.makeText(getApplicationContext(), R.string.set_name_dialog, Toast.LENGTH_SHORT).show();
 
-                } else if(newName != null && checkFile == false){
+                } else if(newName != null && !checkFile){
 
                     Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
                     dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
@@ -365,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Log.e("CheckDb", "onReadyStart: " + checkFile +"  "+ newName);
                         Toast.makeText(getApplicationContext(), R.string.set_name_dialog, Toast.LENGTH_SHORT).show();
 
-                    } else if(newName != null && checkFile == false){
+                    } else if(newName != null && !checkFile){
 
                         Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
                         dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
