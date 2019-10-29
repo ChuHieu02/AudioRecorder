@@ -275,7 +275,7 @@ public class RecordService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onDestroy() {
-        stopRecording();
+        //stopRecording();
         try {
             unregisterReceiver(notificationReceiver);
         } catch (Exception e) {
@@ -369,7 +369,7 @@ public class RecordService extends Service {
 
                 isRunning = false;
                 setRecordingStatus(0);
-                stopRecording();
+                //stopRecording();
                 stopCounter();
                 insertSQL();
                 setExtraCurrentTime(0);

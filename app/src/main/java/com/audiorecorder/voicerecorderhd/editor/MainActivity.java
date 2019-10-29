@@ -9,10 +9,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.os.StatFs;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -37,8 +42,11 @@ import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.service.RecordService;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
+import java.io.File;
+
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private ImageView ivBottomLibrary;
@@ -68,6 +76,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mappingBottomNavigation();
         recordService = new RecordService();
         updateViewStage();
+
+
+    }
+    @RequiresApi(api = JELLY_BEAN_MR2)
+    public String getAvailableInternalMemorySize() {
+        File path = Environment.getDataDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSizeLong();
+        long availableBlocks = stat.getAvailableBlocksLong();
+//        String format=Formatter.formatFileSize(this,availableBlocks * blockSize);
+        return formatSize(availableBlocks * blockSize);
+    }
+
+
+    //    lấy ra bộ nhớ còn trống và check time
+    public String formatSize(long size) {
+        String time = "";
+        if (size >= 1024) {
+            size /= 1024 * 4;
+        }
+        if (size >= 60) {
+            size /= 60;
+            time = size + " minute";
+            if (size >= 60) {
+                size /= 60;
+                time = size + " hour";
+            }
+
+        } else {
+            time = size + " second";
+        }
+
+        return time;
+    }
+
+    //    check trang thai mic co dang su dung
+    private boolean validateMicAvailability() {
+        Boolean available = true;
+        AudioRecord recorder =
+                new AudioRecord(MediaRecorder.AudioSource.MIC, 44100,
+                        AudioFormat.CHANNEL_IN_MONO,
+                        AudioFormat.ENCODING_DEFAULT, 44100);
+        try {
+            if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_STOPPED) {
+                available = false;
+
+            }
+
+            recorder.startRecording();
+            if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
+                recorder.stop();
+                available = false;
+
+            }
+            recorder.stop();
+        } finally {
+            recorder.release();
+            recorder = null;
+        }
+        Log.e("mic", available + "");
+        return available;
     }
 
     private void mappingBottomNavigation() {

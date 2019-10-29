@@ -43,6 +43,7 @@ import com.google.android.material.appbar.AppBarLayout;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 
 
@@ -72,7 +73,6 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         setTitle(getResources().getString(R.string.label_library));
         mapping();
         new queryFile().execute();
-
 
     }
 
@@ -270,6 +270,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         boolean checkDel = new File(path).delete();
+                        Log.e("delete" , path);
                         if (checkDel) {
                             audioList.clear();
                             setDataAdapter(dbQuerys.getallNguoiDung());

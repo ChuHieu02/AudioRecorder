@@ -17,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
-
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.adapter.SectionsPagerAdapter;
 import com.audiorecorder.voicerecorderhd.editor.fragment.FragmentInforDetail;
@@ -49,7 +48,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     private ImageView ivRepeatDetail;
     SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +114,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         bundle = getIntent().getExtras();
         if (bundle != null) {
             listAudio = bundle.getParcelableArrayList("list");
+
             position = bundle.getInt("position");
             this.audio = listAudio.get(position);
         }
@@ -155,9 +154,9 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         tvStopDuration = findViewById(R.id.tv_stop_duration);
 
         if (sharedPreferences != null) {
-            if (!sharedPreferences.getBoolean(Constants.K_BOLEAN_REPEAT, false)){
+            if (!sharedPreferences.getBoolean(Constants.K_BOLEAN_REPEAT, false)) {
                 ivRepeatDetail.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_repeat));
-            }else {
+            } else {
                 ivRepeatDetail.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_repeat_pr));
 
             }
@@ -250,7 +249,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                         editor.apply();
 
 
-                    }else {
+                    } else {
                         ivRepeatDetail.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_repeat));
                         editor.putBoolean(Constants.K_BOLEAN_REPEAT, false);
                         editor.apply();
@@ -270,10 +269,10 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                if (!sharedPreferences.getBoolean(Constants.K_BOLEAN_REPEAT, false)){
+                if (!sharedPreferences.getBoolean(Constants.K_BOLEAN_REPEAT, false)) {
                     mediaPlayer.setLooping(false);
                     ivPlay.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_play));
-                }else {
+                } else {
                     mediaPlayer.setLooping(true);
                     mediaPlayer.start();
                 }

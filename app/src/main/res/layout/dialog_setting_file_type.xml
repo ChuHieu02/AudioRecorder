@@ -18,7 +18,7 @@
         android:textColor="@color/colorPrimary"
         android:textSize="@dimen/sp20"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></TextView>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <RadioGroup
         android:id="@+id/rg_FormatType"

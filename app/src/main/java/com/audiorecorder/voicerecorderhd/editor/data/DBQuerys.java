@@ -65,7 +65,7 @@ public class DBQuerys {
                 audio.setId(cursor.getInt(0));
                 audio.setName(cursor.getString(1));
                 audio.setPath(cursor.getString(2));
-                audio.setSize(CommonUtils.formatToNumber(CommonUtils.fomatSize(cursor.getLong(3)))+" kb");
+                audio.setSize(CommonUtils.formatSize(cursor.getLong(3)));
                 audio.setDate(CommonUtils.fomatDate(cursor.getLong(4)));
                 audio.setDuration(CommonUtils.formatTime(cursor.getLong(5)));
 
