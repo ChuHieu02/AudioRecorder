@@ -148,6 +148,7 @@ public class RecordService extends Service  {
             filter.addAction(Constants.RESUME_ACTION);
             filter.addAction(Constants.PAUSE_ACTION);
             filter.addAction(Constants.STOP_ACTION);
+            filter.addAction(Constants.PHONE_ACTION);
             IntentFilter quickPOFF = new IntentFilter("android.intent.action.ACTION_SHUTDOWN");
             registerReceiver(notificationReceiver, filter);
             registerReceiver(notificationReceiver,quickPOFF);
@@ -415,13 +416,16 @@ public class RecordService extends Service  {
         }
     }
     public class InterceptCall extends BroadcastReceiver {
-        @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void onReceive(Context context, Intent intent) {
+
             try {
                 String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
                 if (state.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_RINGING)){
                     Toast.makeText(context, "is calling", Toast.LENGTH_SHORT).show();
+//                intent.putExtra("ring","is calling ");
+                    Intent intentService = new Intent(Constants.PAUSE_ACTION);
+                    sendBroadcast(intentService);
                 }
                 if (state.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_IDLE)){
                     Toast.makeText(context, "end calling", Toast.LENGTH_SHORT).show();
@@ -429,5 +433,6 @@ public class RecordService extends Service  {
             }catch (Exception e){}
         }
     }
+
 
 }

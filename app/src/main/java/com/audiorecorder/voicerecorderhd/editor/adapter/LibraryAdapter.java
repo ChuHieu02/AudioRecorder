@@ -94,13 +94,13 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
 
         if (selectedIds.contains(audio.getPath())) {
             holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_check_circle_black_24dp);
-            holder.itemView.setForeground(new ColorDrawable(ContextCompat.getColor(context, R.color.type_bkgnd_unsupported)));
+            holder.itemView.setBackground(new ColorDrawable(ContextCompat.getColor(context, R.color.type_bkgnd_unsupported)));
             holder.iv_setting.setVisibility(View.GONE);
 
         } else {
             holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_music_note_black_24dp);
             holder.iv_setting.setVisibility(View.VISIBLE);
-            holder.itemView.setForeground(new ColorDrawable(ContextCompat.getColor(context, android.R.color.transparent)));
+            holder.itemView.setBackground(new ColorDrawable(ContextCompat.getColor(context, android.R.color.transparent)));
 
         }
 

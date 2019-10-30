@@ -22,6 +22,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.StatFs;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -291,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             filter.addAction(Constants.PAUSE_ACTION);
             filter.addAction(Constants.STOP_ACTION);
             filter.addAction(Constants.START_ACTION);
+            filter.addAction(Constants.PHONE_ACTION);
             timeReceiveFilter.addAction(Constants.SEND_TIME);
             registerReceiver(notificationReceiver, filter);
             registerReceiver(timeCountReceiver,timeReceiveFilter);
@@ -335,6 +337,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
                 updateIconStopRecord();
+            } else if (Constants.PHONE_ACTION.equals(action)){
+                updateIconPause();
             }
         }
     }
@@ -582,4 +586,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             requestPermissions();
         }
     }
+
+
+
 }

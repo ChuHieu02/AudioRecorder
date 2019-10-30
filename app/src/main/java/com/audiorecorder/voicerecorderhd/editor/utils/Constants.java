@@ -15,6 +15,7 @@ public class Constants {
     public static final String RESUME_ACTION = "RESUME_ACTION";
     public static final String STOP_ACTION = "STOP_ACTION";
     public static final String START_ACTION = "START_ACTION";
+    public static final String PHONE_ACTION = "android.intent.action.PHONE_STATE";
     public static final String SEND_TIME = "SEND_TIMER";
     public static final String TIME_COUNT = "time_count";
     public static final String K_FORMAT_TYPE_WAV = "Wav";

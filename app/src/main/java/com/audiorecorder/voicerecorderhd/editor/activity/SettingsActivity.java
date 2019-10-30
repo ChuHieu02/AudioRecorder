@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -18,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatCheckBox;
@@ -26,7 +24,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.audiorecorder.voicerecorderhd.editor.MainActivity;
 import com.audiorecorder.voicerecorderhd.editor.R;
-import com.audiorecorder.voicerecorderhd.editor.utils.CommonUtils;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 import com.codekidlabs.storagechooser.StorageChooser;
 

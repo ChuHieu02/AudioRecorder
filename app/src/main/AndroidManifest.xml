@@ -19,11 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <receiver android:name=".utils.InterceptCall">
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
-            </intent-filter>
-        </receiver>
+
         <service
             android:name=".service.RecordService"
             android:enabled="true"
@@ -73,16 +69,12 @@
                 <action android:name="START_ACTION" />
                 <action android:name="RESUME_ACTION" />
                 <action android:name="ACTION_SAVE_CURRENT_TIME" />
-
+                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
+                <action android:name="android.intent.action.PHONE_STATE" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".service.RecordService$ShutdownReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
-                <action android:name="android.intent.action.QUICKBOOT_POWEROFF" />
-            </intent-filter>
-        </receiver>
+
 
         <provider
             android:name="androidx.core.content.FileProvider"

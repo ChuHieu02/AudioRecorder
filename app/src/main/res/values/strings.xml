@@ -205,9 +205,9 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="question_delete">Are you sure to delete ?</string>
     <string name="label_basic_setting">Basic</string>
-    <string name="recoder_file_type_setting">Recoder File Type</string>
+    <string name="recoder_file_type_setting">Encoding</string>
     <string name="default_file_name_setting">Default File Name</string>
-    <string name="recoder_quality_setting">Recording Quality</string>
+    <string name="recoder_quality_setting">Sample rate</string>
     <string name="location_file_setting">Location of recording</string>
     <string name="success_delete">Delete success !</string>
     <string name="menu_share">Share</string>
@@ -229,7 +229,7 @@
     <string name="memory_free">You can recorder for</string>
     <string name="cannot_recodring">Can\'t recording</string>
     <string name="mic_record_is_uses">The record mic is being used by another application !</string>
-    <string name="stop_record_is_calling">Stop record is calling</string>
+    <string name="stop_record_is_calling">Pause recording on call</string>
 
 
 </resources>
