@@ -1,6 +1,10 @@
 package com.audiorecorder.voicerecorderhd.editor.utils;
 
+import android.media.AudioFormat;
+import android.media.AudioRecord;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaRecorder;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 
@@ -22,10 +26,7 @@ public class CommonUtils {
             if (size >= 1024) {
                 suffix = " Mb";
                 size /= 1024;
-                if (size >= 1024) {
-                    suffix = " Gb";
-                    size /= 1024;
-                }
+
             }
         }
 
@@ -114,5 +115,31 @@ public class CommonUtils {
 
     }
 
+    public static boolean validateMicAvailability() {
+        Boolean available = true;
+        AudioRecord recorder =
+                new AudioRecord(MediaRecorder.AudioSource.MIC, 44100,
+                        AudioFormat.CHANNEL_IN_MONO,
+                        AudioFormat.ENCODING_DEFAULT, 44100);
+        try {
+            if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_STOPPED) {
+                available = false;
+
+            }
+
+            recorder.startRecording();
+            if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
+                recorder.stop();
+                available = false;
+
+            }
+            recorder.stop();
+        } finally {
+            recorder.release();
+            recorder = null;
+        }
+        Log.e("mic", available + "");
+        return available;
+    }
 
 }

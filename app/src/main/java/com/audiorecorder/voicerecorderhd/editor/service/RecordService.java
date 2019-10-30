@@ -35,7 +35,6 @@ import java.util.Date;
 
 public class RecordService extends Service {
 
-
     public static final String DATE_TIME_FORMAT = "HH:mm:ss_d_MM_yyyy";
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
     public static int pauseStatus;
@@ -66,7 +65,6 @@ public class RecordService extends Service {
             sendTimeToReceiver();
         }
     };
-
     public String getAudioName() {
         return audioName;
     }
@@ -154,7 +152,6 @@ public class RecordService extends Service {
         startTime = System.currentTimeMillis();
         countTimeRecord = 0;
         handler.postDelayed(serviceRunnable, 0);
-
     }
 
     public void continueCouter() {
@@ -275,7 +272,7 @@ public class RecordService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onDestroy() {
-        //stopRecording();
+        stopRecording();
         try {
             unregisterReceiver(notificationReceiver);
         } catch (Exception e) {
@@ -369,8 +366,8 @@ public class RecordService extends Service {
 
                 isRunning = false;
                 setRecordingStatus(0);
-                //stopRecording();
-                stopCounter();
+                stopRecording();
+//                stopCounter();
                 insertSQL();
                 setExtraCurrentTime(0);
                 try {

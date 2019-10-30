@@ -50,7 +50,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             getKeyQuality(sharedPreferences);
             getKeyPath(sharedPreferences);
             getKeyFileType(sharedPreferences);
-            return;
         }
 
     }
@@ -73,7 +72,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         locationFileSetting.setText(Constants.K_DEFAULT_PATH);
     }
 
-    private void getKeyQuality( SharedPreferences s) {
+    @SuppressLint("SetTextI18n")
+    private void getKeyQuality(SharedPreferences s) {
         int checkQuality = s.getInt(Constants.K_FORMAT_QUALITY, 16);
         tvResponQualitySetting.setText(checkQuality+" kHz");
     }
@@ -175,6 +175,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         }
         final SharedPreferences.Editor editor2 = this.sharedPreferences.edit();
+         final SharedPreferences.Editor editor_memory_size = this.sharedPreferences.edit();
 
         rbWav.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -183,7 +184,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 editor2.apply();
                 dialog.dismiss();
                 tvResponFileTypeSetting.setText(Constants.K_FORMAT_TYPE_WAV);
-
+                editor_memory_size.putInt(Constants.K_MEMORY_FREE,93);
+                editor_memory_size.apply();
             }
         });
 
@@ -194,7 +196,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 editor2.apply();
                 dialog.dismiss();
                 tvResponFileTypeSetting.setText(Constants.K_FORMAT_TYPE_MP3);
-
+                editor_memory_size.putInt(Constants.K_MEMORY_FREE,15);
+                editor_memory_size.apply();
             }
         });
         builder2.create();

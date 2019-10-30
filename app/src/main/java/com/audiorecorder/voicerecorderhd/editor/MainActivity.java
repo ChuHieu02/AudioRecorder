@@ -1,5 +1,6 @@
 package com.audiorecorder.voicerecorderhd.editor;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -8,11 +9,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,7 +24,6 @@ import android.os.StatFs;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -40,6 +42,7 @@ import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.activity.SettingsActivity;
 import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.service.RecordService;
+import com.audiorecorder.voicerecorderhd.editor.utils.CommonUtils;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
 import java.io.File;
@@ -48,11 +51,11 @@ import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private ImageView ivBottomLibrary;
     private ImageView ivBottomRecoder;
     private ImageView ivBottomSettings;
-    private ImageView ivRecord , ivPauseResume;
+    private ImageView ivRecord, ivPauseResume;
     private TextView tvRecordingStatus, tvTimeRecord, lbRecoder;
     private String outputFile;
     private static int recordingStatus = 2;
@@ -66,35 +69,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int seconds;
     private int minutes;
     private int hours;
-
-
+    private TextView tvMemoryFree;
+    private static String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mappingBottomNavigation();
+        new getMemorySize().execute();
         recordService = new RecordService();
         updateViewStage();
 
-
     }
+
+    private class getMemorySize extends AsyncTask<String, String, String> {
+        @SuppressLint({"WrongThread", "SetTextI18n"})
+        @Override
+        protected String doInBackground(String... strings) {
+            if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
+                tvMemoryFree.setText(getString(R.string.memory_free) + " " + getAvailableInternalMemorySize());
+            }
+            return null;
+        }
+    }
+
     @RequiresApi(api = JELLY_BEAN_MR2)
     public String getAvailableInternalMemorySize() {
         File path = Environment.getDataDirectory();
         StatFs stat = new StatFs(path.getPath());
         long blockSize = stat.getBlockSizeLong();
         long availableBlocks = stat.getAvailableBlocksLong();
-//        String format=Formatter.formatFileSize(this,availableBlocks * blockSize);
-        return formatSize(availableBlocks * blockSize);
+        return formatSizeTime(availableBlocks * blockSize);
     }
 
-
     //    lấy ra bộ nhớ còn trống và check time
-    public String formatSize(long size) {
+    public String formatSizeTime(long size) {
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            sharedPreferences.getInt(Constants.K_MEMORY_FREE, 15);
+        }
+//        wav ~ 93kb/s
+//        mp3 ~ 15kb/s
         String time = "";
         if (size >= 1024) {
-            size /= 1024 * 4;
+            size /= 1024 * sharedPreferences.getInt(Constants.K_MEMORY_FREE, 15);
         }
         if (size >= 60) {
             size /= 60;
@@ -108,38 +127,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             time = size + " second";
         }
 
-        return time;
-    }
-
-    //    check trang thai mic co dang su dung
-    private boolean validateMicAvailability() {
-        Boolean available = true;
-        AudioRecord recorder =
-                new AudioRecord(MediaRecorder.AudioSource.MIC, 44100,
-                        AudioFormat.CHANNEL_IN_MONO,
-                        AudioFormat.ENCODING_DEFAULT, 44100);
-        try {
-            if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_STOPPED) {
-                available = false;
-
-            }
-
-            recorder.startRecording();
-            if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
-                recorder.stop();
-                available = false;
-
-            }
-            recorder.stop();
-        } finally {
-            recorder.release();
-            recorder = null;
-        }
-        Log.e("mic", available + "");
-        return available;
+        return " " + time;
     }
 
     private void mappingBottomNavigation() {
+        tvMemoryFree = (TextView) findViewById(R.id.tv_memory_free);
         lbRecoder = findViewById(R.id.lb_recoder);
         lbRecoder.setText(getResources().getString(R.string.label_recoder));
         ivBottomLibrary = findViewById(R.id.iv_bottom_library);
@@ -149,28 +141,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivPauseResume = findViewById(R.id.iv_pauseResume);
         ivRecord = findViewById(R.id.iv_recoder);
         tvRecordingStatus = findViewById(R.id.textView2);
-        tvTimeRecord =(TextView) findViewById(R.id.tv_time_record);
+        tvTimeRecord = (TextView) findViewById(R.id.tv_time_record);
         ivPauseResume.setVisibility(View.INVISIBLE);
         ivBottomSettings.setOnClickListener(this);
         ivBottomLibrary.setOnClickListener(this);
     }
 
-    private  void onRecordAudio(){
+    private void onRecordAudio() {
         ivRecord.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                if(recordingStatus == 0 && checkPermissionsResult()){
-                    onStartRecording();
-                    updateIconStopRecord();
-                    handlerSpamClickRecord();
-                }else if(recordingStatus == 1){
+                if (recordingStatus == 0 && checkPermissionsResult()) {
+                    if (CommonUtils.validateMicAvailability()) {
+                        onStartRecording();
+                        updateIconStopRecord();
+                        handlerSpamClickRecord();
+                    } else {
+                        final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle(getString(R.string.cannot_recodring));
+                        builder.setMessage(getString(R.string.mic_record_is_uses))
+                                .setNegativeButton("Đã hiểu", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                    }
+                                });
+                        builder.create();
+                        builder.show();
+
+                    }
+
+                } else if (recordingStatus == 1) {
                     onStopRecording();
                     updateIconRecord();
-                 //   creatSetNameRecordFileDialog();
+                    //   creatSetNameRecordFileDialog();
                     handlerSpamClickRecord();
-                }
-                else if(recordingStatus == 2 && !checkPermissionsResult() ){
+                } else if (recordingStatus == 2 && !checkPermissionsResult()) {
                     tvRecordingStatus.setText(R.string.tv_recording_status_on_denied_permission);
                     creatSettingActivityDialog();
                 }
@@ -180,12 +187,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                if(pauseStatus == 0) {
+                if (pauseStatus == 0) {
                     onActionPasuse();
                     handlerSpamClickPauseResume();
                     updateIconResume();
-                }else{
-                    if(pauseStatus == 1){
+                } else {
+                    if (pauseStatus == 1) {
                         onActionResume();
                         handlerSpamClickPauseResume();
                         updateIconPause();
@@ -200,10 +207,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onResume();
         initReceiver();
         updateViewStage();
-
     }
 
-    private void onStartRecording(){
+    private void onStartRecording() {
         Intent intentService = new Intent(MainActivity.this, RecordService.class);
         ContextCompat.startForegroundService(MainActivity.this, intentService);
         recordService.setPauseStatus(0);
@@ -212,14 +218,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sendBroadcast(intentStart);
     }
 
-    private void onStopRecording(){
+    private void onStopRecording() {
         Intent intentStop = new Intent(Constants.STOP_ACTION);
         sendBroadcast(intentStop);
         Intent intentService = new Intent(MainActivity.this, RecordService.class);
         stopService(intentService);
     }
 
-    private void onActionResume(){
+    private void onActionResume() {
         Intent intentResume = new Intent(Constants.RESUME_ACTION);
         sendBroadcast(intentResume);
         recordService.setPauseStatus(0);
@@ -236,27 +242,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private  void onActionPasuse(){
+    private void onActionPasuse() {
         Intent intentService = new Intent(Constants.PAUSE_ACTION);
         recordService.setPauseStatus(1);
         sendBroadcast(intentService);
     }
 
-    private void updateIconPause(){
+    private void updateIconPause() {
         pauseStatus = 0;
         ivPauseResume.setVisibility(View.VISIBLE);
         ivPauseResume.setImageResource(R.drawable.ic_home_pause);
         tvRecordingStatus.setText("Recording...");
     }
 
-    private void updateIconResume(){
+    private void updateIconResume() {
         pauseStatus = 1;
         ivPauseResume.setVisibility(View.VISIBLE);
         ivPauseResume.setImageResource(R.drawable.ic_home_play);
         tvRecordingStatus.setText("Pause Recording");
     }
 
-    private void updateIconRecord(){
+    private void updateIconRecord() {
         ivPauseResume.setEnabled(false);
         recordingStatus = 0;
         pauseStatus = 0;
@@ -265,8 +271,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvRecordingStatus.setText("Tab to recording");
     }
 
-    private void updateIconStopRecord(){
-        recordingStatus =1;
+    private void updateIconStopRecord() {
+        recordingStatus = 1;
         ivRecord.setImageResource(R.drawable.ic_play_record_pr);
         pauseStatus = 0;
         ivPauseResume.setImageResource(R.drawable.ic_home_pause);
@@ -285,30 +291,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             filter.addAction(Constants.START_ACTION);
             timeReceiveFilter.addAction(Constants.SEND_TIME);
             registerReceiver(notificationReceiver, filter);
-            registerReceiver(timeCountReceiver,timeReceiveFilter);
+            registerReceiver(timeCountReceiver, timeReceiveFilter);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public  class NotificationReceiver extends BroadcastReceiver {
+    public class NotificationReceiver extends BroadcastReceiver {
 
         @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (Constants.PAUSE_ACTION.equals(action) ) {
+            if (Constants.PAUSE_ACTION.equals(action)) {
                 try {
                     unregisterReceiver(timeCountReceiver);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 updateIconResume();
-            } else if (Constants.STOP_ACTION.equals(action) ) {
+            } else if (Constants.STOP_ACTION.equals(action)) {
                 updateIconRecord();
                 updateTimeRecord(0L);
                 creatSetNameRecordFileDialog();
-            } else if(Constants.RESUME_ACTION.equals(action) ){
+            } else if (Constants.RESUME_ACTION.equals(action)) {
                 try {
                     IntentFilter filter = new IntentFilter();
                     filter.addAction(Constants.SEND_TIME);
@@ -317,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
                 updateIconPause();
-            } else if(Constants.START_ACTION.equals(action)){
+            } else if (Constants.START_ACTION.equals(action)) {
                 updateIconPause();
                 try {
                     IntentFilter filter = new IntentFilter();
@@ -339,14 +345,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void updateTimeRecord(long time_count){
-        seconds = (int) (time_count / 1000) % 60 ;
-        minutes = (int) ((time_count/ (1000*60)) % 60);
-        hours   = (int) ((time_count / (1000*60*60)) % 24);
-        tvTimeRecord.setText((hours>0 ? String.format("%d:", hours) : "")
-                + ((minutes<10 && hours > 0)? "0"
-                + String.format("%d:", minutes) :  String.format("%d:", minutes))
-                + (seconds<10 ? "0" + seconds: seconds));
+    private void updateTimeRecord(long time_count) {
+        seconds = (int) (time_count / 1000) % 60;
+        minutes = (int) ((time_count / (1000 * 60)) % 60);
+        hours = (int) ((time_count / (1000 * 60 * 60)) % 24);
+        tvTimeRecord.setText((hours > 0 ? String.format("%d:", hours) : "")
+                + ((minutes < 10 && hours > 0) ? "0"
+                + String.format("%d:", minutes) : String.format("%d:", minutes))
+                + (seconds < 10 ? "0" + seconds : seconds));
 
     }
 
@@ -379,17 +385,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onRestart() {
         super.onRestart();
         updateViewStage();
+        if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
+            tvMemoryFree.setText(getString(R.string.memory_free) + getAvailableInternalMemorySize());
+        }
     }
 
-    private void creatSetNameRecordFileDialog(){
+    private void creatSetNameRecordFileDialog() {
 
         final Dialog setNameDialog = new Dialog(this);
         setNameDialog.setContentView(R.layout.dialog_named_record_file);
-        final EditText  edSetNameRecordFile = (EditText) setNameDialog.findViewById(R.id.ed_set_name_record_file);
+        final EditText edSetNameRecordFile = (EditText) setNameDialog.findViewById(R.id.ed_set_name_record_file);
         edSetNameRecordFile.setText(recordService.getAudioName());
         TextView tvDefault = (TextView) setNameDialog.findViewById(R.id.tv_default);
         TextView tvConfirm = (TextView) setNameDialog.findViewById(R.id.tv_confirm);
@@ -407,16 +417,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dbQuerys = new DBQuerys(getApplicationContext());
                 boolean checkFile = dbQuerys.isExitsInDB(newName);
 
-                if(newName == null || checkFile == true && !newName.equals(recordService.getAudioName())){
-                    Log.e("CheckDb", "onReadyStart: " + checkFile +"  "+ newName);
+                if (newName == null || checkFile == true && !newName.equals(recordService.getAudioName())) {
+                    Log.e("CheckDb", "onReadyStart: " + checkFile + "  " + newName);
                     Toast.makeText(getApplicationContext(), R.string.set_name_dialog, Toast.LENGTH_SHORT).show();
 
-                } else if(newName != null && checkFile == false){
+                } else if (newName != null && checkFile == false) {
 
-                    Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
-                    dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
+                    Log.e("CheckDb", "onReadyStart: " + checkFile + "  " + newName);
+                    dbQuerys.updateNameRecordFile(newName, recordService.getAudioName());
                     setNameDialog.dismiss();
-                } else if(newName.equals(recordService.getAudioName())){
+                } else if (newName.equals(recordService.getAudioName())) {
                     setNameDialog.dismiss();
                 }
             }
@@ -425,25 +435,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         edSetNameRecordFile.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId == EditorInfo.IME_ACTION_DONE){
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
 
                     String newName = edSetNameRecordFile.getText().toString();
                     dbQuerys = new DBQuerys(getApplicationContext());
                     boolean checkFile = dbQuerys.isExitsInDB(newName);
 
-                    if(newName == null || checkFile == true && !newName.equals(recordService.getAudioName())){
-                        Log.e("CheckDb", "onReadyStart: " + checkFile +"  "+ newName);
+                    if (newName == null || checkFile == true && !newName.equals(recordService.getAudioName())) {
+                        Log.e("CheckDb", "onReadyStart: " + checkFile + "  " + newName);
                         Toast.makeText(getApplicationContext(), R.string.set_name_dialog, Toast.LENGTH_SHORT).show();
 
-                    } else if(newName != null && checkFile == false){
+                    } else if (newName != null && checkFile == false) {
 
-                        Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
-                        dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
+                        Log.e("CheckDb", "onReadyStart: " + checkFile + "  " + newName);
+                        dbQuerys.updateNameRecordFile(newName, recordService.getAudioName());
                         setNameDialog.dismiss();
-                    } else if(newName.equals(recordService.getAudioName())){
+                    } else if (newName.equals(recordService.getAudioName())) {
                         setNameDialog.dismiss();
                     }
-                    return  true;
+                    return true;
                 }
                 return false;
             }
@@ -453,8 +463,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setNameDialog.show();
     }
 
-    private void creatSettingActivityDialog(){
-        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
+    private void creatSettingActivityDialog() {
+        final AlertDialog.Builder builderDiaglog = new AlertDialog.Builder(MainActivity.this);
         builderDiaglog.setTitle(R.string.setting_activity_dialog)
                 .setMessage(outputFile)
                 .setPositiveButton("Open", new DialogInterface.OnClickListener() {
@@ -478,18 +488,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[]  grantResults) {
         switch (requestCode) {
             case REQUEST_AUDIO_PERMISSION_CODE:
-                if (grantResults.length> 0) {
+                if (grantResults.length > 0) {
                     boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean permissionToStore = grantResults[1] ==  PackageManager.PERMISSION_GRANTED;
+                    boolean permissionToStore = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                     if (permissionToRecord && permissionToStore) {
                         recordingStatus = 0;
                         onRecordAudio();
                         Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(getApplicationContext(),"Permission Denied :"+recordingStatus,Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Permission Denied :" + recordingStatus, Toast.LENGTH_LONG).show();
                         tvRecordingStatus.setText(R.string.setting_activity_dialog);
                         recordingStatus = 2;
                         onRecordAudio();
@@ -500,7 +510,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public boolean checkPermissionsResult() {
-        int result = ContextCompat.checkSelfPermission(getApplicationContext(),WRITE_EXTERNAL_STORAGE);
+        int result = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
         int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
         return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
     }
@@ -520,7 +530,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
-    private void handlerSpamClickRecord(){
+    private void handlerSpamClickRecord() {
 
         ivRecord.setClickable(false);
         new Handler().postDelayed(new Runnable() {
@@ -528,11 +538,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 ivRecord.setClickable(true);
             }
-        } , 1000);
+        }, 1000);
 
     }
 
-    private void handlerSpamClickPauseResume(){
+    private void handlerSpamClickPauseResume() {
 
         ivPauseResume.setClickable(false);
         new Handler().postDelayed(new Runnable() {
@@ -540,35 +550,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 ivPauseResume.setClickable(true);
             }
-        } , 450);
+        }, 450);
 
     }
 
-    private void updateViewStage(){
-        if(checkPermissionsResult()) {
-            if(!isMyServiceRunning(recordService.getClass())){
+    private void updateViewStage() {
+        if (checkPermissionsResult()) {
+            if (!isMyServiceRunning(recordService.getClass())) {
                 ivRecord.setImageResource(R.drawable.ic_home_record);
                 recordingStatus = 0;
                 onRecordAudio();
-            }
-            else {
+            } else {
                 ivRecord.setImageResource(R.drawable.ic_play_record_pr);
                 int checkRecordingStatus = recordService.getRecordingStatus();
-                if(checkRecordingStatus == 0){
+                if (checkRecordingStatus == 0) {
                     updateIconRecord();
-                }else if(checkRecordingStatus == 1){
+                } else if (checkRecordingStatus == 1) {
                     updateIconStopRecord();
                 }
-                int checkPauseStatus =  recordService.getPauseStatus();
-                if(checkPauseStatus == 0){
+                int checkPauseStatus = recordService.getPauseStatus();
+                if (checkPauseStatus == 0) {
                     updateIconPause();
-                }else if(checkPauseStatus == 1){
-                    updateTimeRecord(recordService.getExtraCurrentTime() -1000);
+                } else if (checkPauseStatus == 1) {
+                    updateTimeRecord(recordService.getExtraCurrentTime() - 1000);
                     updateIconResume();
                 }
                 onRecordAudio();
             }
-        }else {
+        } else {
             requestPermissions();
         }
     }

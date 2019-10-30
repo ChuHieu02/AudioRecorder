@@ -25,6 +25,8 @@ public class Constants {
     public static final String K_QUALITY_22 = "22 khz";
     public static final String K_QUALITY_32 = "32 khz";
     public static final String K_QUALITY_44 = "44 khz";
+    public static final String K_MEMORY_FREE = "memory_size";
+    public static final String K_QUALTI_KHZ = " Khz";
 
     public static final String K_BOLEAN_REPEAT = "boleanRepeat";
 }
