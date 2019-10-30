@@ -132,7 +132,7 @@
 
     <string name="ringtone_name_label">Name:</string>
 
-    <string name="artist_name">Ringdroid</string>
+
 
     <!--
      Delete confirmation dialog
@@ -221,11 +221,14 @@
     <!-- Notification -->
     <string name="notifi_title">Audio Record</string>
 
-
     <!-- Set Name Record File Dialog -->
     <string name="dialog_set_name_title">New Name</string>
     <string name="dialog_set_name_tv_default">Default</string>
     <string name="dialog_set_name_tv_save">Confirm</string>
+    <string name="memory_free">You can recorder for</string>
+    <string name="cannot_recodring">Can\'t recording</string>
+    <string name="mic_record_is_uses">The record mic is being used by another application !</string>
+    <string name="stop_record_is_calling">Stop record is calling</string>
 
 
     <!-- Auto save status Dialog -->

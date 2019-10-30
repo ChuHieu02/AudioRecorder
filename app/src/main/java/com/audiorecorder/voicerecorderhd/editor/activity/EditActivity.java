@@ -36,16 +36,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.customView.MarkerView;
 import com.audiorecorder.voicerecorderhd.editor.customView.WaveformView;
+import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.editRecording.AfterSaveActionDialog;
 import com.audiorecorder.voicerecorderhd.editor.editRecording.FileSaveDialog;
 import com.audiorecorder.voicerecorderhd.editor.editRecording.SamplePlayer;
 import com.audiorecorder.voicerecorderhd.editor.editRecording.SongMetadataReader;
 import com.audiorecorder.voicerecorderhd.editor.editRecording.SoundFile;
+import com.audiorecorder.voicerecorderhd.editor.utils.CommonUtils;
 
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.io.StringWriter;
+import java.util.Date;
 
 public class EditActivity extends AppCompatActivity implements MarkerView.MarkerListener, WaveformView.WaveformListener {
 
@@ -121,7 +124,9 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
     // Public methods and protected overrides
     //
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle icicle) {
         Log.v("Ringdroid", "EditActivity OnCreate");
@@ -143,10 +148,10 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
         // GET_CONTENT intent, then we shouldn't display a "saved"
         // message when the user saves, we should just return whatever
         // they create.
-     //   mWasGetContentIntent = intent.getBooleanExtra("was_get_content_intent", false);
+        //   mWasGetContentIntent = intent.getBooleanExtra("was_get_content_intent", false);
         mFilename = intent.getStringExtra("fileAudioName");
 
-      //  mFilename = intent.getData().toString().replaceFirst("file://", "").replaceAll("%20", " ");
+        //  mFilename = intent.getData().toString().replaceFirst("file://", "").replaceAll("%20", " ");
         mSoundFile = null;
         mKeyDown = false;
 
@@ -172,7 +177,9 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
         }
     }
 
-    /** Called when the activity is finally destroyed. */
+    /**
+     * Called when the activity is finally destroyed.
+     */
     @Override
     protected void onDestroy() {
         Log.v("Ringdroid", "EditActivity OnDestroy");
@@ -185,11 +192,11 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
         mLoadSoundFileThread = null;
         mRecordAudioThread = null;
         mSaveSoundFileThread = null;
-        if(mProgressDialog != null) {
+        if (mProgressDialog != null) {
             mProgressDialog.dismiss();
             mProgressDialog = null;
         }
-        if(mAlertDialog != null) {
+        if (mAlertDialog != null) {
             mAlertDialog.dismiss();
             mAlertDialog = null;
         }
@@ -205,7 +212,9 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
         super.onDestroy();
     }
 
-    /** Called with an Activity we started with an Intent returns. */
+    /**
+     * Called with an Activity we started with an Intent returns.
+     */
     @SuppressLint("MissingSuperCall")
     @Override
     protected void onActivityResult(int requestCode,
@@ -319,7 +328,7 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
     }
 
     public void waveformTouchMove(float x) {
-        mOffset = trap((int)(mTouchInitialOffset + (mTouchStart - x)));
+        mOffset = trap((int) (mTouchInitialOffset + (mTouchStart - x)));
         updateDisplay();
     }
 
@@ -331,7 +340,7 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
         if (elapsedMsec < 300) {
             if (mIsPlaying) {
                 int seekMsec = mWaveformView.pixelsToMillisecs(
-                        (int)(mTouchStart + mOffset));
+                        (int) (mTouchStart + mOffset));
                 if (seekMsec >= mPlayStartMsec &&
                         seekMsec < mPlayEndMsec) {
                     mPlayer.seekTo(seekMsec);
@@ -339,7 +348,7 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
                     handlePause();
                 }
             } else {
-                onPlay((int)(mTouchStart + mOffset));
+                onPlay((int) (mTouchStart + mOffset));
             }
         }
     }
@@ -347,7 +356,7 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
     public void waveformFling(float vx) {
         mTouchDragging = false;
         mOffsetGoal = mOffset;
-        mFlingVelocity = (int)(-vx);
+        mFlingVelocity = (int) (-vx);
         updateDisplay();
     }
 
@@ -386,10 +395,10 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
         float delta = x - mTouchStart;
 
         if (marker == mStartMarker) {
-            mStartPos = trap((int)(mTouchInitialStartPos + delta));
-            mEndPos = trap((int)(mTouchInitialEndPos + delta));
+            mStartPos = trap((int) (mTouchInitialStartPos + delta));
+            mEndPos = trap((int) (mTouchInitialEndPos + delta));
         } else {
-            mEndPos = trap((int)(mTouchInitialEndPos + delta));
+            mEndPos = trap((int) (mTouchInitialEndPos + delta));
             if (mEndPos < mStartPos)
                 mEndPos = mStartPos;
         }
@@ -519,21 +528,21 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         mDensity = metrics.density;
 
-        mMarkerLeftInset = (int)(46 * mDensity);
-        mMarkerRightInset = (int)(48 * mDensity);
-        mMarkerTopOffset = (int)(10 * mDensity);
-        mMarkerBottomOffset = (int)(10 * mDensity);
+        mMarkerLeftInset = (int) (46 * mDensity);
+        mMarkerRightInset = (int) (48 * mDensity);
+        mMarkerTopOffset = (int) (10 * mDensity);
+        mMarkerBottomOffset = (int) (10 * mDensity);
 
-        mStartText = (TextView)findViewById(R.id.starttext);
+        mStartText = (TextView) findViewById(R.id.starttext);
         mStartText.addTextChangedListener(mTextWatcher);
-        mEndText = (TextView)findViewById(R.id.endtext);
+        mEndText = (TextView) findViewById(R.id.endtext);
         mEndText.addTextChangedListener(mTextWatcher);
 
-        mPlayButton = (ImageButton)findViewById(R.id.play);
+        mPlayButton = (ImageButton) findViewById(R.id.play);
         mPlayButton.setOnClickListener(mPlayListener);
-        mRewindButton = (ImageButton)findViewById(R.id.rew);
+        mRewindButton = (ImageButton) findViewById(R.id.rew);
         mRewindButton.setOnClickListener(mRewindListener);
-        mFfwdButton = (ImageButton)findViewById(R.id.ffwd);
+        mFfwdButton = (ImageButton) findViewById(R.id.ffwd);
         mFfwdButton.setOnClickListener(mFfwdListener);
 
         TextView markStartButton = (TextView) findViewById(R.id.mark_start);
@@ -543,10 +552,10 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
 
         enableDisableButtons();
 
-        mWaveformView = (WaveformView)findViewById(R.id.waveform);
+        mWaveformView = (WaveformView) findViewById(R.id.waveform);
         mWaveformView.setListener(this);
 
-        mInfo = (TextView)findViewById(R.id.info);
+        mInfo = (TextView) findViewById(R.id.info);
         mInfo.setText(mCaption);
 
         mMaxPos = 0;
@@ -559,14 +568,14 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
             mMaxPos = mWaveformView.maxPos();
         }
 
-        mStartMarker = (MarkerView)findViewById(R.id.startmarker);
+        mStartMarker = (MarkerView) findViewById(R.id.startmarker);
         mStartMarker.setListener(this);
         mStartMarker.setAlpha(1f);
         mStartMarker.setFocusable(true);
         mStartMarker.setFocusableInTouchMode(true);
         mStartVisible = true;
 
-        mEndMarker = (MarkerView)findViewById(R.id.endmarker);
+        mEndMarker = (MarkerView) findViewById(R.id.endmarker);
         mEndMarker.setListener(this);
         mEndMarker.setAlpha(1f);
         mEndMarker.setFocusable(true);
@@ -674,7 +683,7 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
                         }
                     };
                     mHandler.post(runnable);
-                } else if (mFinishActivity){
+                } else if (mFinishActivity) {
                     EditActivity.this.finish();
                 }
             }
@@ -713,7 +722,7 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
         // On the other hand, if the text is big enough, this is good enough.
         adBuilder.setView(getLayoutInflater().inflate(R.layout.record_audio, null));
         mAlertDialog = adBuilder.show();
-        mTimerTextView = (TextView)mAlertDialog.findViewById(R.id.record_audio_timer);
+        mTimerTextView = (TextView) mAlertDialog.findViewById(R.id.record_audio_timer);
 
         final SoundFile.ProgressListener listener =
                 new SoundFile.ProgressListener() {
@@ -724,8 +733,8 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
                             // Only UI thread can update Views such as TextViews.
                             runOnUiThread(new Runnable() {
                                 public void run() {
-                                    int min = (int)(mRecordingTime/60);
-                                    float sec = (float)(mRecordingTime - 60 * min);
+                                    int min = (int) (mRecordingTime / 60);
+                                    float sec = (float) (mRecordingTime - 60 * min);
                                     mTimerTextView.setText(String.format("%d:%05.2f", min, sec));
                                 }
                             });
@@ -773,7 +782,7 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
                     return;
                 }
                 mAlertDialog.dismiss();
-                if (mFinishActivity){
+                if (mFinishActivity) {
                     EditActivity.this.finish();
                 } else {
                     Runnable runnable = new Runnable() {
@@ -1023,8 +1032,8 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
     }
 
     private String formatDecimal(double x) {
-        int xWhole = (int)x;
-        int xFrac = (int)(100 * (x - xWhole) + 0.5);
+        int xWhole = (int) x;
+        int xFrac = (int) (100 * (x - xWhole) + 0.5);
 
         if (xFrac >= 100) {
             xWhole++; //Round up
@@ -1127,33 +1136,33 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
 
     private String makeRingtoneFilename(CharSequence title, String extension) {
         String subdir = null;
-        String externalRootDir = Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator+"Recorder";
+        String externalRootDir = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Recorder";
         if (!externalRootDir.endsWith("/")) {
             externalRootDir += "/";
         }
 
-        switch(mNewFileKind) {
+        switch (mNewFileKind) {
             default:
             case FileSaveDialog.FILE_KIND_DEFAULT:
                 // TODO(nfaralli): can directly use Environment.getExternalStoragePublicDirectory(
                 // Environment.DIRECTORY_MUSIC).getPath() instead
-                SharedPreferences sharedPreferences= this.getSharedPreferences("audioSetting", Context.MODE_PRIVATE);
-                if(sharedPreferences!= null) {
-                    subdir = sharedPreferences.getString("directionPath",externalRootDir)+"/";
+                SharedPreferences sharedPreferences = this.getSharedPreferences("audioSetting", Context.MODE_PRIVATE);
+                if (sharedPreferences != null) {
+                    subdir = sharedPreferences.getString("directionPath", externalRootDir) + "/";
                 }
                 break;
             case FileSaveDialog.FILE_KIND_ALARM:
-                subdir = externalRootDir +"media/audio/alarms/";
+                subdir = externalRootDir + "alarms/";
                 break;
             case FileSaveDialog.FILE_KIND_NOTIFICATION:
-                subdir = externalRootDir +"media/audio/notifications/";
+                subdir = externalRootDir + "notifications/";
                 break;
             case FileSaveDialog.FILE_KIND_RINGTONE:
-                subdir = externalRootDir +"media/audio/ringtones/";
+                subdir = externalRootDir + "ringtones/";
                 break;
         }
-      //  String parentdir = externalRootDir + subdir;
-        String parentdir =  subdir;
+        //  String parentdir = externalRootDir + subdir;
+        String parentdir = subdir;
 
         // Create the parent directory
         File parentDirFile = new File(parentdir);
@@ -1200,7 +1209,7 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
         double endTime = mWaveformView.pixelsToSeconds(mEndPos);
         final int startFrame = mWaveformView.secondsToFrames(startTime);
         final int endFrame = mWaveformView.secondsToFrames(endTime);
-        final int duration = (int)(endTime - startTime + 0.5);
+        final int duration = (int) (endTime - startTime + 0.5);
 
         // Create an indeterminate progress dialog
         mProgressDialog = new ProgressDialog(this);
@@ -1228,7 +1237,9 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
                 Boolean fallbackToWAV = false;
                 try {
                     // Write the new file
-                    mSoundFile.WriteFile(outFile,  startFrame, endFrame - startFrame);
+                    mSoundFile.WriteFile(outFile, startFrame, endFrame - startFrame);
+
+                    Log.e("output_audio", outPath + "\n");
                 } catch (Exception e) {
                     // log the error and try to create a .wav file instead
                     if (outFile.exists()) {
@@ -1366,16 +1377,18 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
             mimeType = "audio/mpeg";
         }
 
-        String artist = "" + getResources().getText(R.string.artist_name);
+        String artist = "" ;
 
         ContentValues values = new ContentValues();
         values.put(MediaStore.MediaColumns.DATA, outPath);
         values.put(MediaStore.MediaColumns.TITLE, title.toString());
         values.put(MediaStore.MediaColumns.SIZE, fileSize);
         values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
-
         values.put(MediaStore.Audio.Media.ARTIST, artist);
         values.put(MediaStore.Audio.Media.DURATION, duration);
+
+       String date  =  CommonUtils.fomatDate(System.currentTimeMillis());
+
 
         values.put(MediaStore.Audio.Media.IS_RINGTONE,
                 mNewFileKind == FileSaveDialog.FILE_KIND_RINGTONE);
@@ -1391,6 +1404,10 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
         final Uri newUri = getContentResolver().insert(uri, values);
         setResult(RESULT_OK, new Intent().setData(newUri));
 
+        DBQuerys dbQuerys = new DBQuerys(EditActivity.this);
+        String name = outPath.substring(outPath.lastIndexOf("/"));
+        String named = name.replace("/","");
+        dbQuerys.insertAudioString(named,outPath,fileSize,System.currentTimeMillis(),duration*1000);
         // If Ringdroid was launched to get content, just return
         if (mWasGetContentIntent) {
             finish();
@@ -1442,7 +1459,7 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
         // three choices: make this your default ringtone, assign it to a
         // contact, or do nothing.
 
-        final Handler handler = new Handler() {
+        @SuppressLint("HandlerLeak") final Handler handler = new Handler() {
             public void handleMessage(Message response) {
                 int actionId = response.arg1;
                 switch (actionId) {
@@ -1493,7 +1510,7 @@ public class EditActivity extends AppCompatActivity implements MarkerView.Marker
 
         final Handler handler = new Handler() {
             public void handleMessage(Message response) {
-                CharSequence newTitle = (CharSequence)response.obj;
+                CharSequence newTitle = (CharSequence) response.obj;
                 mNewFileKind = response.arg1;
                 saveRingtone(newTitle);
             }

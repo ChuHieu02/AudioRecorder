@@ -1,5 +1,6 @@
 package com.audiorecorder.voicerecorderhd.editor;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -10,11 +11,18 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.os.StatFs;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -35,10 +43,15 @@ import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.activity.SettingsActivity;
 import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.service.RecordService;
+import com.audiorecorder.voicerecorderhd.editor.utils.CommonUtils;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 
+import java.io.File;
+
+import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private ImageView ivBottomLibrary;
@@ -58,13 +71,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int seconds;
     private int minutes;
     private int hours;
-
+    private TextView tvMemoryFree;
+    private static String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mappingBottomNavigation();
+        new getMemorySize().execute();
         recordService = new RecordService();
         updateViewStage();
         SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
@@ -77,9 +92,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 editor.apply();
             }
         }
+
+    }
+
+    private class getMemorySize extends AsyncTask<String, String, String> {
+        @SuppressLint({"WrongThread", "SetTextI18n"})
+        @Override
+        protected String doInBackground(String... strings) {
+            if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
+                tvMemoryFree.setText(getString(R.string.memory_free) + " " + getAvailableInternalMemorySize());
+            }
+            return null;
+        }
+    }
+
+    @RequiresApi(api = JELLY_BEAN_MR2)
+    public String getAvailableInternalMemorySize() {
+        File path = Environment.getDataDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSizeLong();
+        long availableBlocks = stat.getAvailableBlocksLong();
+        return formatSizeTime(availableBlocks * blockSize);
+    }
+
+    //    lấy ra bộ nhớ còn trống và check time
+    public String formatSizeTime(long size) {
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            sharedPreferences.getInt(Constants.K_MEMORY_FREE, 15);
+        }
+//        wav ~ 93kb/s
+//        mp3 ~ 15kb/s
+        String time = "";
+        if (size >= 1024) {
+            size /= 1024 * sharedPreferences.getInt(Constants.K_MEMORY_FREE, 15);
+        }
+        if (size >= 60) {
+            size /= 60;
+            time = size + " minute";
+            if (size >= 60) {
+                size /= 60;
+                time = size + " hour";
+            }
+
+        } else {
+            time = size + " second";
+        }
+
+        return " " + time;
     }
 
     private void mappingBottomNavigation() {
+        tvMemoryFree =  findViewById(R.id.tv_memory_free);
         lbRecoder = findViewById(R.id.lb_recoder);
         lbRecoder.setText(getResources().getString(R.string.label_recoder));
         ivBottomLibrary = findViewById(R.id.iv_bottom_library);
@@ -89,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ivPauseResume = findViewById(R.id.iv_pauseResume);
         ivRecord = findViewById(R.id.iv_recoder);
         tvRecordingStatus = findViewById(R.id.textView2);
-        tvTimeRecord =(TextView) findViewById(R.id.tv_time_record);
+        tvTimeRecord = findViewById(R.id.tv_time_record);
         ivPauseResume.setVisibility(View.INVISIBLE);
         ivBottomSettings.setOnClickListener(this);
         ivBottomLibrary.setOnClickListener(this);
@@ -100,11 +164,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                if(recordingStatus == 0 && checkPermissionsResult()){
-                    onStartRecording();
-                    updateIconStopRecord();
-                    handlerSpamClickRecord();
-                }else if(recordingStatus == 1){
+                if (recordingStatus == 0 && checkPermissionsResult()) {
+                    if (CommonUtils.validateMicAvailability()) {
+                        onStartRecording();
+                        updateIconStopRecord();
+                        handlerSpamClickRecord();
+                    } else {
+                        final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle(getString(R.string.cannot_recodring));
+                        builder.setMessage(getString(R.string.mic_record_is_uses))
+                                .setNegativeButton(getString(R.string.dialog_set_name_tv_save), new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                    }
+                                });
+                        builder.create();
+                        builder.show();
+
+                    }
+
+                } else if (recordingStatus == 1) {
                     onStopRecording();
                     updateIconRecord();
                  //   creatSetNameRecordFileDialog();
@@ -223,6 +303,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             filter.addAction(Constants.PAUSE_ACTION);
             filter.addAction(Constants.STOP_ACTION);
             filter.addAction(Constants.START_ACTION);
+            filter.addAction(Constants.COMMING_PHONE_CALL_ACTION);
             timeReceiveFilter.addAction(Constants.SEND_TIME);
             registerReceiver(notificationReceiver, filter);
             registerReceiver(timeCountReceiver,timeReceiveFilter);
@@ -267,6 +348,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
                 updateIconStopRecord();
+            } else if(Constants.COMMING_PHONE_CALL_ACTION.equals(action) ){
+
+                SharedPreferences sharedPreferences = getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+                if (sharedPreferences != null) {
+                    boolean checkPhoneAction = sharedPreferences.getBoolean(Constants.K_STOP_IS_CALLING, false);
+                    if(checkPhoneAction){
+                        try {
+                            unregisterReceiver(timeCountReceiver);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        updateIconResume();
+                    }
+                }
+
             }
         }
     }
@@ -319,20 +415,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @RequiresApi(api = JELLY_BEAN_MR2)
     @Override
     protected void onRestart() {
         super.onRestart();
         updateViewStage();
+        tvMemoryFree.setText(getString(R.string.memory_free)+getAvailableInternalMemorySize());
     }
 
     private void creatSetNameRecordFileDialog(){
 
         final Dialog setNameDialog = new Dialog(this);
         setNameDialog.setContentView(R.layout.dialog_named_record_file);
-        final EditText  edSetNameRecordFile = (EditText) setNameDialog.findViewById(R.id.ed_set_name_record_file);
+        final EditText  edSetNameRecordFile =  setNameDialog.findViewById(R.id.ed_set_name_record_file);
         edSetNameRecordFile.setText(recordService.getAudioName());
-        TextView tvDefault = (TextView) setNameDialog.findViewById(R.id.tv_default);
-        TextView tvConfirm = (TextView) setNameDialog.findViewById(R.id.tv_confirm);
+        TextView tvDefault =  setNameDialog.findViewById(R.id.tv_default);
+        TextView tvConfirm =  setNameDialog.findViewById(R.id.tv_confirm);
         tvDefault.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -440,7 +538,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (grantResults.length> 0) {
                     boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                     boolean permissionToStore = grantResults[1] ==  PackageManager.PERMISSION_GRANTED;
-                    if (permissionToRecord && permissionToStore) {
+                    boolean permissionToPhone = grantResults[2] ==  PackageManager.PERMISSION_GRANTED;
+                    if (permissionToRecord && permissionToStore && permissionToPhone) {
                         recordingStatus = 0;
                         onRecordAudio();
                         Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
@@ -458,12 +557,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean checkPermissionsResult() {
         int result = ContextCompat.checkSelfPermission(getApplicationContext(),WRITE_EXTERNAL_STORAGE);
         int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
-        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
+        int result2 = ContextCompat.checkSelfPermission(getApplicationContext(), READ_PHONE_STATE);
+        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED && result2 == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermissions() {
         ActivityCompat.requestPermissions(MainActivity.this
-                , new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
+                , new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE, READ_PHONE_STATE}, REQUEST_AUDIO_PERMISSION_CODE);
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -528,4 +628,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             requestPermissions();
         }
     }
+
 }

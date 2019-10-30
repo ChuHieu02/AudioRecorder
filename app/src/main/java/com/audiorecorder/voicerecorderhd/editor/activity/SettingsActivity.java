@@ -7,20 +7,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.audiorecorder.voicerecorderhd.editor.MainActivity;
 import com.audiorecorder.voicerecorderhd.editor.R;
+import com.audiorecorder.voicerecorderhd.editor.utils.CommonUtils;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
 import com.codekidlabs.storagechooser.StorageChooser;
 
@@ -34,7 +40,10 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private LinearLayout viewChooseQuality;
     private AlertDialog dialog;
     private SharedPreferences sharedPreferences;
-    private TextView tvResponFileTypeSetting,tvResponQualitySetting,locationFileSetting;
+    private TextView tvResponFileTypeSetting, tvResponQualitySetting, locationFileSetting;
+    private ConstraintLayout viewCbStopRecordCalling;
+    private AppCompatCheckBox cbStopIsCalling;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +57,14 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             getKeyQuality(sharedPreferences);
             getKeyPath(sharedPreferences);
             getKeyFileType(sharedPreferences);
-            return;
+            getKeyStopCalling(sharedPreferences);
         }
 
+    }
+
+    private void getKeyStopCalling(SharedPreferences sharedPreferences) {
+        cbStopIsCalling.setChecked(sharedPreferences.getBoolean(Constants.K_STOP_IS_CALLING, false));
+//        Toast.makeText(this, ""+sharedPreferences.getBoolean(Constants.K_STOP_IS_CALLING, false), Toast.LENGTH_SHORT).show();
     }
 
     private void getKeyFileType(SharedPreferences s) {
@@ -63,7 +77,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void getKeyPath(SharedPreferences s) {
-        if (s!=null){
+        if (s != null) {
             String path = s.getString(Constants.K_DIRECTION_CHOOSER_PATH, Constants.K_DEFAULT_PATH);
             locationFileSetting.setText(path);
             return;
@@ -71,12 +85,15 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         locationFileSetting.setText(Constants.K_DEFAULT_PATH);
     }
 
-    private void getKeyQuality( SharedPreferences s) {
+    @SuppressLint("SetTextI18n")
+    private void getKeyQuality(SharedPreferences s) {
         int checkQuality = s.getInt(Constants.K_FORMAT_QUALITY, 16);
-        tvResponQualitySetting.setText(checkQuality+" kHz");
+        tvResponQualitySetting.setText(checkQuality + " kHz");
     }
 
     private void mapping() {
+        viewCbStopRecordCalling = findViewById(R.id.view_cb_stop_record_calling);
+        cbStopIsCalling = findViewById(R.id.cb_stop_is_calling);
 
         ivBottomLibrary = findViewById(R.id.iv_bottom_library);
         ivBottomRecoder = findViewById(R.id.iv_bottom_recoder);
@@ -96,10 +113,24 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         viewChooseFolder.setOnClickListener(this);
         viewChooseFileType.setOnClickListener(this);
         viewChooseQuality.setOnClickListener(this);
-
+        viewCbStopRecordCalling.setOnClickListener(this);
+        cbStopIsCalling.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SharedPreferences preferences = getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor_stop_is_calling = preferences.edit();
+                if (!isChecked) {
+                    editor_stop_is_calling.putBoolean(Constants.K_STOP_IS_CALLING, false);
+                    editor_stop_is_calling.apply();
+                } else {
+                    editor_stop_is_calling.putBoolean(Constants.K_STOP_IS_CALLING, true);
+                    editor_stop_is_calling.apply();
+                }
+            }
+        });
     }
 
-      @Override
+    @Override
     public void onClick(View v) {
 
         switch (v.getId()) {
@@ -113,12 +144,33 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 chooseFolder();
                 break;
             case R.id.view_choose_quality_setting:
-              chooseQuality();
+                chooseQuality();
                 break;
             case R.id.view_choose_filetype_setting:
                 chooseFileType();
                 break;
+            case R.id.view_cb_stop_record_calling:
+                checkCalling();
+                break;
+
         }
+    }
+
+    private void checkCalling() {
+        SharedPreferences preferences = this.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor_stop_is_calling = preferences.edit();
+
+        if (cbStopIsCalling.isChecked()) {
+            cbStopIsCalling.setChecked(false);
+            editor_stop_is_calling.putBoolean(Constants.K_STOP_IS_CALLING, false);
+            editor_stop_is_calling.apply();
+        } else {
+            cbStopIsCalling.setChecked(true);
+            editor_stop_is_calling.putBoolean(Constants.K_STOP_IS_CALLING, true);
+
+            editor_stop_is_calling.apply();
+        }
+
     }
 
     private void chooseFolder() {
@@ -173,6 +225,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         }
         final SharedPreferences.Editor editor2 = this.sharedPreferences.edit();
+        final SharedPreferences.Editor editor_memory_size = this.sharedPreferences.edit();
 
         rbWav.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -181,7 +234,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 editor2.apply();
                 dialog.dismiss();
                 tvResponFileTypeSetting.setText(Constants.K_FORMAT_TYPE_WAV);
-
+                editor_memory_size.putInt(Constants.K_MEMORY_FREE, 93);
+                editor_memory_size.apply();
             }
         });
 
@@ -192,7 +246,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 editor2.apply();
                 dialog.dismiss();
                 tvResponFileTypeSetting.setText(Constants.K_FORMAT_TYPE_MP3);
-
+                editor_memory_size.putInt(Constants.K_MEMORY_FREE, 15);
+                editor_memory_size.apply();
             }
         });
         builder2.create();
@@ -301,5 +356,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(textView);
     }
+
 
 }

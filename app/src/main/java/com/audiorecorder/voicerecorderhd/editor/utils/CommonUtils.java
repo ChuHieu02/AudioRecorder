@@ -1,12 +1,11 @@
 package com.audiorecorder.voicerecorderhd.editor.utils;
 
-import android.content.Context;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
 import android.media.MediaMetadataRetriever;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
+import android.media.MediaRecorder;
+import android.util.Log;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
 public class CommonUtils {
@@ -19,17 +18,29 @@ public class CommonUtils {
         return dateRespon;
     }
 
-    public static long fomatSize(long size) {
-        long sizeRespon;
-        sizeRespon = (size / 1024);
-        return sizeRespon;
-    }
+    public static String formatSize(long size) {
+        String suffix = null;
+        if (size >= 1024) {
+            suffix = " Kb";
+            size /= 1024;
+            if (size >= 1024) {
+                suffix = " Mb";
+                size /= 1024;
 
-    public static String formatToNumber(long data) {
-        NumberFormat numberFormat = new DecimalFormat("###,###,###");
-        return numberFormat.format((data));
-    }
+            }
+        }
 
+        StringBuilder resultBuffer = new StringBuilder(Long.toString(size));
+
+        int commaOffset = resultBuffer.length() - 3;
+        while (commaOffset > 0) {
+            resultBuffer.insert(commaOffset, ',');
+            commaOffset -= 3;
+        }
+
+        if (suffix != null) resultBuffer.append(suffix);
+        return resultBuffer.toString();
+    }
     public static String formatTime(long miliseconds) {
         String finaltimeSting = "";
         String timeSecond;
@@ -104,5 +115,31 @@ public class CommonUtils {
 
     }
 
+    public static boolean validateMicAvailability() {
+        Boolean available = true;
+        AudioRecord recorder =
+                new AudioRecord(MediaRecorder.AudioSource.MIC, 44100,
+                        AudioFormat.CHANNEL_IN_MONO,
+                        AudioFormat.ENCODING_DEFAULT, 44100);
+        try {
+            if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_STOPPED) {
+                available = false;
+
+            }
+
+            recorder.startRecording();
+            if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
+                recorder.stop();
+                available = false;
+
+            }
+            recorder.stop();
+        } finally {
+            recorder.release();
+            recorder = null;
+        }
+        Log.e("mic", available + "");
+        return available;
+    }
 
 }

@@ -10,13 +10,11 @@
         android:id="@+id/iv_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitXY"
         android:layout_marginBottom="@dimen/dp120"
-        android:src="@drawable/bg_home">
-    </ImageView>
+        android:scaleType="fitXY"
+        android:src="@drawable/bg_home" />
 
-    <include
-        layout="@layout/all_label_recoder"></include>
+    <include layout="@layout/all_label_recoder" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -25,7 +23,7 @@
 
         <include
             android:id="@+id/include"
-            layout="@layout/view_bottom_navigation"></include>
+            layout="@layout/view_bottom_navigation" />
 
 
         <TextView
@@ -33,30 +31,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="?actionBarSize"
+            android:fontFamily="@font/arial"
             android:text="@string/home_clickRecoder"
             android:textColor="@android:color/white"
             android:textSize="@dimen/sp17"
-            android:fontFamily="@font/arial"
             app:layout_constraintBottom_toTopOf="@+id/tv_time_record"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent" />
 
+
         <TextView
             android:id="@+id/tv_time_record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/dp20"
-            android:text="@string/home_duration"
             android:fontFamily="@font/arial"
-            android:textSize="@dimen/sp17"
+            android:text="@string/home_duration"
             android:textColor="@color/colorPrimary"
-            app:layout_constraintBottom_toTopOf="@+id/include"
+            android:textSize="@dimen/sp17"
+            app:layout_constraintBottom_toTopOf="@+id/tv_memory_free"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent" />
-
-
 
         <ImageView
             android:id="@+id/iv_recoder"
@@ -81,5 +77,15 @@
             app:layout_constraintTop_toTopOf="@+id/iv_recoder"
             app:layout_constraintVertical_bias="0.424"
             app:srcCompat="@drawable/ic_home_pause" />
+
+        <TextView
+            android:id="@+id/tv_memory_free"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            app:layout_constraintBottom_toTopOf="@+id/include"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

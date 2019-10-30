@@ -11,14 +11,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -150,7 +148,8 @@ public class RecordService extends Service  {
             filter.addAction(Constants.RESUME_ACTION);
             filter.addAction(Constants.PAUSE_ACTION);
             filter.addAction(Constants.STOP_ACTION);
-            IntentFilter quickPOFF = new IntentFilter("android.intent.action.ACTION_SHUTDOWN");
+            filter.addAction(Constants.COMMING_PHONE_CALL_ACTION);
+            IntentFilter quickPOFF = new IntentFilter(Constants.POWER_OFF_ACTION);
             registerReceiver(notificationReceiver, filter);
             registerReceiver(notificationReceiver,quickPOFF);
         } catch (Exception e) {
@@ -436,9 +435,26 @@ public class RecordService extends Service  {
                 getAudioFileSize();
                 insertSQL();
                 savePowerOffStatus();
+            } else if(Constants.COMMING_PHONE_CALL_ACTION.equals(action) && isRunning ){
+                SharedPreferences sharedPreferences = getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+                if (sharedPreferences != null) {
+                    boolean checkPhoneAction = sharedPreferences.getBoolean(Constants.K_STOP_IS_CALLING,false);
+                    if(checkPhoneAction){
+                        isRunning = false;
+                        pauseRecording();
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+
+                            stopForeground(true);
+                        }
+                        createNotification();
+                        setPauseStatus(1);
+                        stopCounter();
+                        setExtraCurrentTime(countTimeRecord );
+                    }
+                }
+
             }
         }
     }
-
 
 }

@@ -36,12 +36,14 @@ import com.audiorecorder.voicerecorderhd.editor.R;
 import com.audiorecorder.voicerecorderhd.editor.adapter.LibraryAdapter;
 import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.LongClickItemLibrary;
+import com.audiorecorder.voicerecorderhd.editor.interfaces.OnClickDeleteAudio;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.OnclickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 import com.google.android.material.appbar.AppBarLayout;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 
 
@@ -71,7 +73,6 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         setTitle(getResources().getString(R.string.label_library));
         mapping();
         new queryFile().execute();
-
 
     }
 
@@ -171,7 +172,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
     public boolean onActionItemClicked(ActionMode mode, MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.menu_delete_item_library:
-                deleteAudio();
+                multipDeleteAudio();
                 break;
             case R.id.menu_share_item_library:
                 shareAudio();
@@ -244,6 +245,12 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
                 multiSelect(position);
             }
         });
+        adapter.setOnClickDeleteAudio(new OnClickDeleteAudio() {
+            @Override
+            public void onclickDelete(String s, int t) {
+                singleDeleteAudio(s, t);
+            }
+        });
     }
 
     private void checkList(final ArrayList<Audio> audioList) {
@@ -256,6 +263,35 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+    private void singleDeleteAudio(final String path, final int position) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.question_delete)
+                .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        boolean checkDel = new File(path).delete();
+                        Log.e("delete" , path);
+                        if (checkDel) {
+                            audioList.clear();
+                            setDataAdapter(dbQuerys.getallNguoiDung());
+                            checkList(dbQuerys.getallNguoiDung());
+
+                            showToast("Delete success");
+                        } else {
+                            showToast("Delete fail");
+
+                        }
+                    }
+                }).setNegativeButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.create();
+        dialog = builder.show();
+
+    }
 
     private void mapping() {
         ivBottomLibrary = findViewById(R.id.iv_bottom_library);
@@ -273,7 +309,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
     }
 
 
-    private void deleteAudio() {
+    private void multipDeleteAudio() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.question_delete)
                 .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
@@ -320,5 +356,13 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         startActivity(Intent.createChooser(intent, "share"));
     }
 
-
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        dbQuerys = new DBQuerys(LibraryActivity.this);
+        if (audioList!=null){
+            audioList.clear();
+        }
+            adapter.updateList(dbQuerys.getallNguoiDung());
+    }
 }
