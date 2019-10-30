@@ -9,12 +9,14 @@ public class Constants {
     public static final String K_DIRECTION_CHOOSER_PATH = "directionPath";
     public static final String K_FORMAT_QUALITY = "formatQuality";
     public static final String K_AUDIO_SETTING = "audioSetting";
+    public static final String K_AUTO_SAVE_STATUS = "autoSaveFileStatus";
     public static final int K_SAMPLE_RATE_QUALITY = 1000;
     public static final String PAUSE_ACTION = "PAUSE_ACTION";
     public static final String RESUME_ACTION = "RESUME_ACTION";
     public static final String STOP_ACTION = "STOP_ACTION";
     public static final String START_ACTION = "START_ACTION";
     public static final String SEND_TIME = "SEND_TIMER";
+    public static final String POWER_OFF_ACTION = "android.intent.action.ACTION_SHUTDOWN";
     public static final String TIME_COUNT = "time_count";
     public static final String K_FORMAT_TYPE_WAV = "Wav";
     public static final String K_FORMAT_TYPE_MP3 = "Mp3";

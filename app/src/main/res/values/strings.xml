@@ -8,9 +8,7 @@
     <string name="label_library">Library</string>
     <string name="home_clickRecoder">Tap to start recording</string>
     <string name="set_name_dialog">File name null or exits please input again</string>
-    <string name="setting_activity_dialog">You need go to setting and perrmission for recording</string>
     <string name="tv_recording_status_on_denied_permission">Please go to setting and permisson</string>
-
 
 
     <!-- Library -->
@@ -228,6 +226,18 @@
     <string name="dialog_set_name_title">New Name</string>
     <string name="dialog_set_name_tv_default">Default</string>
     <string name="dialog_set_name_tv_save">Confirm</string>
+
+
+    <!-- Auto save status Dialog -->
+    <string name="auto_save_dialog_title">Your phone is shut down and stop record, show file ?</string>
+    <string name="auto_save_dialog_cancel">Cancel</string>
+    <string name="auto_save_dialog_open">Open</string>
+
+
+    <!-- Setting Activity Dialog -->
+    <string name="setting_activity_dialog_title">You need go to setting and perrmission for recording</string>
+    <string name="setting_activity_dialog_cancel">Cancel</string>
+    <string name="setting_activity_dialog_open">Open</string>
 
 
 </resources>

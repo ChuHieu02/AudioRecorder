@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -16,7 +17,6 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -67,6 +67,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mappingBottomNavigation();
         recordService = new RecordService();
         updateViewStage();
+        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            boolean checkAutoSaveStatus = sharedPreferences.getBoolean(Constants.K_AUTO_SAVE_STATUS, false);
+            if(checkAutoSaveStatus == true){
+                creatAutoSaveStatusDialog();
+                final SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(Constants.K_AUTO_SAVE_STATUS,false);
+                editor.apply();
+            }
+        }
     }
 
     private void mappingBottomNavigation() {
@@ -384,10 +394,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void creatSettingActivityDialog(){
-        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
-        builderDiaglog.setTitle(R.string.setting_activity_dialog)
+        final AlertDialog.Builder builderDiaglog = new AlertDialog.Builder(MainActivity.this);
+        builderDiaglog.setTitle(R.string.setting_activity_dialog_title)
                 .setMessage(outputFile)
-                .setPositiveButton("Open", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.setting_activity_dialog_cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -396,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         startActivity(intent);
                     }
                 })
-                .setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.auto_save_dialog_open, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         recordingStatus = 2;
@@ -406,6 +416,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         builderDiaglog.create().show();
     }
 
+    public void creatAutoSaveStatusDialog(){
+        final AlertDialog.Builder builderDiaglog = new AlertDialog.Builder(MainActivity.this);
+        builderDiaglog.setMessage(R.string.auto_save_dialog_title)
+                .setPositiveButton(R.string.auto_save_dialog_open, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(MainActivity.this,LibraryActivity.class));
+                    }
+                })
+                .setNegativeButton(R.string.auto_save_dialog_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }});
+        builderDiaglog.create().show();
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -420,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(getApplicationContext(),"Permission Denied :"+recordingStatus,Toast.LENGTH_LONG).show();
-                        tvRecordingStatus.setText(R.string.setting_activity_dialog);
+                        tvRecordingStatus.setText(R.string.setting_activity_dialog_title);
                         recordingStatus = 2;
                         onRecordAudio();
                     }

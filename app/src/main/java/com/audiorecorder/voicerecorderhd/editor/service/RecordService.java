@@ -358,6 +358,29 @@ public class RecordService extends Service  {
 
     }
 
+    public void creatCompleteRecordNotification(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "Foreground Service Channel",
+                    NotificationManager.IMPORTANCE_LOW
+            );
+
+            mNotificationManager = getSystemService(NotificationManager.class);
+            mNotificationManager.createNotificationChannel(serviceChannel);
+        }
+
+        startForeground(1, mBuilder);
+    }
+
+    public void savePowerOffStatus(){
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(Constants.K_AUTO_SAVE_STATUS,true);
+            editor.apply();
+    }
+
     public class NotificationReceiver extends BroadcastReceiver {
 
         @RequiresApi(api = Build.VERSION_CODES.N)
@@ -406,13 +429,13 @@ public class RecordService extends Service  {
                 setPauseStatus(0);
                 continueCouter();
 
-            } else if (action.equals("android.intent.action.ACTION_SHUTDOWN") && isRunning) {
-                Log.e("Test", "onReadyStart: " + action);
+            } else if (Constants.POWER_OFF_ACTION.equals(action) && isRunning) {
                 //Do something here
                 stopRecording();
-                startCounter();
+                stopCounter();
                 getAudioFileSize();
                 insertSQL();
+                savePowerOffStatus();
             }
         }
     }
