@@ -10,12 +10,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.media.AudioFormat;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.SystemClock;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -33,7 +34,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class RecordService extends Service {
+public class RecordService extends Service  {
+
 
     public static final String DATE_TIME_FORMAT = "HH:mm:ss_d_MM_yyyy";
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
@@ -41,6 +43,7 @@ public class RecordService extends Service {
     public static int recordingStatus;
     public static boolean isRunning ;
     private MediaRecorder mAudioRecorder;
+    private File recordFile;
     private String outputFile;
     private NotificationManager mNotificationManager;
     private Notification mBuilder;
@@ -65,6 +68,7 @@ public class RecordService extends Service {
             sendTimeToReceiver();
         }
     };
+
     public String getAudioName() {
         return audioName;
     }
@@ -99,9 +103,18 @@ public class RecordService extends Service {
         RecordService.extraCurrentTime = extraCurrentTime;
     }
 
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
+    }
+
     private void insertSQL(){
         dbQuerys = new DBQuerys(getApplicationContext());
-        dbQuerys.insertAudioString(audioName,outputFile,fileSize,dateTime,countTimeRecord -200);
+        dbQuerys.insertAudioString(audioName,outputFile,getFileSize(),dateTime,countTimeRecord -200);
+        Log.e("SQL", "insertSQL: "+ audioName );
     }
 
     @Override
@@ -120,7 +133,6 @@ public class RecordService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         isRunning = true;
-    //    createNotificationChannel();
         createNotification();
         startRecording();
         startCounter();
@@ -136,7 +148,9 @@ public class RecordService extends Service {
             filter.addAction(Constants.RESUME_ACTION);
             filter.addAction(Constants.PAUSE_ACTION);
             filter.addAction(Constants.STOP_ACTION);
+            IntentFilter quickPOFF = new IntentFilter("android.intent.action.ACTION_SHUTDOWN");
             registerReceiver(notificationReceiver, filter);
+            registerReceiver(notificationReceiver,quickPOFF);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -152,6 +166,7 @@ public class RecordService extends Service {
         startTime = System.currentTimeMillis();
         countTimeRecord = 0;
         handler.postDelayed(serviceRunnable, 0);
+
     }
 
     public void continueCouter() {
@@ -165,61 +180,63 @@ public class RecordService extends Service {
 
     public void createFile() {
         SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
-        if (sharedPreferences != null) {
+        if (sharedPreferences != null ) {
             int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE, 0);
             String pathDirector = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH, Environment.getExternalStorageDirectory() + File.separator + "Recorder");
             pathFile = pathDirector;
             dateTime = System.currentTimeMillis();
-            File file = new File(pathDirector);
+            recordFile = new File(pathDirector);
             Date date_Formater = new Date(System.currentTimeMillis());
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_TIME_FORMAT);
             String formatDatetime = simpleDateFormat.format(date_Formater);
-
+            if (!recordFile.exists()) {
+                recordFile.mkdirs();
+            }
             if (checkStatus == 0) {
-                outputFile =  file.getAbsolutePath() + "/Audio-" + System.currentTimeMillis() + ".mp3";
+                outputFile =  recordFile.getAbsolutePath() + "/Audio-" + System.currentTimeMillis() + ".mp3";
                 audioName = "Audio-" +formatDatetime + ".mp3";
                 setAudioName("Audio-" +formatDatetime+".mp3");
             } else if (checkStatus == 1) {
-                outputFile =  file.getAbsolutePath() + "/RecordFile" + System.currentTimeMillis() + ".wav";
+                outputFile =  recordFile.getAbsolutePath() + "/Audio-" + System.currentTimeMillis() + ".wav";
                 audioName = "Audio-" + formatDatetime + ".wav";
                 setAudioName("Audio-" + formatDatetime+".wav");
             }
-            if (!file.exists()) {
-                file.mkdirs();
-            }
+
         }
     }
 
     public void setupMediaRecorder() {
+
         SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
         if (sharedPreferences != null) {
             int checkStatus = sharedPreferences.getInt(Constants.K_FORMAT_TYPE, 0);
             mAudioRecorder = new MediaRecorder();
             mAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             if (checkStatus == 0) {
-                mAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                mAudioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                mAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
+                mAudioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
             } else if (checkStatus == 1) {
-                mAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                mAudioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB);
+                mAudioRecorder.setOutputFormat(AudioFormat.CHANNEL_OUT_MONO);
+                mAudioRecorder.setAudioEncoder(AudioFormat.ENCODING_PCM_16BIT);
 
             }
+            mAudioRecorder.setAudioChannels(1);
             int checkQuality = sharedPreferences.getInt(Constants.K_FORMAT_QUALITY, 16);
             if (checkQuality == 16) {
-                mAudioRecorder.setAudioEncodingBitRate(16000);
+                mAudioRecorder.setAudioEncodingBitRate(16);
                 mAudioRecorder.setAudioSamplingRate(16 * Constants.K_SAMPLE_RATE_QUALITY);
 
             } else if (checkQuality == 22) {
-                mAudioRecorder.setAudioEncodingBitRate(24000);
+                mAudioRecorder.setAudioEncodingBitRate(24);
                 mAudioRecorder.setAudioSamplingRate(24 * Constants.K_SAMPLE_RATE_QUALITY);
 
             } else if (checkQuality == 32) {
-                mAudioRecorder.setAudioEncodingBitRate(32000);
+                mAudioRecorder.setAudioEncodingBitRate(32);
                 mAudioRecorder.setAudioSamplingRate(32 * Constants.K_SAMPLE_RATE_QUALITY);
 
             } else if (checkQuality == 44) {
-                mAudioRecorder.setAudioEncodingBitRate(48000);
+                mAudioRecorder.setAudioEncodingBitRate(192000);
                 mAudioRecorder.setAudioSamplingRate(44100);
             }
         }
@@ -232,6 +249,7 @@ public class RecordService extends Service {
         try {
             mAudioRecorder.prepare();
             mAudioRecorder.start();
+
         } catch (IllegalStateException ise) {
             // make something ...
         } catch (IOException ioe) {
@@ -249,9 +267,9 @@ public class RecordService extends Service {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void resumeRecording() {
-            if (mAudioRecorder != null) {
-                mAudioRecorder.resume();
-            }
+        if (mAudioRecorder != null) {
+            mAudioRecorder.resume();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -259,42 +277,38 @@ public class RecordService extends Service {
         try {
             if (mAudioRecorder != null) {
                 mAudioRecorder.stop();
-                File file = new File(outputFile);
-                fileSize = file.length();
+                mAudioRecorder.reset();
                 mAudioRecorder.release();
                 mAudioRecorder = null;
+                recordFile = null;
             }
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Null Media File", Toast.LENGTH_SHORT).show();
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    @Override
-    public void onDestroy() {
-        stopRecording();
+    public void getAudioFileSize(){
         try {
-            unregisterReceiver(notificationReceiver);
+            File file = new File(outputFile);
+            setFileSize(file.length());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        super.onDestroy();
     }
 
-//    private void createNotificationChannel() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//
-//            NotificationChannel serviceChannel = new NotificationChannel(
-//                    CHANNEL_ID,
-//                    "Foreground Service Channel",
-//                    NotificationManager.IMPORTANCE_MIN
-//            );
-//
-//            mNotificationManager = getSystemService(NotificationManager.class);
-//            mNotificationManager.createNotificationChannel(serviceChannel);
-//        }
-//
-//    }
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (!isRunning) {
+            try {
+                unregisterReceiver(notificationReceiver);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
     private void createNotification() {
 
@@ -348,8 +362,8 @@ public class RecordService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Log.e("Test", "onReadyStart: " + action);
-            if (Constants.PAUSE_ACTION.equals(action)) {
+
+            if (Constants.PAUSE_ACTION.equals(action) && isRunning == true) {
 
                 isRunning = false;
                 pauseRecording();
@@ -367,7 +381,8 @@ public class RecordService extends Service {
                 isRunning = false;
                 setRecordingStatus(0);
                 stopRecording();
-//                stopCounter();
+                stopCounter();
+                getAudioFileSize();
                 insertSQL();
                 setExtraCurrentTime(0);
                 try {
@@ -377,7 +392,7 @@ public class RecordService extends Service {
                 }
                 stopSelf();
 
-            } else if (Constants.RESUME_ACTION.equals(action)) {
+            } else if (Constants.RESUME_ACTION.equals(action) && isRunning == false) {
 
                 isRunning = true;
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -389,12 +404,30 @@ public class RecordService extends Service {
                 setPauseStatus(0);
                 continueCouter();
 
-            } else if (Constants.START_ACTION.equals(action)) {
-
+            } else if (action.equals("android.intent.action.ACTION_SHUTDOWN") && isRunning) {
+                Log.e("Test", "onReadyStart: " + action);
                 //Do something here
+                stopRecording();
+                stopCounter();
+                getAudioFileSize();
+                insertSQL();
             }
         }
     }
-
+    public class InterceptCall extends BroadcastReceiver {
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+                if (state.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_RINGING)){
+                    Toast.makeText(context, "is calling", Toast.LENGTH_SHORT).show();
+                }
+                if (state.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_IDLE)){
+                    Toast.makeText(context, "end calling", Toast.LENGTH_SHORT).show();
+                }
+            }catch (Exception e){}
+        }
+    }
 
 }
