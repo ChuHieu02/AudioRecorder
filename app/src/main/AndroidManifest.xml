@@ -67,6 +67,8 @@
                 <action android:name="STOP_ACTION" />
                 <action android:name="START_ACTION" />
                 <action android:name="RESUME_ACTION" />
+                <action android:name="OPEN_ACTION" />
+                <action android:name="STOP_SERVICE_ACTION" />
                 <action android:name="android.intent.action.ACTION_SHUTDOWN" />
                 <action android:name="android.intent.action.PHONE_STATE" />
                 <category android:name="android.intent.category.LAUNCHER" />

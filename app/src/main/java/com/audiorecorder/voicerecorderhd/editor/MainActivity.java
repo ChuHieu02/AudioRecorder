@@ -11,9 +11,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -22,7 +19,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.StatFs;
 import android.provider.Settings;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -187,7 +183,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else if (recordingStatus == 1) {
                     onStopRecording();
                     updateIconRecord();
-                 //   creatSetNameRecordFileDialog();
                     handlerSpamClickRecord();
                 }
                 else if(recordingStatus == 2 && !checkPermissionsResult() ){
@@ -235,8 +230,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void onStopRecording(){
         Intent intentStop = new Intent(Constants.STOP_ACTION);
         sendBroadcast(intentStop);
-        Intent intentService = new Intent(MainActivity.this, RecordService.class);
-        stopService(intentService);
+//        Intent intentService = new Intent(MainActivity.this, RecordService.class);
+//        stopService(intentService);
     }
 
     private void onActionResume(){
@@ -287,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void updateIconStopRecord(){
         recordingStatus =1;
-        ivRecord.setImageResource(R.drawable.ic_play_record_pr);
+        ivRecord.setImageResource(R.drawable.ic_stop_blue_24dp);
         pauseStatus = 0;
         ivPauseResume.setImageResource(R.drawable.ic_home_pause);
         ivPauseResume.setEnabled(true);
@@ -423,6 +418,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvMemoryFree.setText(getString(R.string.memory_free)+getAvailableInternalMemorySize());
     }
 
+    private void creatCompleteDiaglog(){
+        SharedPreferences sharedPreferences= getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+        if(sharedPreferences!= null){
+            outputFile = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Constants.K_DEFAULT_PATH);
+        }
+        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
+        builderDiaglog.setTitle(R.string.complete_record_dialog_title)
+                .setMessage(outputFile)
+                .setPositiveButton(R.string.complete_record_open, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            Intent intentService = new Intent(MainActivity.this, RecordService.class);
+                            stopService(intentService);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        startActivity(new Intent(MainActivity.this,LibraryActivity.class));
+                    }
+                })
+                .setNegativeButton(R.string.complete_record_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        try {
+                            Intent intentService = new Intent(MainActivity.this, RecordService.class);
+                            stopService(intentService);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+        builderDiaglog.create().show();
+    }
+
     private void creatSetNameRecordFileDialog(){
 
         final Dialog setNameDialog = new Dialog(this);
@@ -435,6 +465,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 setNameDialog.dismiss();
+                creatCompleteDiaglog();
             }
         });
         tvConfirm.setOnClickListener(new View.OnClickListener() {
@@ -454,8 +485,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
                     dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
                     setNameDialog.dismiss();
+                    creatCompleteDiaglog();
                 } else if(newName.equals(recordService.getAudioName())){
                     setNameDialog.dismiss();
+                    creatCompleteDiaglog();
                 }
             }
         });
@@ -478,8 +511,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
                         dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
                         setNameDialog.dismiss();
+                        creatCompleteDiaglog();
                     } else if(newName.equals(recordService.getAudioName())){
                         setNameDialog.dismiss();
+                        creatCompleteDiaglog();
                     }
                     return  true;
                 }

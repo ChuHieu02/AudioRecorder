@@ -220,6 +220,7 @@
 
     <!-- Notification -->
     <string name="notifi_title">Audio Record</string>
+    <string name="complete_notifi_title">Complete recording, open file?</string>
 
     <!-- Set Name Record File Dialog -->
     <string name="dialog_set_name_title">New Name</string>
@@ -235,6 +236,12 @@
     <string name="auto_save_dialog_title">Your phone is shut down and stop record, show file ?</string>
     <string name="auto_save_dialog_cancel">Cancel</string>
     <string name="auto_save_dialog_open">Open</string>
+
+
+    <!-- Complete Record Dialog -->
+    <string name="complete_record_dialog_title">Your file save at :</string>
+    <string name="complete_record_cancel">Cancel</string>
+    <string name="complete_record_open">Open</string>
 
 
     <!-- Setting Activity Dialog -->

@@ -4,9 +4,7 @@ import android.content.Context;
 
 public interface BaseAudioRecord {
 
-    public void creatFile(Context context);
-
-    public void setupMediaRecorder(Context context);
+    public void setupMediaRecorder(String outputFile , int bitRate, int outPutFormat);
 
     public void startRecord();
 
@@ -14,6 +12,6 @@ public interface BaseAudioRecord {
 
     public void resumeRecord();
 
-    public void stopRecord(Context context);
+    public void stopRecord();
 
 }

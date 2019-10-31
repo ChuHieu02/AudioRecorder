@@ -100,7 +100,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         } else {
             holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_music_note_black_24dp);
             holder.iv_setting.setVisibility(View.VISIBLE);
-            holder.itemView.setForeground(new ColorDrawable(ContextCompat.getColor(context, android.R.color.transparent)));
+            holder.itemView.setBackground(new ColorDrawable(ContextCompat.getColor(context, android.R.color.transparent)));
 
         }
 
