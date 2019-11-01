@@ -14,16 +14,16 @@ import java.util.List;
 
 public class DBQuerys {
 
-    public static SQLiteDatabase db;
-    public DBManager databasehelper;
+    private static SQLiteDatabase db;
+    private DBManager databasehelper;
 
     public static final String TABLE_NAME = "AudioRecoder";
-    public static final String ID = "id";
-    public static final String NAME = "name";
-    public static final String PATH = "path";
-    public static final String SIZE = "size";
-    public static final String DATE = "date";
-    public static final String DURATION = "duration";
+    private static final String ID = "id";
+    private static final String NAME = "name";
+    private static final String PATH = "path";
+    private static final String SIZE = "size";
+    private static final String DATE = "date";
+    private static final String DURATION = "duration";
 
     public static final String sqlQuerys = "CREATE TABLE " + TABLE_NAME + " (" +
             ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -53,7 +53,7 @@ public class DBQuerys {
 
     }
 
-    public ArrayList<Audio> getallNguoiDung() {
+    public ArrayList<Audio> getList() {
         ArrayList<Audio> audioList = new ArrayList<>();
         String selectQuery = " SELECT  * FROM " + DBQuerys.TABLE_NAME + " ORDER BY id DESC";
         Cursor cursor = db.rawQuery(selectQuery, null);

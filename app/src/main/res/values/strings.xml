@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AudioRecoder</string>
+    <string name="app_name">Recorder</string>
     <!--    home-->
     <string name="home_recoder">Voice recoder</string>
     <string name="home_duration">00:00</string>
@@ -8,7 +8,6 @@
     <string name="label_library">Library</string>
     <string name="home_clickRecoder">Tap to start recording</string>
     <string name="set_name_dialog">File name null or exits please input again</string>
-    <string name="setting_activity_dialog">You need go to setting and perrmission for recording</string>
     <string name="tv_recording_status_on_denied_permission">Please go to setting and permisson</string>
 
 
@@ -213,14 +212,15 @@
     <string name="menu_share">Share</string>
     <string name="menu_search">Search</string>
     <string name="search_hint">Search</string>
-    <string name="label_quality">Choose quality</string>
-    <string name="label_file_type">Choose file type</string>
+    <string name="label_quality">Choose sample rate</string>
+    <string name="label_file_type">Choose encoding</string>
 
 
     <!--    Adapter Library-->
 
     <!-- Notification -->
     <string name="notifi_title">Audio Record</string>
+    <string name="complete_notifi_title">Complete recording, open file?</string>
 
     <!-- Set Name Record File Dialog -->
     <string name="dialog_set_name_title">New Name</string>
@@ -230,6 +230,25 @@
     <string name="cannot_recodring">Can\'t recording</string>
     <string name="mic_record_is_uses">The record mic is being used by another application !</string>
     <string name="stop_record_is_calling">Pause recording on call</string>
+
+
+    <!-- Auto save status Dialog -->
+    <string name="auto_save_dialog_title">Your phone is shut down and stop record, show file ?</string>
+    <string name="auto_save_dialog_cancel">Cancel</string>
+    <string name="auto_save_dialog_open">Open</string>
+
+
+    <!-- Complete Record Dialog -->
+    <string name="complete_record_dialog_title">Your file save at :</string>
+    <string name="complete_record_cancel">Cancel</string>
+    <string name="complete_record_open">Open</string>
+
+
+    <!-- Setting Activity Dialog -->
+    <string name="setting_activity_dialog_title">You need go to setting and perrmission for recording</string>
+    <string name="setting_activity_dialog_cancel">Cancel</string>
+    <string name="setting_activity_dialog_open">Open</string>
+    <string name="is_recording">is recording..</string>
 
 
 </resources>

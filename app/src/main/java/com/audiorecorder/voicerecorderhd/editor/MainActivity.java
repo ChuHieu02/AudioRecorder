@@ -11,9 +11,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -22,7 +19,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.StatFs;
 import android.provider.Settings;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -45,9 +41,11 @@ import com.audiorecorder.voicerecorderhd.editor.data.DBQuerys;
 import com.audiorecorder.voicerecorderhd.editor.service.RecordService;
 import com.audiorecorder.voicerecorderhd.editor.utils.CommonUtils;
 import com.audiorecorder.voicerecorderhd.editor.utils.Constants;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.File;
 
+import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
@@ -71,16 +69,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int minutes;
     private int hours;
     private TextView tvMemoryFree;
+    private FirebaseAnalytics mFirebaseAnalytics;
     private static String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // Obtain the FirebaseAnalytics instance.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        mFirebaseAnalytics.logEvent("FirebaseAnalytics",null);
+
         mappingBottomNavigation();
         new getMemorySize().execute();
         recordService = new RecordService();
         updateViewStage();
+        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            boolean checkAutoSaveStatus = sharedPreferences.getBoolean(Constants.K_AUTO_SAVE_STATUS, false);
+            if(checkAutoSaveStatus == true){
+                creatAutoSaveStatusDialog();
+                final SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(Constants.K_AUTO_SAVE_STATUS,false);
+                editor.apply();
+            }
+        }
 
     }
 
@@ -153,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
+
                 if (recordingStatus == 0 && checkPermissionsResult()) {
                     if (CommonUtils.validateMicAvailability()) {
                         onStartRecording();
@@ -176,7 +190,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else if (recordingStatus == 1) {
                     onStopRecording();
                     updateIconRecord();
-                 //   creatSetNameRecordFileDialog();
                     handlerSpamClickRecord();
                 }
                 else if(recordingStatus == 2 && !checkPermissionsResult() ){
@@ -224,8 +237,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void onStopRecording(){
         Intent intentStop = new Intent(Constants.STOP_ACTION);
         sendBroadcast(intentStop);
-        Intent intentService = new Intent(MainActivity.this, RecordService.class);
-        stopService(intentService);
+//        Intent intentService = new Intent(MainActivity.this, RecordService.class);
+//        stopService(intentService);
     }
 
     private void onActionResume(){
@@ -276,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void updateIconStopRecord(){
         recordingStatus =1;
-        ivRecord.setImageResource(R.drawable.ic_play_record_pr);
+        ivRecord.setImageResource(R.drawable.ic_stop_blue_24dp);
         pauseStatus = 0;
         ivPauseResume.setImageResource(R.drawable.ic_home_pause);
         ivPauseResume.setEnabled(true);
@@ -292,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             filter.addAction(Constants.PAUSE_ACTION);
             filter.addAction(Constants.STOP_ACTION);
             filter.addAction(Constants.START_ACTION);
-            filter.addAction(Constants.PHONE_ACTION);
+            filter.addAction(Constants.COMMING_PHONE_CALL_ACTION);
             timeReceiveFilter.addAction(Constants.SEND_TIME);
             registerReceiver(notificationReceiver, filter);
             registerReceiver(timeCountReceiver,timeReceiveFilter);
@@ -337,8 +350,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
                 updateIconStopRecord();
-            } else if (Constants.PHONE_ACTION.equals(action)){
-                updateIconPause();
+            } else if(Constants.COMMING_PHONE_CALL_ACTION.equals(action) ){
+
+                SharedPreferences sharedPreferences = getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+                if (sharedPreferences != null) {
+                    boolean checkPhoneAction = sharedPreferences.getBoolean(Constants.K_STOP_IS_CALLING, false);
+                    if(checkPhoneAction){
+                        try {
+                            unregisterReceiver(timeCountReceiver);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        updateIconResume();
+                    }
+                }
+
             }
         }
     }
@@ -384,9 +410,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.iv_bottom_library:
                 startActivity(new Intent(this, LibraryActivity.class));
+                mFirebaseAnalytics.logEvent("cl_libray", null);
                 break;
             case R.id.iv_bottom_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
+                mFirebaseAnalytics.logEvent("cl_setting", null);
                 break;
         }
     }
@@ -397,6 +425,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onRestart();
         updateViewStage();
         tvMemoryFree.setText(getString(R.string.memory_free)+getAvailableInternalMemorySize());
+    }
+
+    private void creatCompleteDiaglog(){
+        SharedPreferences sharedPreferences= getSharedPreferences(Constants.K_AUDIO_SETTING, Context.MODE_PRIVATE);
+        if(sharedPreferences!= null){
+            outputFile = sharedPreferences.getString(Constants.K_DIRECTION_CHOOSER_PATH,Constants.K_DEFAULT_PATH);
+        }
+        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
+        builderDiaglog.setTitle(R.string.complete_record_dialog_title)
+                .setMessage(outputFile)
+                .setPositiveButton(R.string.complete_record_open, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            Intent intentService = new Intent(MainActivity.this, RecordService.class);
+                            stopService(intentService);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        startActivity(new Intent(MainActivity.this,LibraryActivity.class));
+                    }
+                })
+                .setNegativeButton(R.string.complete_record_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        try {
+                            Intent intentService = new Intent(MainActivity.this, RecordService.class);
+                            stopService(intentService);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+        builderDiaglog.create().show();
     }
 
     private void creatSetNameRecordFileDialog(){
@@ -411,6 +474,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 setNameDialog.dismiss();
+                creatCompleteDiaglog();
             }
         });
         tvConfirm.setOnClickListener(new View.OnClickListener() {
@@ -430,8 +494,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
                     dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
                     setNameDialog.dismiss();
+                    creatCompleteDiaglog();
                 } else if(newName.equals(recordService.getAudioName())){
                     setNameDialog.dismiss();
+                    creatCompleteDiaglog();
                 }
             }
         });
@@ -454,8 +520,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Log.e("CheckDb", "onReadyStart: " + checkFile+"  "+ newName);
                         dbQuerys.updateNameRecordFile(newName,recordService.getAudioName());
                         setNameDialog.dismiss();
+                        creatCompleteDiaglog();
                     } else if(newName.equals(recordService.getAudioName())){
                         setNameDialog.dismiss();
+                        creatCompleteDiaglog();
                     }
                     return  true;
                 }
@@ -468,10 +536,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void creatSettingActivityDialog(){
-        final AlertDialog.Builder builderDiaglog=  new AlertDialog.Builder(MainActivity.this);
-        builderDiaglog.setTitle(R.string.setting_activity_dialog)
+        final AlertDialog.Builder builderDiaglog = new AlertDialog.Builder(MainActivity.this);
+        builderDiaglog.setTitle(R.string.setting_activity_dialog_title)
                 .setMessage(outputFile)
-                .setPositiveButton("Open", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.setting_activity_dialog_cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -480,7 +548,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         startActivity(intent);
                     }
                 })
-                .setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.auto_save_dialog_open, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         recordingStatus = 2;
@@ -490,6 +558,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         builderDiaglog.create().show();
     }
 
+    public void creatAutoSaveStatusDialog(){
+        final AlertDialog.Builder builderDiaglog = new AlertDialog.Builder(MainActivity.this);
+        builderDiaglog.setMessage(R.string.auto_save_dialog_title)
+                .setPositiveButton(R.string.auto_save_dialog_open, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(MainActivity.this,LibraryActivity.class));
+                    }
+                })
+                .setNegativeButton(R.string.auto_save_dialog_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }});
+        builderDiaglog.create().show();
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -498,13 +582,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (grantResults.length> 0) {
                     boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                     boolean permissionToStore = grantResults[1] ==  PackageManager.PERMISSION_GRANTED;
-                    if (permissionToRecord && permissionToStore) {
+                    boolean permissionToPhone = grantResults[2] ==  PackageManager.PERMISSION_GRANTED;
+                    if (permissionToRecord && permissionToStore && permissionToPhone) {
                         recordingStatus = 0;
                         onRecordAudio();
                         Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(getApplicationContext(),"Permission Denied :"+recordingStatus,Toast.LENGTH_LONG).show();
-                        tvRecordingStatus.setText(R.string.setting_activity_dialog);
+                        tvRecordingStatus.setText(R.string.setting_activity_dialog_title);
                         recordingStatus = 2;
                         onRecordAudio();
                     }
@@ -516,12 +601,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean checkPermissionsResult() {
         int result = ContextCompat.checkSelfPermission(getApplicationContext(),WRITE_EXTERNAL_STORAGE);
         int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
-        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
+        int result2 = ContextCompat.checkSelfPermission(getApplicationContext(), READ_PHONE_STATE);
+        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED && result2 == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermissions() {
         ActivityCompat.requestPermissions(MainActivity.this
-                , new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
+                , new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE, READ_PHONE_STATE}, REQUEST_AUDIO_PERMISSION_CODE);
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -586,7 +672,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             requestPermissions();
         }
     }
-
-
 
 }

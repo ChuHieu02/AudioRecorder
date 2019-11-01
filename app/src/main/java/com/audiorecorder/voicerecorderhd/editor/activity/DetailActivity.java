@@ -34,7 +34,7 @@ import me.relex.circleindicator.CircleIndicator;
 
 
 public class DetailActivity extends AppCompatActivity implements View.OnClickListener, FragmentListAudio.FragmentDetailListListener {
-    private ImageView ivPlay, ivNext1, ivNext2, ivPrev1, ivPrev2;
+    private ImageView ivPlay, ivNext1, ivNext2, ivPrev1, ivPrev2,ivRepeatDetail;
     private MediaPlayer mediaPlayer;
     private int position;
     private ArrayList<Audio> listAudio;
@@ -45,8 +45,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     private TextView tvStartDuration, tvStopDuration;
     private FragmentInforDetail fragmentDetailInformation;
     private FragmentListAudio fragmentDetailListAudio;
-    private ImageView ivRepeatDetail;
-    SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
 
     @Override
@@ -58,7 +57,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         editor = sharedPreferences.edit();
         getBundle();
         addFragment();
-        mappingTv();
+        map();
         pLayAudio();
         mediaManager();
 
@@ -72,7 +71,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
     private void mediaManager() {
         if (mediaPlayer == null) {
-            showToast("Play audio fail !");
+            showToast(getString(R.string.play_error));
         } else {
             mediaComplete();
 
@@ -141,7 +140,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         }, 10);
     }
 
-    private void mappingTv() {
+    private void map() {
         ivRepeatDetail = findViewById(R.id.iv_repeat_detail);
         seekBar = findViewById(R.id.seekbar);
         ivPlay = findViewById(R.id.iv_play);
@@ -228,44 +227,43 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 pLayAudio();
                 mediaComplete();
                 break;
-
             case R.id.iv_next1:
                 try {
                     this.mediaPlayer.seekTo(mediaPlayer.getCurrentPosition() + 5000);
-                } catch (Exception e) {
-                }
+                } catch (Exception e) {}
                 break;
             case R.id.iv_prev1:
                 try {
                     this.mediaPlayer.seekTo(mediaPlayer.getCurrentPosition() - 5000);
-                } catch (Exception e) {
-                }
+                } catch (Exception e) {}
                 break;
             case R.id.iv_repeat_detail:
-                if (sharedPreferences != null) {
-                    if (!sharedPreferences.getBoolean(Constants.K_BOLEAN_REPEAT, false)) {
-                        ivRepeatDetail.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_repeat_pr));
-                        editor.putBoolean(Constants.K_BOLEAN_REPEAT, true);
-                        editor.apply();
-
-
-                    } else {
-                        ivRepeatDetail.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_repeat));
-                        editor.putBoolean(Constants.K_BOLEAN_REPEAT, false);
-                        editor.apply();
-
-                    }
-
-
-                    Log.e("zxcv", sharedPreferences.getBoolean(Constants.K_BOLEAN_REPEAT, false) + "");
-                }
-
+                reapeatAudio();
                 break;
         }
     }
 
-    private void mediaComplete() {
+    private void reapeatAudio() {
+       try {
+           if (sharedPreferences != null) {
+               if (!sharedPreferences.getBoolean(Constants.K_BOLEAN_REPEAT, false)) {
+                   ivRepeatDetail.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_repeat_pr));
+                   editor.putBoolean(Constants.K_BOLEAN_REPEAT, true);
+                   editor.apply();
 
+               } else {
+                   ivRepeatDetail.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_repeat));
+                   editor.putBoolean(Constants.K_BOLEAN_REPEAT, false);
+                   editor.apply();
+
+               }
+           }
+       }catch (Exception e){
+
+       }
+    }
+
+    private void mediaComplete() {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {

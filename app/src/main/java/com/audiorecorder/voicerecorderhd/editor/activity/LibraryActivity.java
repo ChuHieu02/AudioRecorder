@@ -40,6 +40,7 @@ import com.audiorecorder.voicerecorderhd.editor.interfaces.OnClickDeleteAudio;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.OnclickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,21 +56,19 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
     private ArrayList<Audio> audioList = new ArrayList<>();
     private TextView tvEmpty;
     private LinearLayout viewProgres;
-    private ImageView ivBottomLibrary;
-    private ImageView ivBottomRecoder;
-    private ImageView ivBottomSettings;
+    private ImageView ivBottomSettings,ivBottomRecoder,ivBottomLibrary;
     private ActionMode actionMode;
     private boolean isMultiSelect = false;
     private List<String> selectedIds = new ArrayList<>();
-    private AlertDialog dialog;
     private DBQuerys dbQuerys;
     private SearchView searchView;
-
+    private FirebaseAnalytics firebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library);
+
         setTitle(getResources().getString(R.string.label_library));
         mapping();
         new queryFile().execute();
@@ -196,7 +195,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         @Override
         protected ArrayList<Audio> doInBackground(String... strings) {
             dbQuerys = new DBQuerys(LibraryActivity.this);
-            audioList = dbQuerys.getallNguoiDung();
+            audioList = dbQuerys.getList();
             return audioList;
         }
 
@@ -248,7 +247,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         adapter.setOnClickDeleteAudio(new OnClickDeleteAudio() {
             @Override
             public void onclickDelete(String s, int t) {
-                singleDeleteAudio(s, t);
+                singleDeleteAudio(s);
             }
         });
     }
@@ -263,23 +262,21 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    private void singleDeleteAudio(final String path, final int position) {
+    private void singleDeleteAudio(final String path) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.question_delete)
                 .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         boolean checkDel = new File(path).delete();
-                        Log.e("delete" , path);
                         if (checkDel) {
                             audioList.clear();
-                            setDataAdapter(dbQuerys.getallNguoiDung());
-                            checkList(dbQuerys.getallNguoiDung());
+                            setDataAdapter(dbQuerys.getList());
+                            checkList(dbQuerys.getList());
 
-                            showToast("Delete success");
+                            showToast(getString(R.string.success_delete));
                         } else {
-                            showToast("Delete fail");
-
+                            showToast(getString(R.string.delete_failed));
                         }
                     }
                 }).setNegativeButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
@@ -289,7 +286,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
         builder.create();
-        dialog = builder.show();
+        builder.show();
 
     }
 
@@ -308,8 +305,9 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         rvLibrary.setHasFixedSize(true);
     }
 
-
     private void multipDeleteAudio() {
+        FirebaseAnalytics.getInstance(this).logEvent("cl_multipDelete_item_audio",null);
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.question_delete)
                 .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
@@ -321,8 +319,8 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
                         }
                         actionMode.finish();
                         audioList.clear();
-                        adapter.updateList(dbQuerys.getallNguoiDung());
-                        checkList(dbQuerys.getallNguoiDung());
+                        adapter.updateList(dbQuerys.getList());
+                        checkList(dbQuerys.getList());
 
                         showToast(getResources().getString(R.string.success_delete));
                     }
@@ -332,7 +330,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
         builder.create();
-        dialog = builder.show();
+        builder.show();
     }
 
     private void showToast(String s) {
@@ -340,6 +338,7 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void shareAudio() {
+        FirebaseAnalytics.getInstance(this).logEvent("cl_MultipShare_item_audio",null);
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND_MULTIPLE);
         intent.putExtra(Intent.EXTRA_SUBJECT, "Here are some files.");
@@ -363,6 +362,6 @@ public class LibraryActivity extends AppCompatActivity implements View.OnClickLi
         if (audioList!=null){
             audioList.clear();
         }
-            adapter.updateList(dbQuerys.getallNguoiDung());
+            adapter.updateList(dbQuerys.getList());
     }
 }

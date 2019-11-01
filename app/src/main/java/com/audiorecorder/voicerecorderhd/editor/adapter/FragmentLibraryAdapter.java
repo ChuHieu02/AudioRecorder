@@ -11,12 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
-import com.audiorecorder.voicerecorderhd.editor.activity.LibraryActivity;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 
 import java.util.List;
 
-public class FragmenListAdapter extends RecyclerView.Adapter<FragmenListAdapter.ViewHolder>  {
+public class FragmentLibraryAdapter extends RecyclerView.Adapter<FragmentLibraryAdapter.ViewHolder>  {
     private List<Audio> audioList;
     private Context context;
     private onClickItemFragmentDetaiAdapter onClickItemFragmentDetaiAdapter;
@@ -27,11 +26,11 @@ public class FragmenListAdapter extends RecyclerView.Adapter<FragmenListAdapter.
         void onClick(int i);
     }
 
-    public void setOnClickItemFragmentDetaiAdapter(FragmenListAdapter.onClickItemFragmentDetaiAdapter onClickItemFragmentDetaiAdapter) {
+    public void setOnClickItemFragmentDetaiAdapter(FragmentLibraryAdapter.onClickItemFragmentDetaiAdapter onClickItemFragmentDetaiAdapter) {
         this.onClickItemFragmentDetaiAdapter = onClickItemFragmentDetaiAdapter;
     }
 
-    public FragmenListAdapter(Context context, List<Audio> audioList) {
+    public FragmentLibraryAdapter(Context context, List<Audio> audioList) {
         this.audioList = audioList;
         this.context = context;
     }
@@ -54,37 +53,37 @@ public class FragmenListAdapter extends RecyclerView.Adapter<FragmenListAdapter.
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView tv_name_detail_item_fragment;
-        private ImageView iv_check_item_detail_list;
+        private TextView tvNameDetailItemFragment;
+        private ImageView ivCheckItemDetailList;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tv_name_detail_item_fragment = itemView.findViewById(R.id.tv_name_detail_item_fragment);
-            iv_check_item_detail_list = itemView.findViewById(R.id.iv_check_item_detail_list);
+            tvNameDetailItemFragment = itemView.findViewById(R.id.tv_name_detail_item_fragment);
+            ivCheckItemDetailList = itemView.findViewById(R.id.iv_check_item_detail_list);
         }
 
         void bind(final Audio audio, final int position) {
             if (audio.getName() != null) {
-                tv_name_detail_item_fragment.setText(audio.getName());
+                tvNameDetailItemFragment.setText(audio.getName());
             }
             if (checkedPosition == -1) {
-                tv_name_detail_item_fragment.setSelected(false);
-                iv_check_item_detail_list.setVisibility(View.GONE);
+                tvNameDetailItemFragment.setSelected(false);
+                ivCheckItemDetailList.setVisibility(View.GONE);
             } else {
                 if (checkedPosition == getAdapterPosition()) {
-                    tv_name_detail_item_fragment.setSelected(true);
-                    iv_check_item_detail_list.setVisibility(View.VISIBLE);
+                    tvNameDetailItemFragment.setSelected(true);
+                    ivCheckItemDetailList.setVisibility(View.VISIBLE);
                 } else {
-                    tv_name_detail_item_fragment.setSelected(false);
-                    iv_check_item_detail_list.setVisibility(View.GONE);
+                    tvNameDetailItemFragment.setSelected(false);
+                    ivCheckItemDetailList.setVisibility(View.GONE);
                 }
             }
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     onClickItemFragmentDetaiAdapter.onClick(position);
-                    iv_check_item_detail_list.setVisibility(View.VISIBLE);
-                    tv_name_detail_item_fragment.setSelected(true);
+                    ivCheckItemDetailList.setVisibility(View.VISIBLE);
+                    tvNameDetailItemFragment.setSelected(true);
                     if (checkedPosition != getAdapterPosition()) {
                         notifyItemChanged(checkedPosition);
                         checkedPosition = getAdapterPosition();

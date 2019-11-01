@@ -1,15 +1,10 @@
 package com.audiorecorder.voicerecorderhd.editor.fragment;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.audiorecorder.voicerecorderhd.editor.R;
-import com.audiorecorder.voicerecorderhd.editor.adapter.FragmenListAdapter;
+import com.audiorecorder.voicerecorderhd.editor.adapter.FragmentLibraryAdapter;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
 import com.audiorecorder.voicerecorderhd.editor.utils.MyDividerItemDecoration;
 
@@ -27,7 +22,7 @@ import java.util.ArrayList;
 public class FragmentListAudio extends Fragment {
     private FragmentDetailListListener listener;
     private RecyclerView rvFragmentListLibrary;
-    private FragmenListAdapter detaiListAdapter;
+    private FragmentLibraryAdapter detaiListAdapter;
     private LinearLayoutManager layoutManager;
     private ArrayList audioList = new ArrayList<>();
     private int i;
@@ -49,7 +44,7 @@ public class FragmentListAudio extends Fragment {
         mapping();
 
 
-        detaiListAdapter.setOnClickItemFragmentDetaiAdapter(new FragmenListAdapter.onClickItemFragmentDetaiAdapter() {
+        detaiListAdapter.setOnClickItemFragmentDetaiAdapter(new FragmentLibraryAdapter.onClickItemFragmentDetaiAdapter() {
             @Override
             public void onClick(int i) {
                 listener.sendPosition(i);
@@ -63,7 +58,7 @@ public class FragmentListAudio extends Fragment {
     private void mapping() {
         layoutManager = new LinearLayoutManager(getContext());
         rvFragmentListLibrary.setLayoutManager(layoutManager);
-        detaiListAdapter = new FragmenListAdapter(getContext(), audioList);
+        detaiListAdapter = new FragmentLibraryAdapter(getContext(), audioList);
         rvFragmentListLibrary.addItemDecoration(new MyDividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL, 8));
         rvFragmentListLibrary.setAdapter(detaiListAdapter);
     }

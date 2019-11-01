@@ -42,6 +42,7 @@ import com.audiorecorder.voicerecorderhd.editor.interfaces.LongClickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.OnClickDeleteAudio;
 import com.audiorecorder.voicerecorderhd.editor.interfaces.OnclickItemLibrary;
 import com.audiorecorder.voicerecorderhd.editor.model.Audio;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -91,27 +92,26 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Audio audio = audioListFillter.get(position);
 
-
         if (selectedIds.contains(audio.getPath())) {
             holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_check_circle_black_24dp);
-            holder.itemView.setBackground(new ColorDrawable(ContextCompat.getColor(context, R.color.type_bkgnd_unsupported)));
-            holder.iv_setting.setVisibility(View.GONE);
+            holder.itemView.setForeground(new ColorDrawable(ContextCompat.getColor(context, R.color.type_bkgnd_unsupported)));
+            holder.ivSetting.setVisibility(View.GONE);
 
         } else {
             holder.imgItemMusicLibrary.setImageResource(R.drawable.ic_music_note_black_24dp);
-            holder.iv_setting.setVisibility(View.VISIBLE);
-            holder.itemView.setBackground(new ColorDrawable(ContextCompat.getColor(context, android.R.color.transparent)));
+            holder.ivSetting.setVisibility(View.VISIBLE);
+            holder.itemView.setForeground(new ColorDrawable(ContextCompat.getColor(context, android.R.color.transparent)));
 
         }
 
         if (audio.getName() != null) {
-            holder.tv_name.setText(audio.getName());
+            holder.tvName.setText(audio.getName());
         }
         if (audio.getDate() != null) {
-            holder.tv_time.setText(audio.getDate());
+            holder.tvTime.setText(audio.getDate());
         }
         if (audio.getSize() != null && audio.getDuration() != null) {
-            holder.tv_size.setText(audio.getDuration() + " | " + audio.getSize());
+            holder.tvSize.setText(audio.getDuration() + " | " + audio.getSize());
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -125,7 +125,6 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
             @Override
             public boolean onLongClick(View v) {
                 longClickItemLibrary.longClick(position);
-
                 return false;
             }
 
@@ -133,7 +132,7 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         });
 
 
-        holder.iv_setting.setOnClickListener(new View.OnClickListener() {
+        holder.ivSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -161,18 +160,23 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         switch (menuItem.getItemId()) {
                             case R.id.pp_delete_item_library:
-                                onClickDeleteAudio.onclickDelete(audio.getPath(),position);
+                                FirebaseAnalytics.getInstance(context).logEvent("cl_delete_item_audio",null);
+                                onClickDeleteAudio.onclickDelete(audio.getPath(), position);
                                 break;
                             case R.id.pp_share_item_library:
+                                FirebaseAnalytics.getInstance(context).logEvent("cl_share_item_audio",null);
                                 shareAudio(audio);
                                 break;
                             case R.id.pp_edit_item_library:
+                                FirebaseAnalytics.getInstance(context).logEvent("cl_rename_item_audio",null);
                                 renameAudio(audio, position);
                                 break;
                             case R.id.pp_editContent_item_library:
+                                FirebaseAnalytics.getInstance(context).logEvent("cl_cutAudio_item_audio",null);
                                 editContentAudio(audio);
                                 break;
                             case R.id.pp_setRingTone_item_library:
+                                FirebaseAnalytics.getInstance(context).logEvent("cl_setRingtone_item_audio",null);
                                 setRingtone(audio);
                                 break;
                         }
@@ -330,20 +334,20 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView tv_name;
-        private TextView tv_time;
-        private TextView tv_size;
-        private FrameLayout iv_setting;
+        private TextView tvName;
+        private TextView tvTime;
+        private TextView tvSize;
+        private FrameLayout ivSetting;
         private ImageView imgItemMusicLibrary;
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tv_name = itemView.findViewById(R.id.tv_name);
-            tv_size = itemView.findViewById(R.id.tv_size);
-            tv_time = itemView.findViewById(R.id.tv_time);
-            iv_setting = itemView.findViewById(R.id.iv_setting);
-            imgItemMusicLibrary = (ImageView) itemView.findViewById(R.id.img_item_music_library);
+            tvName = itemView.findViewById(R.id.tv_name);
+            tvSize = itemView.findViewById(R.id.tv_size);
+            tvTime = itemView.findViewById(R.id.tv_time);
+            ivSetting = itemView.findViewById(R.id.iv_setting);
+            imgItemMusicLibrary = itemView.findViewById(R.id.img_item_music_library);
 
         }
     }
@@ -357,10 +361,6 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.ViewHold
         notifyDataSetChanged();
     }
 
-    public void clearList(){
-        audioList.clear();
-        notifyDataSetChanged();
-    }
 
     private void checkRename(final EditText ed_name_item_library, final Audio audio, final int position) {
         isMp3 = audio.getName().endsWith(".mp3");
